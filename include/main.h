@@ -80,4 +80,5 @@ char *itoa(int value, char *str, int base); /* only base=10 and value>=0 is supp
 #define MEMS_INT2_Pin GPIO_PIN_1
 #define MEMS_INT2_GPIO_Port GPIOE
 
+
 #endif /* HARDWARE_H_ */
