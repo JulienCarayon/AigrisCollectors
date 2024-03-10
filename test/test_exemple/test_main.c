@@ -26,18 +26,13 @@ void tearDown(void) {
 void test_1equal1(void) {
     TEST_ASSERT_EQUAL(1, 1);
 }
-void test_1equal2(void) {
-    TEST_ASSERT_EQUAL(1, 2);
-}
+
 
 int main() {
 
     
     UNITY_BEGIN();
     RUN_TEST(test_1equal1);
-    RUN_TEST(test_1equal2);
- 
-
     UNITY_END(); // stop unit testing
 
 }
