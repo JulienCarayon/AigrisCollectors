@@ -21,6 +21,9 @@
 *.a
 *.la
 *.lo
+.pio
+.vscode
+.DS_Store
 
 # Shared objects (inc. Windows DLLs)
 *.dll
