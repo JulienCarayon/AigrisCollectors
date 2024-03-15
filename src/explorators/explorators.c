@@ -1,5 +1,11 @@
 #include "explorators.h"
 
+const osThreadAttr_t exploratorsTask_attributes = {
+    .name = "exploratorsTask",
+    .priority = (osPriority_t)osPriorityNormal,
+    .stack_size = 2048,
+};
+
 void StartExploratorTask_1(void *argument)
 {
     putsMutex("Explorer Task 1 started\n");

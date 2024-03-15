@@ -1,5 +1,11 @@
 #include "attackers.h"
 
+const osThreadAttr_t attackersTask_attributes = {
+        .name = "attackersTask",
+        .priority = (osPriority_t)osPriorityNormal,
+        .stack_size = 2048,
+};
+
 void StartAttackerTask_1(void *argument)
 {   
     putsMutex("Attacker Task 1 started\n");

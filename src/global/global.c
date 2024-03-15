@@ -1,5 +1,12 @@
 #include "global.h"
 
+const osMutexAttr_t putsMutex_attributes = {
+    .name = "putsMutex",
+    osMutexPrioInherit,  // attr_bits
+    NULL,                // memory for control block   
+    0U                   // size for control block
+};
+
 void putsMutex(char *text){
     if( putsMutex_M != NULL ){
         osStatus_t aquire_status = osMutexAcquire( putsMutex_M, osWaitForever);

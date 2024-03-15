@@ -1,5 +1,11 @@
 #include "collectors.h"
 
+const osThreadAttr_t collectorsTask_attributes = {
+    .name = "collectorsTask",
+    .priority = (osPriority_t)osPriorityNormal,
+    .stack_size = 2048,
+};
+
 void StartCollectorTask_1(void *argument)
 {
     putsMutex("Explorer Task 1 started\n");
