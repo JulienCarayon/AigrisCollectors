@@ -2,6 +2,9 @@
 #define HARDWARE_H_
 
 #include "stm32f4xx_hal.h"
+#include <stdio.h>
+#include <string.h>
+
 void hardware_init(void);
 extern UART_HandleTypeDef huart2;
 
@@ -11,7 +14,8 @@ int rand(void);
 int putchar(int c);
 int puts(char *text);
 char *gets(char *str);
-char *itoa(int value, char *str, int base); /* only base=10 and value>=0 is supported */
+char *itoa(int value, char *str,
+           int base); /* only base=10 and value>=0 is supported */
 
 #define CS_I2C_SPI_Pin GPIO_PIN_3
 #define CS_I2C_SPI_GPIO_Port GPIOE
@@ -79,6 +83,5 @@ char *itoa(int value, char *str, int base); /* only base=10 and value>=0 is supp
 #define Audio_SDA_GPIO_Port GPIOB
 #define MEMS_INT2_Pin GPIO_PIN_1
 #define MEMS_INT2_GPIO_Port GPIOE
-
 
 #endif /* HARDWARE_H_ */
