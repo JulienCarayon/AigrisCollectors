@@ -70,5 +70,4 @@
 #define MEMS_INT2_Pin GPIO_PIN_1
 #define MEMS_INT2_GPIO_Port GPIOE
 
-
 #endif /* HARDWARE_H_ */
