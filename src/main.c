@@ -11,6 +11,9 @@
 #include "attackers/attackers.h"
 #include "explorators/explorators.h"
 #include "collectors/collectors.h"
+#include <stdio.h>
+#include <string.h>
+
 
 osThreadId_t mainTaskHandle;
 void StartMainTask(void *argument);
@@ -39,7 +42,7 @@ int main(void)
     collectorTaskHandles_1 = osThreadNew(StartCollectorTask_1, NULL, &collectorsTask_attributes);
     collectorTaskHandles_2 = osThreadNew(StartCollectorTask_2, NULL, &collectorsTask_attributes);
     
-    putsMutex_M = osMutexNew(&putsMutex_attributes);
+    uartMutex_M = osMutexNew(&uartMutex_attributes);
     puts("BOOTED");
 
     osKernelStart();
@@ -54,7 +57,16 @@ void StartMainTask(void *argument)
     putsMutex("Main Thread Task started\n");
     while (1)
     {   
-        putsMutex("Main Thread Task :");
-        osDelay(100);
+        putsMutex("Main Thread Task :\n");
+        char buffer[256]; // Utiliser un tableau pour stocker les données lues
+        if (uart_data_available()){
+            getsMutex(buffer);
+            putsMutex(buffer);
+            if(strstr(buffer,"START")!=NULL){
+                putsMutex("GAME STARTED");
+            }
+            
+        }
+        osDelay(1);
     }
 }

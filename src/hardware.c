@@ -34,7 +34,7 @@ int rand(void)
     return (int)(prng & 0x7FFFFFFF);
 }
 
-int puts(char *text) {
+int puts(const char *text) {
     // Calculate the length of the string
     uint16_t len = 0;
     const char *ptr = text;
@@ -70,6 +70,27 @@ char *gets(char *str)
     *(str - 1) = 0;
     return original_str;
 }
+
+// char *gets(char *str) {
+//     char *original_str = str;
+//     char c = -1;
+//     int count = 0;
+    
+//     // Ensure buffer is not NULL and size is positive
+//     if (str == NULL || size <= 0) {
+//         return NULL;
+//     }
+
+//     // Read characters until newline or buffer size limit is reached
+//     while (c != '\n' && count < size - 1) {
+//         c = uart_read_char();
+//         *str++ = c;
+//         count++;
+//     }
+//     *(str - 1) = '\0'; // Terminate string
+
+//     return original_str;
+// }
 
 char *itoa(int value, char *str, int base)
 {
