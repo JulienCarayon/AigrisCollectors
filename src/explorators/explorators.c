@@ -3,25 +3,29 @@
 const osThreadAttr_t exploratorsTask_attributes = {
     .name = "exploratorsTask",
     .priority = (osPriority_t)osPriorityNormal,
-    .stack_size = 2048,
+    .stack_size = TASKS_SIZES,
 };
 
 void StartExploratorTask_1(void *argument)
 {
-    putsMutex("Explorer Task 1 started\n");
+    // putsMutex("Explorer Task 1 started\n");
     while (1)
     {
-        putsMutex("Explorer Task 1\n");
-        osDelay(100);
+        if(is_comptetion_started == true){
+            testShip(6);
+        }
+        osDelay(OS_DELAY);
     }
 }
 
 void StartExploratorTask_2(void *argument)
 {
-    putsMutex("Explorer Task 2 started\n");
+    // putsMutex("Explorer Task 2 started\n");
     while (1)
     {
-        putsMutex("Explorer Task 2\n");
-        osDelay(100);
+        if(is_comptetion_started == true){
+            testShip(7);
+        }
+        osDelay(OS_DELAY);
     }
 }

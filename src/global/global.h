@@ -4,6 +4,8 @@
 #include "cmsis_os.h"
 #include "../include/hardware.h"
 #include <stdbool.h>
+#define OS_DELAY 100
+#define TASKS_SIZES 1024
 
 osMutexId_t uartMutex_M;
 
@@ -41,8 +43,8 @@ typedef struct
     T_ship_type ship_type;
 
 } T_ship;
+void testShip(uint8_t id);
 
-char command_buffer[100];
 char start_command_server[50];
 extern bool is_comptetion_started;
 void set_ship_type(T_ship *ship);
