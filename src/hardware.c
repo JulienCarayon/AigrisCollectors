@@ -34,18 +34,15 @@ int rand(void)
     return (int)(prng & 0x7FFFFFFF);
 }
 
-int putchar(int c)
-{
-    unsigned char character = c;
-    HAL_UART_Transmit(&huart2, (uint8_t *)&character, 1, HAL_MAX_DELAY);
-    return character;
-}
-
-int puts(char *text)
-{
-    while (*text)
-        putchar(*text++);
-    return 0;
+int puts(char *text) {
+    // Calculate the length of the string
+    uint16_t len = 0;
+    const char *ptr = text;
+    while (*ptr++ != '\0') {
+        len++;
+    }
+    // Transmit the string
+    return (HAL_UART_Transmit(&huart2, (uint8_t*)text, len, HAL_MAX_DELAY));
 }
 
 static char uart_read_char()
