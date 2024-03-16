@@ -1,4 +1,5 @@
 #include "main.h"
+#include "stm32f4xx_hal_uart.h"
 
 UART_HandleTypeDef huart2;
 
@@ -37,7 +38,8 @@ int puts(const char *text) {
         len++;
     }
     // Transmit the string
-    return (HAL_UART_Transmit(&huart2, (uint8_t*)text, len, HAL_MAX_DELAY));
+    int status = (HAL_UART_Transmit(&huart2, (uint8_t*)text, len, HAL_MAX_DELAY));
+    return status;
 
 }
 

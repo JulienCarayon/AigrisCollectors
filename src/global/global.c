@@ -162,7 +162,7 @@ void generate_command(T_command_type command_type, int ship_id, int angle,
     }
 }
 
-void set_ship_type(T_ship * ship)
+void set_ship_type(T_ship *ship)
 {
     if (ship->id >= 1 && ship->id <= 5)
     {
@@ -179,5 +179,36 @@ void set_ship_type(T_ship * ship)
     else
     {
         ship->ship_type = UNKNOWN_SHIP;
+    }
+}
+ static int _angle = 90;
+static int _speed = 0;
+
+void testShip(uint8_t id)
+{
+   char command_buffer[100];
+    if (is_comptetion_started == true)
+    {
+        if (_angle >= 359)
+        {
+            _angle = 0;
+        }
+
+        if (_speed >= 999)
+        {
+            _speed = 0;
+        }
+
+        _angle += 10;
+        _speed += 10;
+
+        generate_command(MOVE_CMD, id, _angle, _speed, command_buffer);
+        // generate_command(FIRE_CMD, 1, _angle, _speed, command_buffer);
+
+        putsMutex(command_buffer);
+    }
+    else
+    {
+        /* do nothing */
     }
 }
