@@ -58,51 +58,43 @@ void wait_start(void) {
   }
 }
 
-// TO DO :
-/*
- */
-bool send_command(char *command, char *response_buffer) {
+void send_command(char *command, char *response_buffer) {
   if (uartMutex_M != NULL) // TODO Acquire mutex function (while)
   {
     putsMutex(command);
-    osStatus_t aquire_status = osMutexAcquire(uartMutex_M, osWaitForever);
-    if (aquire_status != osOK)
-      return false;
+
+    os_acquire_mutex(uartMutex_M, osWaitForever);
 
     while (rx_command_received == false) {
       osDelay(1); // Let some time
     }
 
-    osStatus_t release_status = false;
     if (strstr(rx_command_buffer, "OK") != NULL) {
       rx_command_received = false;
       memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-      release_status = osMutexRelease(uartMutex_M);
-      return true;
+      os_release_mutex(uartMutex_M);
     } else if (strstr(rx_command_buffer, "KO") != NULL) {
       rx_command_received = false;
       memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-      release_status = osMutexRelease(uartMutex_M);
-      return false;
+      os_release_mutex(uartMutex_M);
     } else {
       rx_command_received = false;
       memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-      return false;
     }
 
-    release_status = osMutexRelease(uartMutex_M);
-
-    if (release_status != osOK) {
-      return false;
-    }
-  } else {
-    return false;
+    os_release_mutex(uartMutex_M);
   }
 }
 
 void os_create_mutex() {}
 
-void os_acquire_mutex() {}
+void os_acquire_mutex(os_mutex_id mutex_id, uint32_t timeout) {
+  osStatus_t aquire_status = osMutexAcquire(mutex_id, timeout);
+
+  if (aquire_status != osOK)
+    while (1)
+      ;
+}
 
 void os_release_mutex(os_mutex_id mutex_id) {
   osStatus_t release_status = osMutexRelease(uartMutex_M);
