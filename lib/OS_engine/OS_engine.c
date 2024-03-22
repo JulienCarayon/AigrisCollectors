@@ -1,13 +1,23 @@
 #include "OS_engine.h"
+#include "../include/hardware.h"
+#include "cmsis_os.h"
 #include <constants.h>
+#include <os_types.h>
 #include <string.h>
 
 bool is_comptetion_started = false;
 bool rx_command_received = false;
 char rx_command_buffer[RX_COMMAND_BUFFER_SIZE] = {""};
 
-const osMutexAttr_t uartMutex_attributes = {
-    .name = "uartMutex", osMutexPrioInherit, NULL, 0U};
+static os_mutex_id uartMutex_M;
+
+void os_engine_init(void) {
+  const osMutexAttr_t uartMutex_attributes = {
+      .name = "uartMutex", osMutexPrioInherit, NULL, 0U};
+
+  uartMutex_M =
+      osMutexNew(&uartMutex_attributes); // TODO USE OS_CREATE_MUTEX function
+}
 
 bool putsMutex(char *text) {
   if (uartMutex_M != NULL) {
@@ -88,5 +98,9 @@ bool send_command(char *command, char *response_buffer) {
     return false;
   }
 }
+
+void os_create_mutex() {}
+
+void os_acquire_mutex() {}
 
 void os_release_mutex() {}

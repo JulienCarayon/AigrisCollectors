@@ -1,4 +1,5 @@
 #include "attackers.h"
+#include <OS_engine.h>
 
 const osThreadAttr_t attackersTask_attributes = {
     .name = "attackersTask",
