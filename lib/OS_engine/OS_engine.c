@@ -89,6 +89,7 @@ bool send_command(char *command, char *response_buffer) {
       memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
       return false;
     }
+
     release_status = osMutexRelease(uartMutex_M);
 
     if (release_status != osOK) {
@@ -103,4 +104,10 @@ void os_create_mutex() {}
 
 void os_acquire_mutex() {}
 
-void os_release_mutex() {}
+void os_release_mutex(os_mutex_id mutex_id) {
+  osStatus_t release_status = osMutexRelease(uartMutex_M);
+
+  if (release_status != osOK)
+    while (1)
+      ;
+}

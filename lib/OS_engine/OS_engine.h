@@ -18,6 +18,6 @@ void wait_start(void);
 void os_engine_init(void);
 void os_create_mutex();
 void os_acquire_mutex();
-void os_release_mutex();
+void os_release_mutex(os_mutex_id mutex_id);
 
 #endif
