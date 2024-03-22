@@ -77,16 +77,16 @@ bool send_command(char *command, char *response_buffer)
         osStatus_t release_status = false;
         if (strstr(rx_command_buffer, "OK") != NULL)
         {
-            release_status = osMutexRelease(uartMutex_M);
             rx_command_received = false;
             memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
+            release_status = osMutexRelease(uartMutex_M);
             return true;
         }
         else if (strstr(rx_command_buffer, "KO") != NULL)
         {
-            release_status = osMutexRelease(uartMutex_M);
             rx_command_received = false;
             memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
+            release_status = osMutexRelease(uartMutex_M);
             return false;
         }
         else
