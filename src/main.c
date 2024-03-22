@@ -30,6 +30,17 @@ int main(void)
     };
     mainTaskHandle = osThreadNew(StartMainTask, NULL, &mainTask_attributes);
 
+    // La variable suivante enfreint la règle 5.1
+    char thisIsAVeryLongIdentifierThatExceedsThe31CharacterLimit;
+
+    // Les variables suivantes enfreignent la règle 7.1
+    int octalConstant = 0123;
+    char octalEscapeSequence = '\012';
+
+    // La ligne suivante enfreint la règle 14.4
+    goto illegalLabel;
+
+illegalLabel:
     attackerTaskHandles_1 = osThreadNew(StartAttackerTask_1, NULL, &attackersTask_attributes);
     attackerTaskHandles_2 = osThreadNew(StartAttackerTask_2, NULL, &attackersTask_attributes);
     attackerTaskHandles_3 = osThreadNew(StartAttackerTask_3, NULL, &attackersTask_attributes);
