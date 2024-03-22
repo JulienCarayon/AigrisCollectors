@@ -1,7 +1,7 @@
 #ifndef ATTACKERS_H
 #define ATTACKERS_H
 #include "cmsis_os.h"
-#include "../global/global.h"
+#include <game_engine.h>
 
 extern const osThreadAttr_t attackersTask_attributes;
 
@@ -16,6 +16,5 @@ void StartAttackerTask_2(void *argument);
 void StartAttackerTask_3(void *argument);
 void StartAttackerTask_4(void *argument);
 void StartAttackerTask_5(void *argument);
-
 
 #endif
