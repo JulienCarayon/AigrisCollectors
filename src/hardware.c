@@ -192,10 +192,16 @@ void USART2_IRQHandler(void)
     {
       if (strstr(buffer, "START") != NULL)
       {
+        // rx_command_received = false;
         is_comptetion_started = true;
       }
-      buffer_index = 0; // Reset buffer index for the next command
-      // puts(buffer);
+      else
+      {
+        rx_command_received = true;
+        memcpy(rx_command_buffer, buffer, sizeof(buffer));
+      }
+
+      buffer_index = 0;                  // Reset buffer index for the next command
       memset(buffer, 0, sizeof(buffer)); // Clear the buffer
     }
 
