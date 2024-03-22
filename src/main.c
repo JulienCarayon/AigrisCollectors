@@ -31,7 +31,7 @@ int main(void)
     mainTaskHandle = osThreadNew(StartMainTask, NULL, &mainTask_attributes);
 
     // La variable suivante enfreint la règle 5.1
-    char thisIsAVeryLongIdentifierThatExceedsThe31CharacterLimit;
+    char thisIsAVeryLongIdentifierThatExceedsThe31CharacterLimitthisIsAVeryLongIdentifierThatExceedsThe31CharacterLimit;
 
     // Les variables suivantes enfreignent la règle 7.1
     int octalConstant = 0123;
