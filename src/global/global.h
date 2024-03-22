@@ -4,6 +4,9 @@
 #include "cmsis_os.h"
 #include "../include/hardware.h"
 #include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+
 #define OS_DELAY 100
 #define TASKS_SIZES 1024
 
@@ -50,5 +53,5 @@ extern bool is_comptetion_started;
 void set_ship_type(T_ship *ship);
 void generate_command(T_command_type command_type, int ship_id, int angle,
                       int speed, char *command_buffer);
-
+char *boolToCString(bool value);
 #endif

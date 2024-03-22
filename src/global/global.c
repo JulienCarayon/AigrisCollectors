@@ -54,7 +54,7 @@ char *getsMutex(char *text)
 bool uart_data_available()
 {
     // Check if data is available to read from UART
-    return (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE) != RESET);
+    return (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE));
 }
 
 bool send_command(const char *command, char *response_buffer)
@@ -181,12 +181,12 @@ void set_ship_type(T_ship *ship)
         ship->ship_type = UNKNOWN_SHIP;
     }
 }
- static int _angle = 90;
+static int _angle = 90;
 static int _speed = 0;
 
 void testShip(uint8_t id)
 {
-   char command_buffer[100];
+    char command_buffer[100];
     if (is_comptetion_started == true)
     {
         if (_angle >= 359)
@@ -210,5 +210,18 @@ void testShip(uint8_t id)
     else
     {
         /* do nothing */
+    }
+}
+
+char *boolToCString(bool value)
+{
+    // Copie la représentation en chaîne de caractères du booléen dans le tableau
+    if (value)
+    {
+        return "true\n";
+    }
+    else
+    {
+        return "false\n";
     }
 }

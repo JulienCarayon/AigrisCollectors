@@ -11,9 +11,6 @@
 #include "attackers/attackers.h"
 #include "explorators/explorators.h"
 #include "collectors/collectors.h"
-#include <stdio.h>
-#include <string.h>
-
 
 osThreadId_t mainTaskHandle;
 void StartMainTask(void *argument);
@@ -43,6 +40,7 @@ int main(void)
     collectorTaskHandles_2 = osThreadNew(StartCollectorTask_2, NULL, &collectorsTask_attributes);
 
     uartMutex_M = osMutexNew(&uartMutex_attributes);
+
     // puts("BOOTED");
 
     osKernelStart();
@@ -50,21 +48,25 @@ int main(void)
 
 void StartMainTask(void *argument)
 {
+    // clear_uart_buffer();
     // putsMutex("Main Thread Task started\n");
     while (1)
     {
         // putsMutex("Main Thread Task :\n");
-        char buffer[256]; // Utiliser un tableau pour stocker les données lues
-        if (uart_data_available() && is_comptetion_started == false)
-        {
-            getsMutex(buffer);
-            // putsMutex(buffer);
-            if (strstr(buffer, "START") != NULL)
-            {
-                // putsMutex("GAME STARTED");
-                is_comptetion_started = true;
-            }
-        }
+        // char buffer[256] = {0}; // Utiliser un tableau pour stocker les données lues
+        // // putsMutex("uart_data_available():");
+        // // putsMutex(boolToCString(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE)));
+
+        // if (uart_data_available() && is_comptetion_started == false)
+        // {
+        //     getsMutex(buffer);
+        //     clear_uart_buffer();
+        //     if (strstr(buffer, "START") != NULL)
+        //     {
+        //         // putsMutex("GAME STARTED");
+        //         is_comptetion_started = true;
+        //     }
+        // }
         osDelay(1);
     }
 }

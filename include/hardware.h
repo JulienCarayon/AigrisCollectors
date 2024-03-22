@@ -9,4 +9,5 @@ int rand(void);
 int puts(const char *text);
 char *gets(char *str);
 char *itoa(int value, char *str, int base);
+void clear_uart_buffer();
 #endif /* HARDWARE_H */
