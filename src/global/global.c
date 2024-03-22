@@ -2,6 +2,8 @@
 #include "stm32f4xx_hal_uart.h"
 
 bool is_comptetion_started = false;
+bool rx_command_received = false;
+char rx_command_buffer[256] = {""};
 
 const osMutexAttr_t uartMutex_attributes = {
     .name = "uartMutex",
@@ -10,7 +12,7 @@ const osMutexAttr_t uartMutex_attributes = {
     0U                  // size for control block
 };
 
-void putsMutex(char *text)
+bool putsMutex(char *text)
 {
     if (uartMutex_M != NULL)
     {
@@ -18,15 +20,16 @@ void putsMutex(char *text)
         if (aquire_status != osOK)
             // puts("osMutexAcquire failed :");
             // puts(osStatusToString(aquire_status));
-            return;
+            return false;
         puts(text);
         osStatus_t release_status = osMutexRelease(uartMutex_M);
         if (release_status != osOK)
         {
             // puts("osMutexrelease failed :");
             // puts(osStatusToString(release_status));
-            return;
+            return false;
         }
+        return true;
     }
 }
 
@@ -54,35 +57,52 @@ char *getsMutex(char *text)
 bool uart_data_available()
 {
     // Check if data is available to read from UART
-    return (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE) != RESET);
+    return (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE));
 }
 
-bool send_command(const char *command, char *response_buffer)
+bool send_command(char *command, char *response_buffer)
 {
+
     if (uartMutex_M != NULL)
     {
+        putsMutex(command);
         osStatus_t aquire_status = osMutexAcquire(uartMutex_M, osWaitForever);
         if (aquire_status != osOK)
             return false;
 
-        if (puts(command) < 0)
+        while (rx_command_received == false)
         {
-            return false; // Error sending command
+            osDelay(1); // Let some time
         }
-        // Receive response
-        char *response = gets(response_buffer);
-        if (response == NULL)
+        osStatus_t release_status = false;
+        if (strstr(rx_command_buffer, "OK") != NULL)
         {
-            return false; // Error receiving response
+            rx_command_received = false;
+            memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
+            release_status = osMutexRelease(uartMutex_M);
+            return true;
         }
-        osStatus_t release_status = osMutexRelease(uartMutex_M);
+        else if (strstr(rx_command_buffer, "KO") != NULL)
+        {
+            rx_command_received = false;
+            memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
+            release_status = osMutexRelease(uartMutex_M);
+            return false;
+        }
+        else
+        {
+            rx_command_received = false;
+            memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
+            return false;
+        }
+        release_status = osMutexRelease(uartMutex_M);
         if (release_status != osOK)
         {
-            // puts("osMutexrelease failed :");
-            // puts(osStatusToString(release_status));
+
             return false;
         }
     }
+
     return true; // Command sent successfully and response received
 }
 
@@ -181,12 +201,13 @@ void set_ship_type(T_ship *ship)
         ship->ship_type = UNKNOWN_SHIP;
     }
 }
- static int _angle = 90;
+static int _angle = 90;
 static int _speed = 0;
 
 void testShip(uint8_t id)
 {
-   char command_buffer[100];
+    char command_buffer[100] = {""};
+    char answer_buffer[100] = {""};
     if (is_comptetion_started == true)
     {
         if (_angle >= 359)
@@ -204,11 +225,25 @@ void testShip(uint8_t id)
 
         generate_command(MOVE_CMD, id, _angle, _speed, command_buffer);
         // generate_command(FIRE_CMD, 1, _angle, _speed, command_buffer);
-
-        putsMutex(command_buffer);
+        send_command(command_buffer, answer_buffer);
+        // send_command(command_buffer, answer_buffer);
+        // putsMutex(command_buffer);
     }
     else
     {
         /* do nothing */
+    }
+}
+
+char *boolToCString(bool value)
+{
+    // Copie la représentation en chaîne de caractères du booléen dans le tableau
+    if (value)
+    {
+        return "true\n";
+    }
+    else
+    {
+        return "false\n";
     }
 }

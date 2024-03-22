@@ -1,5 +1,6 @@
 #include "main.h"
 #include "stm32f4xx_hal_uart.h"
+#include "global/global.h"
 
 UART_HandleTypeDef huart2;
 
@@ -9,11 +10,14 @@ static void MX_USART2_UART_Init(void);
 void Error_Handler(void);
 #define UART_RECEIVE_TIMEOUT (100) // ms
 
-void hardware_init(void) {
+void hardware_init(void)
+{
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  HAL_NVIC_SetPriority(USART2_IRQn, 5, 0); // Adjust priority
+  HAL_NVIC_EnableIRQ(USART2_IRQn);
 }
 
 /* https://en.wikipedia.org/wiki/Linear_congruential_generator glibc */
@@ -25,39 +29,51 @@ static unsigned int prng;
 
 void srand(unsigned int seed) { prng = seed; }
 
-int rand(void) {
+int rand(void)
+{
   prng = (MULTIPLIER * prng + INCREMENT) % MODULUS;
   return (int)(prng & 0x7FFFFFFF);
 }
 
-int puts(const char *text) {
-    // Calculate the length of the string
-    uint16_t len = 0;
-    const char *ptr = text;
-    while (*ptr++ != '\0') {
-        len++;
-    }
-    // Transmit the string
-    int status = (HAL_UART_Transmit(&huart2, (uint8_t*)text, len, HAL_MAX_DELAY));
-    return status;
-
+int puts(const char *text)
+{
+  // Calculate the length of the string
+  uint16_t len = 0;
+  const char *ptr = text;
+  while (*ptr++ != '\0')
+  {
+    len++;
+  }
+  // Transmit the string
+  int status = (HAL_UART_Transmit(&huart2, (uint8_t *)text, len, HAL_MAX_DELAY));
+  return status;
 }
 
-static char uart_read_char() {
+static char uart_read_char()
+{
   unsigned char result;
   HAL_StatusTypeDef status = HAL_TIMEOUT;
 
-  do {
+  do
+  {
     status = HAL_UART_Receive(&huart2, &result, 1, UART_RECEIVE_TIMEOUT);
   } while (status != HAL_OK);
 
   return result;
 }
 
-char *gets(char *str) {
+void clear_uart_buffer()
+{
+  __HAL_UART_FLUSH_DRREGISTER(&huart2);           // Flush the data register
+  __HAL_UART_CLEAR_FLAG(&huart2, UART_FLAG_RXNE); // Clear flag RXNE (Receiver not empty)
+}
+
+char *gets(char *str)
+{
   char *original_str = str;
   char c = -1;
-  while (c != '\n') {
+  while (c != '\n')
+  {
     c = uart_read_char();
     *str++ = c;
   }
@@ -65,19 +81,25 @@ char *gets(char *str) {
   return original_str;
 }
 
-char *itoa(int value, char *str, int base) {
-  if (base != 10 || value < 0) {
+char *itoa(int value, char *str, int base)
+{
+  if (base != 10 || value < 0)
+  {
     while (1)
       ;
   }
-  if (value == 0) {
+  if (value == 0)
+  {
     str[0] = '0';
     str[1] = 0;
-  } else {
+  }
+  else
+  {
     uint8_t digits[32];
     uint8_t max_power = 0;
     uint8_t i;
-    while (value) {
+    while (value)
+    {
       digits[max_power++] = value % 10;
       value /= 10;
     }
@@ -88,7 +110,8 @@ char *itoa(int value, char *str, int base) {
   return str;
 }
 
-static void SystemClock_Config(void) {
+static void SystemClock_Config(void)
+{
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
@@ -107,7 +130,8 @@ static void SystemClock_Config(void) {
   RCC_OscInitStruct.PLL.PLLN = 50;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
   RCC_OscInitStruct.PLL.PLLQ = 7;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
     Error_Handler();
   }
   /** Initializes the CPU, AHB and APB busses clocks
@@ -119,12 +143,14 @@ static void SystemClock_Config(void) {
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV8;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  {
     Error_Handler();
   }
 }
 
-static void MX_USART2_UART_Init(void) {
+static void MX_USART2_UART_Init(void)
+{
 
   /* USER CODE BEGIN USART2_Init 0 */
 
@@ -141,15 +167,56 @@ static void MX_USART2_UART_Init(void) {
   huart2.Init.Mode = UART_MODE_TX_RX;
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK) {
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
-
+  __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
   /* USER CODE END USART2_Init 2 */
 }
 
-static void MX_GPIO_Init(void) {
+void USART2_IRQHandler(void)
+{
+  static char buffer[256] = {0};
+  static uint32_t buffer_index = 0;
+
+  if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE))
+  {
+    char c;
+    HAL_UART_Receive(&huart2, (uint8_t *)&c, 1, 0);
+
+    buffer[buffer_index++] = c;
+
+    if (strstr(buffer, "\n") != NULL)
+    {
+      if (strstr(buffer, "START") != NULL)
+      {
+        // rx_command_received = false;
+        is_comptetion_started = true;
+      }
+      else
+      {
+        rx_command_received = true;
+        memcpy(rx_command_buffer, buffer, sizeof(buffer));
+      }
+
+      buffer_index = 0;                  // Reset buffer index for the next command
+      memset(buffer, 0, sizeof(buffer)); // Clear the buffer
+    }
+
+    if (buffer_index >= sizeof(buffer)) // Prevent buffer overflow
+    {
+      buffer_index = 0;
+      memset(buffer, 0, sizeof(buffer));
+    }
+  }
+
+  HAL_UART_IRQHandler(&huart2);
+}
+
+static void MX_GPIO_Init(void)
+{
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
@@ -281,12 +348,14 @@ static void MX_GPIO_Init(void) {
   HAL_GPIO_Init(MEMS_INT2_GPIO_Port, &GPIO_InitStruct);
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
   if (htim->Instance == TIM1)
     HAL_IncTick();
 }
 
-void Error_Handler(void) {
+void Error_Handler(void)
+{
   while (1)
     ;
 }
