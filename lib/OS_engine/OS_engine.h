@@ -16,7 +16,7 @@ void send_command(char *command, char *response_buffer);
 void wait_start(void);
 
 void os_engine_init(void);
-os_mutex_id os_create_mutex(const osMutexAttr_t mutex_attribute);
+os_mutex_id os_create_mutex(const os_mutex_attr mutex_attribute);
 void os_acquire_mutex(os_mutex_id mutex_id, uint32_t timeout);
 void os_release_mutex(os_mutex_id mutex_id);
 
