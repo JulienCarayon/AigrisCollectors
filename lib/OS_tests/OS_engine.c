@@ -1,2 +1,4 @@
 #include <stdio.h>
-void send_command(char *command, char *response_buffer) { printf(command); }
+void send_command(char *command, char *response_buffer) {
+  printf("%s", command);
+}
