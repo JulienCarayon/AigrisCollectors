@@ -4,8 +4,6 @@
 #define OS_DELAY 1
 #define BUFFER_SIZE 256
 #define TASKS_SIZES 1024
-
-#undef DEBUG2
-#undef DEBUG
+#define RX_COMMAND_BUFFER_SIZE 256
 
 #endif // CONSTANTS_H
