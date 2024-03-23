@@ -82,8 +82,6 @@ void test_ship(uint8_t id)
 
     generate_command(MOVE_CMD, id, _angle, _speed, command_buffer);
     send_command(command_buffer, answer_buffer);
-
-    osDelay(OS_DELAY);
   }
 }
 
