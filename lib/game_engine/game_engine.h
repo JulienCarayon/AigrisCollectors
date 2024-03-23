@@ -59,7 +59,6 @@ typedef struct {
 } T_planet_test;
 
 extern T_planet *planets;
-extern bool is_comptetion_started;
 extern uint8_t nb_planets;
 extern T_ship_test *ship;
 extern uint8_t nb_ship;

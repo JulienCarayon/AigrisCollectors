@@ -19,6 +19,8 @@ int main(void) {
   hardware_init();
   osKernelInitialize();
 
+  os_engine_init();
+
   const osThreadAttr_t mainTask_attributes = {
       .name = "mainTask",
       .priority = (osPriority_t)osPriorityNormal1,
@@ -46,8 +48,6 @@ int main(void) {
       osThreadNew(StartCollectorTask_1, NULL, &collectorsTask_attributes);
   collectorTaskHandles_2 =
       osThreadNew(StartCollectorTask_2, NULL, &collectorsTask_attributes);
-
-  uartMutex_M = osMutexNew(&uartMutex_attributes);
 
   osKernelStart();
 }

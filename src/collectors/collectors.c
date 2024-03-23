@@ -1,4 +1,5 @@
 #include "collectors.h"
+#include <OS_engine.h>
 
 const osThreadAttr_t collectorsTask_attributes = {
     .name = "collectorsTask",
@@ -7,19 +8,11 @@ const osThreadAttr_t collectorsTask_attributes = {
 };
 
 void StartCollectorTask_1(void *argument) {
-  while (1) {
-    if (is_comptetion_started == true) {
-      test_ship(8);
-    }
-    osDelay(OS_DELAY);
-  }
+  wait_start();
+  test_ship(8);
 }
 
 void StartCollectorTask_2(void *argument) {
-  while (1) {
-    if (is_comptetion_started == true) {
-      test_ship(9);
-    }
-    osDelay(OS_DELAY);
-  }
+  wait_start();
+  test_ship(9);
 }
