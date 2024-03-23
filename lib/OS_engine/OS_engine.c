@@ -15,8 +15,7 @@ void os_engine_init(void) {
   const osMutexAttr_t uartMutex_attributes = {
       .name = "uartMutex", osMutexPrioInherit, NULL, 0U};
 
-  uartMutex_M = os_create_mutex(
-      uartMutex_attributes); // TODO USE OS_CREATE_MUTEX function
+  uartMutex_M = os_create_mutex(uartMutex_attributes);
 }
 
 void putsMutex(char *text) {
