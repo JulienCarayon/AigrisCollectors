@@ -171,7 +171,6 @@ void USART2_IRQHandler(void) {
 
     if (strstr(buffer, "\n") != NULL) {
       if (strstr(buffer, "START") != NULL) {
-        // rx_command_received = false;
         is_comptetion_started = true;
       } else {
         rx_command_received = true;

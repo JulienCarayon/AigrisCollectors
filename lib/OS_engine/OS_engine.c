@@ -40,30 +40,24 @@ void wait_start(void) {
 }
 
 void send_command(char *command, char *response_buffer) {
-  if (uartMutex_M != NULL) // TODO Acquire mutex function (while)
-  {
-    putsMutex(command);
+  os_acquire_mutex(uartMutex_M, osWaitForever);
+  puts(command);
 
-    os_acquire_mutex(uartMutex_M, osWaitForever);
+  while (rx_command_received == false) {
+    osDelay(1); // Let some time
+  }
 
-    while (rx_command_received == false) {
-      osDelay(1); // Let some time
-    }
-
-    if (strstr(rx_command_buffer, "OK") != NULL) {
-      rx_command_received = false;
-      memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-      os_release_mutex(uartMutex_M);
-    } else if (strstr(rx_command_buffer, "KO") != NULL) {
-      rx_command_received = false;
-      memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-      os_release_mutex(uartMutex_M);
-    } else {
-      rx_command_received = false;
-      memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-    }
-
+  if (strstr(rx_command_buffer, "OK") != NULL) {
+    rx_command_received = false;
+    memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
     os_release_mutex(uartMutex_M);
+  } else if (strstr(rx_command_buffer, "KO") != NULL) {
+    rx_command_received = false;
+    memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
+    os_release_mutex(uartMutex_M);
+  } else {
+    rx_command_received = false;
+    memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
   }
 }
 

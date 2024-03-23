@@ -1,7 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define OS_DELAY 100
+#define OS_DELAY 1
 #define BUFFER_SIZE 256
 #define TASKS_SIZES 1024
 
