@@ -60,7 +60,12 @@ offset = +1500
 | BASE DOWN  | 16000<br>0 | 4000<br>0 |
 | BASE LEFT  |            |           |
 
-#### Memory Pool
+#### Memory Pool Architechture
+
+_Planets count : from 2 to 8_
+
+Each block of a Memory Pool must have the same size :
+[CMSIS-RTOS Memory Pool documentation](https://www.keil.com/pack/doc/CMSIS/RTOS2/html/group__CMSIS__RTOS__PoolMgmt.html#ga2e44473caf338266f56800960294f960)
 
 |         |      **PLANETS**       |        **SHIP_P0**        |        **SHIP_P1**        |        **SHIP_P2**        |        **SHIP_P3**        |
 | :-----: | :--------------------: | :-----------------------: | :-----------------------: | :-----------------------: | :-----------------------: |
