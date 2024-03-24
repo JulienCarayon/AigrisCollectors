@@ -9,10 +9,10 @@ const osThreadAttr_t exploratorsTask_attributes = {
 
 void StartExploratorTask_1(void *argument) {
   wait_start();
-  test_ship(6);
+  ship_manager(6);
 }
 
 void StartExploratorTask_2(void *argument) {
   wait_start();
-  test_ship(7);
+  ship_manager(7);
 }

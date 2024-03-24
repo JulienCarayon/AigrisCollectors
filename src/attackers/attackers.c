@@ -9,25 +9,25 @@ const osThreadAttr_t attackersTask_attributes = {
 
 void StartAttackerTask_1(void *argument) {
   wait_start();
-  test_ship(1);
+  ship_manager(1);
 }
 
 void StartAttackerTask_2(void *argument) {
   wait_start();
-  test_ship(2);
+  ship_manager(2);
 }
 
 void StartAttackerTask_3(void *argument) {
   wait_start();
-  test_ship(3);
+  ship_manager(3);
 }
 
 void StartAttackerTask_4(void *argument) {
   wait_start();
-  test_ship(4);
+  ship_manager(4);
 }
 
 void StartAttackerTask_5(void *argument) {
   wait_start();
-  test_ship(5);
+  ship_manager(5);
 }

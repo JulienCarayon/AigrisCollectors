@@ -63,8 +63,7 @@ extern uint8_t nb_planets;
 extern T_ship_test *ship;
 extern uint8_t nb_ship;
 
-char *test_ship_2(uint8_t id, char *command_buffer);
-void test_ship(uint8_t id);
+void ship_manager(uint8_t id);
 char *explore(uint8_t ship_id, char *command_buffer);
 char *move(uint8_t ship_id, uint16_t angle, uint16_t speed,
            char *command_buffer);
