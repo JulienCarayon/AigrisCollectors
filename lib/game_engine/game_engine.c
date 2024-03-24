@@ -69,45 +69,22 @@ void ship_manager(uint8_t id) {
   }
 }
 
-uint16_t get_opposite_side(T_point starting_point, T_point ending_point) {
-  return ending_point.pos_X - starting_point.pos_X;
+uint16_t get_distance_between_two_points(T_point starting_point,
+                                         T_point ending_point) {
+  return sqrt(pow(ending_point.pos_X - starting_point.pos_X, 2) +
+              pow(ending_point.pos_Y - starting_point.pos_Y, 2));
 }
 
-uint16_t get_adjacent_side(T_point starting_point, T_point ending_point) {
-  return ending_point.pos_Y - starting_point.pos_Y;
-}
+uint16_t get_angle_between_two_points(T_point starting_point,
+                                      T_point ending_point) {
+  double angle_radian = atan2(ending_point.pos_Y - starting_point.pos_Y,
+                              ending_point.pos_X - starting_point.pos_X);
+  int16_t angle_degree = (int16_t)(angle_radian * (180.0 / M_PI));
 
-uint16_t get_distance(uint16_t adjacent_side, uint16_t opposite_side) {
-  return sqrt(pow(adjacent_side, 2) + pow(opposite_side, 2));
-}
+  if (angle_degree < 0)
+    angle_degree += 360;
 
-uint16_t get_angle(uint16_t opposite_side, uint16_t distance) {
-  double result =
-      asin(((double)opposite_side / (double)distance)) * (180.0 / M_PI);
-  return result;
-}
-
-uint16_t test(T_point starting_point, T_point ending_point) {
-  uint16_t opposite_side = get_opposite_side(starting_point, ending_point);
-  uint16_t adjacent_side = get_adjacent_side(starting_point, ending_point);
-  uint16_t distance_between_point = get_distance(adjacent_side, opposite_side);
-  uint16_t angle = get_angle(opposite_side, distance_between_point);
-
-  return angle;
-}
-
-uint16_t angle_entre_points(uint16_t x1, uint16_t y1, uint16_t x2,
-                            uint16_t y2) {
-  uint16_t diff_x = x2 - x1;
-  uint16_t diff_y = y2 - y1;
-  uint16_t angle_radians = atan2(diff_y, diff_x);
-  uint16_t angle_degrees = angle_radians * (180.0 / M_PI);
-
-  if (angle_degrees < 0) {
-    angle_degrees += 360.0;
-  }
-
-  return angle_degrees;
+  return (uint16_t)angle_degree;
 }
 
 T_planet_test parse_planet(const char *chaine) {
