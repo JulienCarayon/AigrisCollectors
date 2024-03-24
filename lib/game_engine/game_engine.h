@@ -49,8 +49,8 @@ typedef struct {
   uint8_t planet_ID;
   uint16_t pos_X;
   uint16_t pos_Y;
-  uint8_t ship_ID;
-  uint8_t saved;
+  int8_t ship_ID;
+  bool saved;
 } T_planet;
 
 typedef struct {
@@ -72,16 +72,12 @@ void set_ship_type(T_ship *ship);
 char *generate_command(T_command_type command_type, int ship_id, int angle,
                        int speed, char *command_buffer);
 
-uint16_t angle_entre_points(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
-
 T_planet_test parse_planet(const char *chaine);
 T_ship_test parse_ship(const char *chaine);
-
-uint16_t get_opposite_side(T_point starting_point, T_point ending_point);
-uint16_t get_adjacent_side(T_point starting_point, T_point ending_point);
-uint16_t get_distance(uint16_t adjacent_side, uint16_t opposite_side);
-uint16_t get_angle(uint16_t opposite_side, uint16_t distance);
-uint16_t test(T_point starting_point, T_point ending_point);
+uint16_t get_distance_between_two_points(T_point starting_point,
+                                         T_point ending_point);
+uint16_t get_angle_between_two_points(T_point starting_point,
+                                      T_point ending_point);
 
 char *create_buffer(int buffer_size);
 int free_buffer(char *buffer_ptr);
