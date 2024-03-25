@@ -160,7 +160,7 @@ static void MX_USART2_UART_Init(void) {
 }
 
 void USART2_IRQHandler(void) {
-  static char buffer[256] = {0};
+  static char buffer[RX_COMMAND_BUFFER_SIZE] = {0};
   static uint32_t buffer_index = 0;
 
   if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE)) {
@@ -173,8 +173,8 @@ void USART2_IRQHandler(void) {
       if (strstr(buffer, "START") != NULL) {
         is_comptetion_started = true;
       } else {
-        rx_command_received = true;
         memcpy(rx_command_buffer, buffer, sizeof(buffer));
+        rx_command_received = true;
       }
 
       buffer_index = 0; // Reset buffer index for the next command

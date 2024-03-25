@@ -47,11 +47,15 @@ void set_ship_type(T_ship *ship) {
 }
 
 void ship_manager(uint8_t id) {
+  char command_buffer[BUFFER_SIZE] = {""};
+  char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {""};
+
   while (1) {
+    memset(command_buffer, 0, sizeof(command_buffer));
+    memset(answer_buffer, 0, sizeof(answer_buffer));
+
     static int _angle = 90;
     static int _speed = 0;
-    char command_buffer[100] = {""};
-    char answer_buffer[100] = {""};
 
     if (_angle >= 359) {
       _angle = 0;
@@ -64,8 +68,10 @@ void ship_manager(uint8_t id) {
     _angle += 10;
     _speed += 10;
 
-    generate_command(MOVE_CMD, id, _angle, _speed, command_buffer);
-    send_command(command_buffer, answer_buffer);
+    if (id == 6) {
+      generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
+      send_command(command_buffer, answer_buffer);
+    }
   }
 }
 
