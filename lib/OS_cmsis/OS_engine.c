@@ -70,6 +70,7 @@ void send_command(char *command, char *response_buffer) {
   } else {
     rx_command_received = false;
     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
+    os_release_mutex(uartMutex_M);
   }
   osDelay(OS_DELAY); // TODO Why ?
 }
