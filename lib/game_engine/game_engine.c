@@ -1,9 +1,6 @@
 #include "game_engine.h"
 #include "OS_engine.h"
 
-T_planet *planets = NULL;
-T_ship_test *ship = NULL;
-
 char *explore(uint8_t ship_id, char *command_buffer) {
   command_buffer = generate_command(RADAR_CMD, ship_id, 0, 0, command_buffer);
   return command_buffer;
@@ -35,14 +32,14 @@ char *generate_command(T_command_type command_type, int ship_id, int angle,
 }
 
 void set_ship_type(T_ship *ship) {
-  if (ship->id >= 1 && ship->id <= 5) {
-    ship->ship_type = ATTACKERS_SHIP;
-  } else if (ship->id > 5 && ship->id <= 7) {
-    ship->ship_type = EXPLORER_SHIP;
-  } else if (ship->id >= 8 && ship->id <= 9) {
-    ship->ship_type = COLLECTOR_SHIP;
+  if (ship->ship_ID >= 1 && ship->ship_ID <= 5) {
+    // ship->ship_type = ATTACKERS_SHIP;
+  } else if (ship->ship_ID > 5 && ship->ship_ID <= 7) {
+    // ship->ship_type = EXPLORER_SHIP;
+  } else if (ship->ship_ID >= 8 && ship->ship_ID <= 9) {
+    // ship->ship_type = COLLECTOR_SHIP;
   } else {
-    ship->ship_type = UNKNOWN_SHIP;
+    // ship->ship_type = UNKNOWN_SHIP;
   }
 }
 
@@ -93,24 +90,7 @@ uint16_t get_angle_between_two_points(T_point starting_point,
   return (uint16_t)angle_degree;
 }
 
-T_planet_test parse_planet(const char *chaine) {
-  T_planet_test planet;
-  char type;
-  sscanf(chaine, "%c %hd %hd", &type, &planet.pos_X, &planet.pos_Y);
-  return planet;
-}
-
-T_ship_test parse_ship(const char *chaine) {
-  T_ship_test ship;
-  char type;
-  sscanf(chaine, "%c %hhd %hhd %hd %hd %hhd", &type, &ship.team, &ship.ship_id,
-         &ship.abscisse, &ship.ordinate, &ship.status);
-  return ship;
-}
-
 char *create_buffer(int buffer_size) {
-  static int counter = 0;
-  counter++;
   char *buffer = (char *)malloc(buffer_size * sizeof(char));
 
   if (buffer == NULL) {
@@ -121,11 +101,70 @@ char *create_buffer(int buffer_size) {
   return buffer;
 }
 
-int free_buffer(char *buffer_ptr) {
+void free_buffer(char *buffer_ptr) {
   if (buffer_ptr != NULL) {
     free(buffer_ptr);
-
-    return 0;
+  } else {
+    while (1)
+      ;
   }
-  return -1;
+}
+
+void parse_planets(const char *str, T_planet *planets, int *num_planets) {
+  *num_planets = 0;
+  const char *token;
+  char copy[strlen(str) + 1];
+  strcpy(copy, str);
+
+  token = strtok(copy, ",");
+  while (token != NULL) {
+    if (token[0] == 'P') {
+      if (*num_planets >= MAX_PLANETS_NUMBER) {
+        exit(1);
+      }
+
+      sscanf(token, "P %hu %hu %hu %hhd %hhu", &planets[*num_planets].planet_ID,
+             &planets[*num_planets].pos_X, &planets[*num_planets].pos_Y,
+             &planets[*num_planets].ship_ID,
+             &planets[*num_planets].planet_saved);
+      (*num_planets)++;
+    }
+    token = strtok(NULL, ",");
+  }
+}
+
+void parse_ships(const char *str, T_ship *ships) {
+  const char *token;
+  char copy[strlen(str) + 1];
+  strcpy(copy, str);
+  uint8_t ship_id = 0;
+
+  token = strtok(copy, ",");
+  while (token != NULL) {
+    if (token[0] == 'S') {
+      sscanf(token, "S %hhd %hhd %hu %hu %hhu", &ships[ship_id].team_ID,
+             &ships[ship_id].ship_ID, &ships[ship_id].pos_X,
+             &ships[ship_id].pos_Y, &ships[ship_id].broken);
+
+      ship_id++;
+    }
+
+    token = strtok(NULL, ",");
+  }
+}
+
+void parse_base(const char *str, T_base *base) {
+  const char *token;
+  char copy[strlen(str) + 1];
+  strcpy(copy, str);
+
+  token = strtok(copy, ",");
+  while (token != NULL) {
+    if (token[0] == 'B') {
+      sscanf(token, "B %hu %hu %hu %hhu %hhu", &base[0].pos_X, &base[0].pos_Y,
+             &base[0].uint16_data, &base[0].uint8_data, &base[0].uint8_data_2);
+    }
+
+    token = strtok(NULL, ",");
+  }
 }
