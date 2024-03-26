@@ -67,9 +67,10 @@ void set_ship_type(T_ship *ship);
 char *generate_command(T_command_type command_type, int ship_id, int angle,
                        int speed, char *command_buffer);
 
-void parse_planets(const char *str, T_planet *planets, int *num_planets);
-void parse_ships(const char *str, T_ship *ships);
-void parse_base(const char *str, T_base *base);
+void parse_planets(const char *server_response, T_planet *planets,
+                   int *num_planets);
+void parse_ships(const char *server_response, T_ship *ships);
+void parse_base(const char *server_response, T_base *base);
 
 uint16_t get_distance_between_two_points(T_point starting_point,
                                          T_point ending_point);

@@ -110,61 +110,70 @@ void free_buffer(char *buffer_ptr) {
   }
 }
 
-void parse_planets(const char *str, T_planet *planets, int *num_planets) {
+void parse_planets(const char *server_response, T_planet *planets,
+                   int *num_planets) {
   *num_planets = 0;
-  const char *token;
-  char copy[strlen(str) + 1];
-  strcpy(copy, str);
+  const char *str_token;
+  char *save_ptr;
+  char server_response_copy[strlen(server_response) + 1];
+  strcpy(server_response_copy, server_response);
 
-  token = strtok(copy, ",");
-  while (token != NULL) {
-    if (token[0] == 'P') {
+  str_token =
+      strtok_r(server_response_copy, SERVER_RESPONSE_DELIMITER, &save_ptr);
+
+  while (str_token != NULL) {
+    if (str_token[0] == SERVER_RESPONSE_PLANET_DELIMITER) {
       if (*num_planets >= MAX_PLANETS_NUMBER) {
         exit(1);
       }
 
-      sscanf(token, "P %hu %hu %hu %hhd %hhu", &planets[*num_planets].planet_ID,
-             &planets[*num_planets].pos_X, &planets[*num_planets].pos_Y,
-             &planets[*num_planets].ship_ID,
+      sscanf(str_token, "P %hu %hu %hu %hhd %hhu",
+             &planets[*num_planets].planet_ID, &planets[*num_planets].pos_X,
+             &planets[*num_planets].pos_Y, &planets[*num_planets].ship_ID,
              &planets[*num_planets].planet_saved);
       (*num_planets)++;
     }
-    token = strtok(NULL, ",");
+    str_token = strtok_r(NULL, SERVER_RESPONSE_DELIMITER, &save_ptr);
   }
 }
 
-void parse_ships(const char *str, T_ship *ships) {
-  const char *token;
-  char copy[strlen(str) + 1];
-  strcpy(copy, str);
+void parse_ships(const char *server_response, T_ship *ships) {
+  const char *str_token;
+  char *save_ptr;
+  char server_response_copy[strlen(server_response) + 1];
+  strcpy(server_response_copy, server_response);
   uint8_t ship_id = 0;
 
-  token = strtok(copy, ",");
-  while (token != NULL) {
-    if (token[0] == 'S') {
-      sscanf(token, "S %hhd %hhd %hu %hu %hhu", &ships[ship_id].team_ID,
+  str_token =
+      strtok_r(server_response_copy, SERVER_RESPONSE_DELIMITER, &save_ptr);
+  while (str_token != NULL) {
+    if (str_token[0] == 'S') {
+      sscanf(str_token, "S %hhd %hhd %hu %hu %hhu", &ships[ship_id].team_ID,
              &ships[ship_id].ship_ID, &ships[ship_id].pos_X,
              &ships[ship_id].pos_Y, &ships[ship_id].broken);
 
       ship_id++;
     }
 
-    token = strtok(NULL, ",");
+    str_token = strtok_r(NULL, SERVER_RESPONSE_DELIMITER, &save_ptr);
   }
 }
 
-void parse_base(const char *str, T_base *base) {
-  const char *token;
-  char copy[strlen(str) + 1];
-  strcpy(copy, str);
+void parse_base(const char *server_response, T_base *base) {
+  const char *str_token;
+  char *save_ptr;
+  char server_response_copy[strlen(server_response) + 1];
+  strcpy(server_response_copy, server_response);
 
-  token = strtok(copy, ",");
-  while (token != NULL) {
-    if (token[0] == 'B') {
-      sscanf(token, "B %hu %hu %hu %hhu %hhu", &base[0].pos_X, &base[0].pos_Y,
-             &base[0].uint16_data, &base[0].uint8_data, &base[0].uint8_data_2);
+  str_token =
+      strtok_r(server_response_copy, SERVER_RESPONSE_DELIMITER, &save_ptr);
+  while (str_token != NULL) {
+    if (str_token[0] == 'B') {
+      sscanf(str_token, "B %hu %hu %hu %hhu %hhu", &base[0].pos_X,
+             &base[0].pos_Y, &base[0].uint16_data, &base[0].uint8_data,
+             &base[0].uint8_data_2);
     }
 
-    token = strtok(NULL, ",");
+    str_token = strtok_r(NULL, SERVER_RESPONSE_DELIMITER, &save_ptr);
   }
 }
