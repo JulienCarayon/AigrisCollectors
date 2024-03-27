@@ -74,3 +74,13 @@ void send_command(char *command, char *response_buffer) {
   }
   osDelay(OS_DELAY); // TODO Why ?
 }
+
+void init_memory_pool(void) {
+  memory_pool_id =
+      osMemoryPoolNew(MEMORY_POOL_OBJECTS, sizeof(T_Memory_block), NULL);
+
+  if (memory_pool_id == NULL) {
+    while (1)
+      ;
+  }
+}
