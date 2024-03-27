@@ -11,6 +11,9 @@ extern char rx_command_buffer[RX_COMMAND_BUFFER_SIZE];
 
 os_memory_pool_id memory_pool_id;
 
+void putsMutex(char *text);
+char *getsMutex(char *text);
+
 void send_command(char *command, char *response_buffer);
 void wait_start(void);
 

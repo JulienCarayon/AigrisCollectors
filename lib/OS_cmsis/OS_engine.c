@@ -84,3 +84,17 @@ void init_memory_pool(void) {
       ;
   }
 }
+
+void putsMutex(char *text) {
+  os_acquire_mutex(uartMutex_M, osWaitForever);
+  puts(text);
+  os_release_mutex(uartMutex_M);
+}
+
+char *getsMutex(char *text) {
+  char *original_str = text;
+  os_acquire_mutex(uartMutex_M, osWaitForever);
+  gets(text);
+  os_release_mutex(uartMutex_M);
+  return original_str;
+}

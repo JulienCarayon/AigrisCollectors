@@ -65,10 +65,10 @@ void ship_manager(uint8_t id) {
     _angle += 10;
     _speed += 10;
 
-    if (id == 6) {
-      generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
-      send_command(command_buffer, answer_buffer);
-    }
+    // if (id == 6) {
+    generate_command(MOVE_CMD, id, _angle, _speed, command_buffer);
+    send_command(command_buffer, answer_buffer);
+    // }
   }
 }
 
