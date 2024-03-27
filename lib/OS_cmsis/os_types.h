@@ -7,7 +7,7 @@ typedef osMutexId_t os_mutex_id;
 typedef osMutexAttr_t os_mutex_attr;
 
 typedef osMemoryPoolId_t os_memory_pool_id;
-typedef osThreadId_t os_threa_id;
+typedef osThreadId_t os_thread_id;
 
 typedef struct {
   uint16_t uint16_data_1;
@@ -15,6 +15,6 @@ typedef struct {
   uint16_t uint16_data_3;
   uint8_t uint8_data;
   uint8_t uint8_data_2;
-} T_Memory_block;
+} os_T_Memory_block;
 
 #endif
