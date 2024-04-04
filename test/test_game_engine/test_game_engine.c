@@ -72,21 +72,28 @@ void test_ship_parsing(void) {
       "P 495 10000 20000 -1 0,P 25 3040 40 -1 1,P 11113 15410 6100 7 0,S 0 1 "
       "10000 253 1,S 0 2 11500 0 0,S 0 3 8500 1546 0,S 0 4 13000 0 0,S 0 5 "
       "7000 19999 1,S 0 6 14500 0 0,S 0 7 5500 21 0,S 0 8 16000 0 0,S 0 9 4000 "
-      "0 1,B 10000 0";
+      "0 1,S 1 1 10000 253 1,S 1 2 11500 0 0,S 1 3 8500 1546 0,S 1 4 13000 0 "
+      "0,S 1 5 7000 19999 1,S 1 6 14500 0 0,S 1 7 5500 21 0,S 1 8 16000 0 0,S "
+      "1 9 4000 0 1,B 10000 0";
 
   T_ship expected_ships[] = {
       {0, 1, 10000, 253, true},  {0, 2, 11500, 0, false},
       {0, 3, 8500, 1546, false}, {0, 4, 13000, 0, false},
       {0, 5, 7000, 19999, true}, {0, 6, 14500, 0, false},
       {0, 7, 5500, 21, false},   {0, 8, 16000, 0, false},
-      {0, 9, 4000, 0, true},
+      {0, 9, 4000, 0, true},     {1, 1, 10000, 253, true},
+      {1, 2, 11500, 0, false},   {1, 3, 8500, 1546, false},
+      {1, 4, 13000, 0, false},   {1, 5, 7000, 19999, true},
+      {1, 6, 14500, 0, false},   {1, 7, 5500, 21, false},
+      {1, 8, 16000, 0, false},   {1, 9, 4000, 0, true},
   };
 
-  T_ship parsed_ships[SHIPS_NUMBER];
+  uint8_t number_of_teams = 2;
+  T_ship parsed_ships[SHIPS_NUMBER * number_of_teams];
 
   parse_ships(input, parsed_ships);
 
-  for (int i = 0; i < SHIPS_NUMBER; i++) {
+  for (int i = 0; i < SHIPS_NUMBER * number_of_teams; i++) {
     TEST_ASSERT_EQUAL_INT(expected_ships[i].team_ID, parsed_ships[i].team_ID);
     TEST_ASSERT_EQUAL_INT(expected_ships[i].ship_ID, parsed_ships[i].ship_ID);
     TEST_ASSERT_EQUAL_INT(expected_ships[i].pos_X, parsed_ships[i].pos_X);
