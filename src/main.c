@@ -14,13 +14,10 @@
 osThreadId_t mainTaskHandle;
 void StartMainTask(void *argument);
 
-os_memory_pool_id memory_pool_id = NULL;
-
 int main(void) {
   hardware_init();
   osKernelInitialize();
   os_engine_init();
-  memory_pool_id = init_memory_pool();
 
   const osThreadAttr_t mainTask_attributes = {
       .name = "mainTask",
@@ -52,40 +49,6 @@ int main(void) {
 }
 
 void StartMainTask(void *argument) {
-  osStatus_t status;
-
-#ifdef DEBUG
-  putsMutex("MAIN -> memory_pool_id :");
-  char adresse_str[20];
-  sprintf(adresse_str, "%p", memory_pool_id);
-  putsMutex(adresse_str);
-  putsMutex("\n");
-#endif
-
-  os_T_Memory_block *memory_block = NULL;
-  memory_block = (os_T_Memory_block *)osMemoryPoolAlloc(memory_pool_id,
-                                                        0U); // get Mem Block
-  if (memory_block != NULL) {          // Mem Block was available
-    memory_block->uint16_data_1 = 192; // do some work...
-    memory_block->uint16_data_2 = 174;
-    memory_block->uint16_data_3 = 23;
-    memory_block->uint8_data_1 = 244;
-    memory_block->uint8_data_2 = 53;
-
-    // status = osMemoryPoolFree(memory_pool_id, memory_block); // free mem
-    // block
-
-    // if (status == osErrorNoMemory || status == osErrorParameter)
-    // {
-    //     while (1)
-    //         ;
-    // }
-  } else {
-    while (1) {
-      // puts("MEM POOL WRITE : memory_block is NULL\n");
-    }
-  }
-
   while (1) {
     osDelay(1);
   }

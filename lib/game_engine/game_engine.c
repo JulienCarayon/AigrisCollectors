@@ -1,9 +1,11 @@
 #include "game_engine.h"
 #include "OS_engine.h"
 
+uint8_t nb_planets = 0;
+
 T_planet planets[MAX_PLANETS_NUMBER] = {
     {1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {3, 3, 3, 3, 3}, {4, 4, 4, 4, 4},
-    {1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {3, 3, 3, 3, 3}, {4, 4, 4, 4, 4}};
+    {5, 5, 5, 5, 5}, {6, 6, 6, 6, 6}, {7, 7, 7, 7, 7}, {8, 8, 8, 8, 8}};
 
 char *explore(uint8_t ship_id, char *command_buffer) {
   command_buffer = generate_command(RADAR_CMD, ship_id, 0, 0, command_buffer);
@@ -51,38 +53,7 @@ void ship_manager(uint8_t id) {
   char command_buffer[BUFFER_SIZE] = {0};
   char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
 
-#ifdef DEBUG
-  puts("THREADS -> memory_pool_id :");
-  char adresse_str[20];
-  sprintf(adresse_str, "%p", memory_pool_id);
-  puts(adresse_str);
-  puts("\n");
-#endif
-
   while (1) {
-#ifdef DEBUG
-    osStatus_t status;
-    os_T_Memory_block *memory_block = NULL;
-    memory_block = (os_T_Memory_block *)osMemoryPoolAlloc(memory_pool_id, 0U);
-
-    if (memory_block != NULL) {
-      uint16_t data1 = memory_block->uint16_data_1;
-      uint16_t data2 = memory_block->uint16_data_2;
-      uint16_t data3 = memory_block->uint16_data_3;
-      uint8_t data4 = memory_block->uint8_data_1;
-      uint8_t data5 = memory_block->uint8_data_2;
-      puts("data1=");
-      char buffer[20];
-      sprintf(buffer, "%u", data1);
-      puts(buffer);
-      puts("\n");
-    } else {
-      while (1) {
-        puts("MEM POOL READ : memory_block is NULL\n");
-      }
-    }
-#endif
-
     memset(command_buffer, 0, sizeof(command_buffer));
     memset(answer_buffer, 0, sizeof(answer_buffer));
 
@@ -101,26 +72,12 @@ void ship_manager(uint8_t id) {
     _speed += 10;
 
     if (id == 6) {
-      int num_planets;
-
       generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
       send_command(command_buffer, answer_buffer);
-      parse_planets(answer_buffer, planets, &num_planets);
-      afficher_planet(planets);
+      parse_planets(answer_buffer, planets, &nb_planets);
+      show_planet(planets);
     }
   }
-}
-
-void afficher_planet(T_planet *planet) {
-  char buffer[RX_COMMAND_BUFFER_SIZE];
-
-  //"P %hu %hu %hu %hhd %hhu",
-  sprintf(buffer,
-          "planet_ID: %u, pos_X: %u, pos_Y: %u, ship_ID: %d, planet_saved: %u",
-          planet[0].planet_ID, planet[0].pos_X, planet[0].pos_Y,
-          planet[0].ship_ID, planet[0].planet_saved);
-
-  puts(buffer);
 }
 
 uint16_t get_distance_between_two_points(T_point starting_point,
@@ -162,7 +119,7 @@ void free_buffer(char *buffer_ptr) {
 }
 
 void parse_planets(const char *server_response, T_planet *planets,
-                   int *num_planets) {
+                   uint8_t *num_planets) {
   *num_planets = 0;
   const char *str_token;
   char *save_ptr;
@@ -174,7 +131,7 @@ void parse_planets(const char *server_response, T_planet *planets,
 
   while (str_token != NULL) {
     if (str_token[0] == SERVER_RESPONSE_PLANET_DELIMITER) {
-      if (*num_planets > MAX_PLANETS_NUMBER) { // TODO test with >=
+      if (*num_planets >= MAX_PLANETS_NUMBER) {
         exit(1);
       }
 
@@ -226,5 +183,19 @@ void parse_base(const char *server_response, T_base *base) {
     }
 
     str_token = strtok_r(NULL, SERVER_RESPONSE_DELIMITER, &save_ptr);
+  }
+}
+
+void show_planet(T_planet *planet) {
+  char buffer[RX_COMMAND_BUFFER_SIZE];
+
+  for (uint8_t id = 0; id < nb_planets; id++) {
+    sprintf(
+        buffer,
+        "planet_ID: %u, pos_X: %u, pos_Y: %u, ship_ID: %d, planet_saved: %u",
+        planet[id].planet_ID, planet[id].pos_X, planet[id].pos_Y,
+        planet[id].ship_ID, planet[id].planet_saved);
+
+    puts(buffer);
   }
 }
