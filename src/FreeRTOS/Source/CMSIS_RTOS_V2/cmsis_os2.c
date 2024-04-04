@@ -2546,24 +2546,32 @@ void *osMemoryPoolAlloc(osMemoryPoolId_t mp_id, uint32_t timeout)
   if (mp_id == NULL)
   {
     /* Invalid input parameters */
+    putsMutex("NO mp_id");
     block = NULL;
   }
   else
   {
+    putsMutex("mp_id =");
+    putsMutex(mp_id);
     block = NULL;
 
     mp = (MemPool_t *)mp_id;
 
     if ((mp->status & MPOOL_STATUS) == MPOOL_STATUS)
     {
+      putsMutex("///1///\n");
       if (IS_IRQ())
       {
+        putsMutex("///2///\n");
         if (timeout == 0U)
         {
+          putsMutex("///3///\n");
           if (xSemaphoreTakeFromISR(mp->sem, NULL) == pdTRUE)
           {
+            putsMutex("///4///\n");
             if ((mp->status & MPOOL_STATUS) == MPOOL_STATUS)
             {
+              putsMutex("///5///\n");
               isrm = taskENTER_CRITICAL_FROM_ISR();
 
               /* Get a block from the free-list */
@@ -2571,6 +2579,7 @@ void *osMemoryPoolAlloc(osMemoryPoolId_t mp_id, uint32_t timeout)
 
               if (block == NULL)
               {
+                putsMutex("///6///\n");
                 /* List of free blocks is empty, 'create' new block */
                 block = CreateBlock(mp);
               }

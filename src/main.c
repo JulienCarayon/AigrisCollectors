@@ -14,7 +14,7 @@
 osThreadId_t mainTaskHandle;
 void StartMainTask(void *argument);
 
-os_memory_pool_id memory_pool_id = NULL;
+osMemoryPoolId_t memory_pool_id = NULL;
 
 int main(void)
 {
@@ -56,23 +56,29 @@ int main(void)
 
 void StartMainTask(void *argument)
 {
-    osStatus_t status;
 
+    putsMutex("AM I STUCK HERE ? \n");
+    osStatus_t status;
     memory_pool_id = init_memory_pool();
-    putsMutex("memory_pool_id : ");
+    putsMutex("NO\n");
+    putsMutex("MAIN : memory_pool_id : \n");
     putsMutex(memory_pool_id);
     putsMutex("\n");
     os_T_Memory_block *memory_block = NULL;
     memory_block = (os_T_Memory_block *)osMemoryPoolAlloc(memory_pool_id,
-                                                          osWaitForever); // get Mem Block
+                                                          0U); // get Mem Block
     if (memory_block != NULL)
-    {                                      // Mem Block was available
-        memory_block->uint16_data_1 = 192; // do some work...
-        memory_block->uint16_data_2 = 174;
-        memory_block->uint16_data_3 = 23;
-        memory_block->uint8_data_1 = 244;
-        memory_block->uint8_data_2 = 53;
-
+    {                                    // Mem Block was available
+        memory_block->uint16_data_1 = 1; // do some work...
+        memory_block->uint16_data_2 = 2;
+        memory_block->uint16_data_3 = 3;
+        memory_block->uint8_data_1 = 4;
+        memory_block->uint8_data_2 = 5;
+        putsMutex("memory_block->uint16_data_1=");
+        char buffer[20];
+        sprintf(buffer, "%lu", memory_block->uint16_data_1);
+        putsMutex(buffer);
+        putsMutex("\n");
         // status = osMemoryPoolFree(memory_pool_id, memory_block); // free mem block
 
         // if (status == osErrorNoMemory || status == osErrorParameter)
@@ -81,6 +87,7 @@ void StartMainTask(void *argument)
         //         ;
         // }
     }
+
     else
     {
         while (1)
@@ -88,7 +95,11 @@ void StartMainTask(void *argument)
             puts("MEM POOL WRITE : memory_block is NULL\n");
         }
     }
-
+    putsMutex("MAIN : osMemoryPoolGetCapacity : ");
+    char buffer[20];
+    sprintf(buffer, "%u", osMemoryPoolGetCapacity(memory_pool_id));
+    putsMutex(buffer);
+    putsMutex("\n ");
     while (1)
     {
         osDelay(1);

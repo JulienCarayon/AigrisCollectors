@@ -59,18 +59,18 @@ void ship_manager(uint8_t id)
 {
 
   osStatus_t status;
-  putsMutex("memory_pool_id : ");
+  putsMutex("THREAD : memory_pool_id : ");
   putsMutex(memory_pool_id);
-  putsMutex("\n");
-  os_T_Memory_block *memory_block = NULL;
-  memory_block = (os_T_Memory_block *)osMemoryPoolAlloc(memory_pool_id, osWaitForever);
-  if (memory_block != NULL)
+  putsMutex("end\n");
+  os_T_Memory_block *read_memory_block = NULL;
+  read_memory_block = (os_T_Memory_block *)osMemoryPoolAlloc(memory_pool_id, osWaitForever);
+  if (read_memory_block != NULL)
   {
-    uint16_t data1 = memory_block->uint16_data_1;
-    uint16_t data2 = memory_block->uint16_data_2;
-    uint16_t data3 = memory_block->uint16_data_3;
-    uint8_t data4 = memory_block->uint8_data_1;
-    uint8_t data5 = memory_block->uint8_data_2;
+    uint16_t data1 = read_memory_block->uint16_data_1;
+    uint16_t data2 = read_memory_block->uint16_data_2;
+    uint16_t data3 = read_memory_block->uint16_data_3;
+    uint8_t data4 = read_memory_block->uint8_data_1;
+    uint8_t data5 = read_memory_block->uint8_data_2;
     putsMutex("data1=");
     char buffer[20];
     sprintf(buffer, "%u", data1);
@@ -87,7 +87,11 @@ void ship_manager(uint8_t id)
 
   char command_buffer[BUFFER_SIZE] = {""};
   char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {""};
-
+  putsMutex("THREAD : osMemoryPoolGetCapacity : ");
+  char buffer[20];
+  sprintf(buffer, "%lu", osMemoryPoolGetCapacity(memory_pool_id));
+  putsMutex(buffer);
+  putsMutex("\n ");
   while (1)
   {
     memset(command_buffer, 0, sizeof(command_buffer));

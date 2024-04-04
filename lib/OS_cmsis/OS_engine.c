@@ -90,16 +90,19 @@ void send_command(char *command, char *response_buffer)
   osDelay(OS_DELAY); // TODO Why ?
 }
 
-os_memory_pool_id init_memory_pool(void)
+osMemoryPoolId_t init_memory_pool(void)
 {
-  os_memory_pool_id new_memory_pool_id =
+  osMemoryPoolId_t new_memory_pool_id =
       osMemoryPoolNew(MEMORY_POOL_OBJECTS, sizeof(os_T_Memory_block), NULL);
+  putsMutex("init_memory_pool : new_memory_pool_id : ");
+  putsMutex(new_memory_pool_id);
 
   if (new_memory_pool_id == NULL)
   {
     while (1)
-      ;
+      puts("new_memory_pool_id == NULL");
   }
+  return new_memory_pool_id;
 }
 
 void putsMutex(char *text)

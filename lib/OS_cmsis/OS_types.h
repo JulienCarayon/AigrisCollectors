@@ -6,10 +6,11 @@
 typedef osMutexId_t os_mutex_id;
 typedef osMutexAttr_t os_mutex_attr;
 
-typedef osMemoryPoolId_t os_memory_pool_id;
+// typedef osMemoryPoolId_t osMemoryPoolId_t;
 typedef osThreadId_t os_thread_id;
 
-typedef struct {
+typedef struct
+{
   uint16_t uint16_data_1;
   uint16_t uint16_data_2;
   uint16_t uint16_data_3;
