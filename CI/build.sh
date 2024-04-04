@@ -4,6 +4,17 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_DIR="$SCRIPT_DIR/"
 
+# Nom du fichier de sortie
+OUTPUT_FILE="output.txt"
+OUTPUT_PDF="output.pdf"
+
+
+# Fonction pour afficher la barre de progression
+progress_bar() {
+    echo "Progression: $1%"
+}
+
+# Ajouter les en-têtes
 echo "___misra-c________________________________________________________"
 echo "Répertoire du script : $SCRIPT_DIR"
 echo "Répertoire du projet : $PROJECT_DIR"
@@ -17,13 +28,15 @@ if [ ! -f main.c ]; then
     exit 1
 fi
 
-# compile and put in /tmp folder 
-# (tmp folder is wiped at every reboot)
+# compiler et placer dans le dossier /tmp
 echo "___gcc-messages______"
 gcc -std=c99 -pedantic main.c -o /tmp/misra-c | zenity --progress --pulsate --auto-close --width=300 --title="Compilation in progress" --text="Compiling MISRA-C code..."
 
+
 # Obtenir le répertoire source
 SRC_DIR="$(dirname "$PROJECT_DIR")/src"
+
+echo "dans le répertoire src"
 
 # Vérifier si le répertoire source existe
 if [ ! -d "$SRC_DIR" ]; then
@@ -33,28 +46,11 @@ fi
 
 # Se déplacer vers le répertoire src
 cd "$SRC_DIR" || exit 1
-echo "files pour repertoire SRC_DIR : $SRC_DIR"
-# Se déplacer vers le répertoire src
-# cd "$SRC_DIR" || exit 1
 
-# Afficher la liste des fichiers dans le répertoire src
-echo "Liste des fichiers dans le répertoire src :"
-ls -l
+echo "dans le répertoire src"
 
 # Liste des fichiers dans le répertoire src/
-#FILES="$SRC_DIR"/*
 FILES=$(find "$SRC_DIR" -type f)
-
-# Afficher les fichiers contenus dans $FILES
-echo "Contenu de la variable FILES :"
-echo "$FILES"
-
-# Si on est en mode test, tester uniquement le fichier main.c
-if [ "$TEST_MODE" == "true" ]; then
-    echo "Mode test activé. Testing seulement le fichier main.c."
-    /tmp/misra-c < main.c
-    exit 0
-fi
 
 # Si aucun fichier n'est présent dans le répertoire, afficher un message d'avertissement
 if [ -z "$FILES" ]; then
@@ -62,30 +58,69 @@ if [ -z "$FILES" ]; then
     exit 1
 fi
 
+
+# Fonction pour ajouter une ligne dans le fichier de sortie
+add_to_output() {
+    echo "$1" >> "$OUTPUT_FILE"
+}
+
+# Nettoyer le fichier de sortie s'il existe déjà
+#> "$OUTPUT_FILE"
+
+
+# Si on est en mode test, tester uniquement le fichier main.c
+if [ "$TEST_MODE" == "true" ]; then
+    echo "test MODE"
+    echo "Mode test activé. Testing seulement le fichier main.c."
+    #/tmp/misra-c < main.c 
+    > "$OUTPUT_FILE"
+    /tmp/misra-c < main.c >> "$OUTPUT_FILE"
+    echo "___end_______________"
+
+    # Remplacer toutes les occurrences de "\n" par des sauts de ligne réels
+    sed -i 's/\\n/\'$'\n''/g' "$OUTPUT_FILE"
+
+    #pandoc "$OUTPUT_FILE" -o "$OUTPUT_PDF"
+    
+    #pandoc "$OUTPUT_FILE" -o "$OUTPUT_PDF" 2>&1 | tee pandoc_error.log
+    pandoc -f markdown "$OUTPUT_FILE" -o "$OUTPUT_PDF" 2>&1 | tee pandoc_error.log
+    if [ ${PIPESTATUS[0]} -ne 0 ]; then
+        echo "Erreur lors de la conversion en PDF. Veuillez consulter le fichier pandoc_error.log pour plus de détails."
+        exit 1
+    fi
+
+    # Nettoyer les fichiers temporaires
+    rm /tmp/misra-c
+    exit 0
+fi
+
 # Calculer le nombre total de fichiers
 TOTAL_FILES=$(ls -1 | wc -l)
-echo "TOTAL_FILES: $TOTAL_FILES"
 
 # Initialiser la progression
 CURRENT_PROGRESS=0
 INCREMENT=0
 
-
+# Loop through files
 for file in $FILES; do
-    #echo "___Running misra-c for file: $file"
-     # Increment progress
+    add_to_output "___Running misra-c for file: $file"
+    # Increment progress
     INCREMENT=$((100/TOTAL_FILES))
     CURRENT_PROGRESS=$((CURRENT_PROGRESS+INCREMENT))
-    # Update progress bar
-    echo "$CURRENT_PROGRESS"
-
-    /tmp/misra-c < "$file"
+    # Afficher la progression
+    progress_bar "$CURRENT_PROGRESS"
+    # Run misra-c
+    /tmp/misra-c < "$file" >> "$OUTPUT_FILE"
 done
 
 # run self
 echo "___Running misra-c for self"
-/tmp/misra-c
+/tmp/misra-c >> "$OUTPUT_FILE"
 
 echo "___end_______________"
 
+# Convertir le fichier texte en PDF
+#pandoc "$OUTPUT_FILE" -o "$OUTPUT_PDF"
+pandoc "$OUTPUT_FILE" --pdf-engine=xelatex -o "$OUTPUT_PDF"
+# Nettoyer les fichiers temporaires
 rm /tmp/misra-c
