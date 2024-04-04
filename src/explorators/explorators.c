@@ -9,6 +9,7 @@ const osThreadAttr_t exploratorsTask_attributes = {
 
 void StartExploratorTask_1(void *argument) {
   wait_start();
+  getUsedStackSpace(exploratorTaskHandles_1);
   ship_manager(6);
 }
 

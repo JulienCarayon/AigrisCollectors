@@ -2,6 +2,7 @@
 #include "../include/hardware.h"
 #include "OS_types.h"
 #include <constants.h>
+#include <stdio.h>
 #include <string.h>
 
 bool is_comptetion_started = false;
@@ -91,4 +92,31 @@ char *getsMutex(char *text) {
   gets(text);
   os_release_mutex(uartMutex_M);
   return original_str;
+}
+
+uint32_t getFreeStackSpace(os_thread_id thread_id) {
+  uint32_t stack_space = osThreadGetStackSpace(thread_id);
+  char space[40] = {0};
+  sprintf(space, "Free stack space : %ld\n", stack_space);
+  putsMutex(space);
+
+  return stack_space;
+}
+
+uint32_t getStackSize(os_thread_id thread_id) {
+  uint32_t stack_size = osThreadGetStackSize(thread_id);
+  char buff_size[40] = {0};
+  sprintf(buff_size, "Stack size : %ld\n", stack_size);
+  putsMutex(buff_size);
+
+  return stack_size;
+}
+
+void getUsedStackSpace(os_thread_id thread_id) {
+  uint32_t used_stack_size =
+      getStackSize(thread_id) - getFreeStackSpace(thread_id);
+
+  char buff_size[40] = {0};
+  sprintf(buff_size, "Used stack space : %ld\n", used_stack_size);
+  putsMutex(buff_size);
 }
