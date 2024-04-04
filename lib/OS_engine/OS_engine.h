@@ -9,8 +9,10 @@ extern bool is_comptetion_started;
 extern bool rx_command_received;
 extern char rx_command_buffer[RX_COMMAND_BUFFER_SIZE];
 
-void putsMutex(char *text);
-char *getsMutex(char *text);
+// void putsMutex(char *text);
+// char *getsMutex(char *text);
+void putsMutex(os_mutex_id mutex_id, char *text);
+char *getsMutex(os_mutex_id mutex_id, char *text);
 
 void send_command(char *command, char *response_buffer);
 void wait_start(void);
