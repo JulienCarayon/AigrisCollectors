@@ -71,24 +71,26 @@ add_to_output() {
 # Si on est en mode test, tester uniquement le fichier main.c
 if [ "$TEST_MODE" == "true" ]; then
     echo "test MODE"
-    echo "Mode test activé. Testing seulement le fichier main.c."
+    echo "Mode test activé. Testing seulement le fichier $1"
     #/tmp/misra-c < main.c 
-    > "$OUTPUT_FILE"
-    /tmp/misra-c < main.c >> "$OUTPUT_FILE"
+    > "$1_$OUTPUT_FILE"
+    /tmp/misra-c < $1 >> "$1_$OUTPUT_FILE"
     echo "___end_______________"
 
     # Remplacer toutes les occurrences de "\n" par des sauts de ligne réels
-    sed -i 's/\\n/\'$'\n''/g' "$OUTPUT_FILE"
+    sed -i 's/\\n/\'$'\n''/g' "$1_$OUTPUT_FILE"
 
     #pandoc "$OUTPUT_FILE" -o "$OUTPUT_PDF"
     
     #pandoc "$OUTPUT_FILE" -o "$OUTPUT_PDF" 2>&1 | tee pandoc_error.log
-    pandoc -f markdown "$OUTPUT_FILE" -o "$OUTPUT_PDF" 2>&1 | tee pandoc_error.log
+    pandoc -f markdown "$1_$OUTPUT_FILE" -o "$1_$OUTPUT_PDF" 2>&1 | tee pandoc_error.log
     if [ ${PIPESTATUS[0]} -ne 0 ]; then
         echo "Erreur lors de la conversion en PDF. Veuillez consulter le fichier pandoc_error.log pour plus de détails."
         exit 1
+    else
+        # Supprimer le fichier texte s'il n'y a pas eu d'erreur lors de la conversion en PDF
+        rm "$1_$OUTPUT_FILE"
     fi
-
     # Nettoyer les fichiers temporaires
     rm /tmp/misra-c
     exit 0
