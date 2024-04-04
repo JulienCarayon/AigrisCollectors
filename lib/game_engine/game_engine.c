@@ -52,11 +52,11 @@ void ship_manager(uint8_t id) {
   char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
 
 #ifdef DEBUG
-  putsMutex("THREADS -> memory_pool_id :");
+  puts("THREADS -> memory_pool_id :");
   char adresse_str[20];
   sprintf(adresse_str, "%p", memory_pool_id);
-  putsMutex(adresse_str);
-  putsMutex("\n");
+  puts(adresse_str);
+  puts("\n");
 #endif
 
   while (1) {
@@ -71,11 +71,11 @@ void ship_manager(uint8_t id) {
       uint16_t data3 = memory_block->uint16_data_3;
       uint8_t data4 = memory_block->uint8_data_1;
       uint8_t data5 = memory_block->uint8_data_2;
-      putsMutex("data1=");
+      puts("data1=");
       char buffer[20];
       sprintf(buffer, "%u", data1);
-      putsMutex(buffer);
-      putsMutex("\n");
+      puts(buffer);
+      puts("\n");
     } else {
       while (1) {
         puts("MEM POOL READ : memory_block is NULL\n");
@@ -120,7 +120,7 @@ void afficher_planet(T_planet *planet) {
           planet[0].planet_ID, planet[0].pos_X, planet[0].pos_Y,
           planet[0].ship_ID, planet[0].planet_saved);
 
-  putsMutex(buffer);
+  puts(buffer);
 }
 
 uint16_t get_distance_between_two_points(T_point starting_point,
@@ -175,7 +175,6 @@ void parse_planets(const char *server_response, T_planet *planets,
   while (str_token != NULL) {
     if (str_token[0] == SERVER_RESPONSE_PLANET_DELIMITER) {
       if (*num_planets > MAX_PLANETS_NUMBER) { // TODO test with >=
-        putsMutex("num_planets > MAX_PLANETS_NUMBER");
         exit(1);
       }
 
