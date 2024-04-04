@@ -80,4 +80,7 @@ uint16_t get_angle_between_two_points(T_point starting_point,
 char *create_buffer(int buffer_size);
 void free_buffer(char *buffer_ptr);
 
+char *uint16_to_string(uint16_t num, char *buffer, size_t buffer_size);
+void afficher_planet(T_planet *planet);
+
 #endif // GAME_ENGINE_H
