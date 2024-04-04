@@ -6,7 +6,6 @@
 typedef osMutexId_t os_mutex_id;
 typedef osMutexAttr_t os_mutex_attr;
 
-typedef osMemoryPoolId_t os_memory_pool_id;
 typedef osThreadId_t os_thread_id;
 
 typedef struct {

@@ -12,7 +12,6 @@ typedef struct {
 typedef uint8_t os_mutex_id;
 typedef os_mutex_attr_t os_mutex_attr;
 
-typedef uint8_t os_memory_pool_id;
 typedef uint8_t os_thread_id;
 
 typedef struct {

@@ -68,7 +68,7 @@ char *generate_command(T_command_type command_type, int ship_id, int angle,
                        int speed, char *command_buffer);
 
 void parse_planets(const char *server_response, T_planet *planets,
-                   int *num_planets);
+                   uint8_t *num_planets);
 void parse_ships(const char *server_response, T_ship *ships);
 void parse_base(const char *server_response, T_base *base);
 
@@ -79,5 +79,7 @@ uint16_t get_angle_between_two_points(T_point starting_point,
 
 char *create_buffer(int buffer_size);
 void free_buffer(char *buffer_ptr);
+
+void show_planet(T_planet *planet);
 
 #endif // GAME_ENGINE_H
