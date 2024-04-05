@@ -1,6 +1,7 @@
 #include "attackers/attackers.h"
 #include "collectors/collectors.h"
 #include "explorators/explorators.h"
+#include "game_engine.h"
 #include "hardware.h"
 #include <OS_engine.h>
 #include <math.h>
@@ -22,7 +23,7 @@ int main(void) {
   const osThreadAttr_t mainTask_attributes = {
       .name = "mainTask",
       .priority = (osPriority_t)osPriorityNormal1,
-      .stack_size = 2048,
+      .stack_size = MAIN_TASK_SIZE,
   };
 
   mainTaskHandle = osThreadNew(StartMainTask, NULL, &mainTask_attributes);

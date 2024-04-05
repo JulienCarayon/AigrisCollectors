@@ -50,12 +50,12 @@ typedef struct {
 
 typedef struct {
   T_planet planets[MAX_PLANETS_NUMBER];
-  T_ship ships[SHIPS_NUMBER * NUMBER_OF_TEAM];
-  T_base base[BASE_NUMBER];
+  T_ship ships[36];
+  T_base base;
 } T_game_data;
 
 extern uint8_t nb_planets;
-extern uint8_t nb_ship;
+extern uint8_t nb_ships;
 extern T_game_data game_data[NUMBER_OF_GAME_DATA];
 
 void ship_manager(uint8_t id);
@@ -63,15 +63,14 @@ char *explore(uint8_t ship_id, char *command_buffer);
 char *move(uint8_t ship_id, uint16_t angle, uint16_t speed,
            char *command_buffer);
 
-void set_ship_type(T_ship *ship);
 char *generate_command(T_command_type command_type, int ship_id, int angle,
                        int speed, char *command_buffer);
 
-void parse_planets(const char *server_response, T_game_data *game_data,
-                   uint8_t *num_planets);
 void parse_planets_gpt(const char *server_response, T_game_data *game_data,
                        uint8_t *num_planets);
-void parse_ships(const char *server_response, T_game_data *game_data);
+void parse_ships_gpt(const char *server_response, T_game_data *game_data,
+                     uint8_t *num_ships);
+
 void parse_base(const char *server_response, T_game_data *game_data);
 
 uint16_t get_distance_between_two_points(T_point starting_point,

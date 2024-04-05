@@ -87,17 +87,17 @@ void send_command(char *command, char *response_buffer) {
 }
 
 // TODO remove os_mutex_id parameters for putsMutex
-void putsMutex(os_mutex_id mutex_id, char *text) {
-  os_acquire_mutex(mutex_id, osWaitForever);
+void putsMutex(char *text) {
+  os_acquire_mutex(uart_mutex_id, osWaitForever);
   puts(text);
-  os_release_mutex(mutex_id);
+  os_release_mutex(uart_mutex_id);
 }
 
-char *getsMutex(os_mutex_id mutex_id, char *text) {
+char *getsMutex(char *text) {
   char *original_str = text;
-  os_acquire_mutex(mutex_id, osWaitForever);
+  os_acquire_mutex(uart_mutex_id, osWaitForever);
   gets(text);
-  os_release_mutex(mutex_id);
+  os_release_mutex(uart_mutex_id);
   return original_str;
 }
 
@@ -105,7 +105,7 @@ uint32_t getFreeStackSpace(os_thread_id thread_id) {
   uint32_t stack_space = osThreadGetStackSpace(thread_id);
   char space[40] = {0};
   sprintf(space, "Free stack space : %ld\n", stack_space);
-  putsMutex(uart_mutex_id, space);
+  putsMutex(space);
 
   return stack_space;
 }
@@ -114,7 +114,7 @@ uint32_t getStackSize(os_thread_id thread_id) {
   uint32_t stack_size = osThreadGetStackSize(thread_id);
   char buff_size[40] = {0};
   sprintf(buff_size, "Stack size : %ld\n", stack_size);
-  putsMutex(uart_mutex_id, buff_size);
+  putsMutex(buff_size);
 
   return stack_size;
 }
@@ -125,5 +125,5 @@ void getUsedStackSpace(os_thread_id thread_id) {
 
   char buff_size[40] = {0};
   sprintf(buff_size, "Used stack space : %ld\n", used_stack_size);
-  putsMutex(uart_mutex_id, buff_size);
+  putsMutex(buff_size);
 }

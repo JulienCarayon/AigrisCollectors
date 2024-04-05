@@ -2,6 +2,7 @@
 #include "OS_engine.h"
 
 uint8_t nb_planets = 0;
+uint8_t nb_ships = 0;
 T_game_data game_data[NUMBER_OF_GAME_DATA];
 T_planet planets[MAX_PLANETS_NUMBER] = {
     {1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {3, 3, 3, 3, 3}, {4, 4, 4, 4, 4},
@@ -37,32 +38,27 @@ char *generate_command(T_command_type command_type, int ship_id, int angle,
   return command_buffer;
 }
 
-void set_ship_type(T_ship *ship) {
-  if (ship->ship_ID >= 1 && ship->ship_ID <= 5) {
-    // ship->ship_type = ATTACKERS_SHIP;
-  } else if (ship->ship_ID > 5 && ship->ship_ID <= 7) {
-    // ship->ship_type = EXPLORER_SHIP;
-  } else if (ship->ship_ID >= 8 && ship->ship_ID <= 9) {
-    // ship->ship_type = COLLECTOR_SHIP;
-  } else {
-    // ship->ship_type = UNKNOWN_SHIP;
-  }
-}
-
 void ship_manager(uint8_t id) {
+  static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
   char command_buffer[BUFFER_SIZE] = {0};
-  char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
-  uint32_t size_of_game_data = 0;
-  initialize_game_data(game_data);
 
   while (1) {
-    size_of_game_data = sizeof(game_data);
     memset(command_buffer, 0, sizeof(command_buffer));
-    memset(answer_buffer, 0, sizeof(answer_buffer));
+    memset(answer_buffer, 10, sizeof(answer_buffer));
 
     static int _angle = 90;
     static int _speed = 0;
 
+#ifndef DEMO
+    if (id == 6) {
+      generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
+      send_command(command_buffer, answer_buffer);
+      parse_ships_gpt(answer_buffer, game_data, &nb_ships);
+      parse_planets_gpt(answer_buffer, game_data, &nb_planets);
+      // parse_base(answer_buffer, game_data);
+    }
+#endif
+#ifdef DEMO
     if (_angle >= 359) {
       _angle = 0;
     }
@@ -74,13 +70,14 @@ void ship_manager(uint8_t id) {
     _angle += 10;
     _speed += 10;
 
-    if (id == 6) {
-      generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
+    if (id == 1 || id == 5) {
+      generate_command(FIRE_CMD, id, _angle, _speed, command_buffer);
       send_command(command_buffer, answer_buffer);
-      parse_planets_gpt(answer_buffer, game_data, &nb_planets);
-      parse_ships(answer_buffer, game_data);
-      parse_base(answer_buffer, game_data);
+    } else {
+      generate_command(MOVE_CMD, id, _angle, _speed, command_buffer);
+      send_command(command_buffer, answer_buffer);
     }
+#endif
   }
 }
 
@@ -124,35 +121,6 @@ void free_buffer(char *buffer_ptr) {
 
 void write_game_data(const char *server_response) {}
 
-void parse_planets(const char *server_response, T_game_data *game_data,
-                   uint8_t *num_planets) {
-  *num_planets = 0;
-  const char *str_token;
-  char *save_ptr;
-  char server_response_copy[strlen(server_response) + 1];
-  strcpy(server_response_copy, server_response);
-
-  str_token =
-      strtok_r(server_response_copy, SERVER_RESPONSE_DELIMITER, &save_ptr);
-
-  while (str_token != NULL) {
-    if (str_token[0] == SERVER_RESPONSE_PLANET_DELIMITER) {
-      if (*num_planets >= MAX_PLANETS_NUMBER) {
-        // TODO while(1) tu pleures ?
-      }
-
-      sscanf(str_token, "P %hu %hu %hu %hhd %hhu",
-             &game_data->planets[*num_planets].planet_ID,
-             &game_data->planets[*num_planets].pos_X,
-             &game_data->planets[*num_planets].pos_Y,
-             &game_data->planets[*num_planets].ship_ID,
-             &game_data->planets[*num_planets].planet_saved);
-      (*num_planets)++;
-    }
-    str_token = strtok_r(NULL, SERVER_RESPONSE_DELIMITER, &save_ptr);
-  }
-}
-
 void parse_planets_gpt(const char *server_response, T_game_data *game_data,
                        uint8_t *num_planets) {
   *num_planets = 0;
@@ -180,54 +148,32 @@ void parse_planets_gpt(const char *server_response, T_game_data *game_data,
     delimiter = strchr(
         str, SERVER_RESPONSE_DELIMITER[0]); // Recherche du prochain délimiteur
   }
-
-  // Traiter le dernier élément de la chaîne s'il n'y a pas de délimiteur après
-  if (*str == SERVER_RESPONSE_PLANET_DELIMITER) {
-    if (*num_planets < MAX_PLANETS_NUMBER) {
-      sscanf(str, "P %hu %hu %hu %hhd %hhu",
-             &game_data->planets[*num_planets].planet_ID,
-             &game_data->planets[*num_planets].pos_X,
-             &game_data->planets[*num_planets].pos_Y,
-             &game_data->planets[*num_planets].ship_ID,
-             &game_data->planets[*num_planets].planet_saved);
-      (*num_planets)++;
-    }
-  }
 }
 
-void parse_ships(const char *server_response, T_game_data *game_data) {
-  const char *str_token;
-  char *save_ptr;
-  uint8_t ship_id = 0;
-  uint8_t *num_ship;
-  char server_response_copy[strlen(server_response) + 1];
-  strcpy(server_response_copy, server_response);
+void parse_ships_gpt(const char *server_response, T_game_data *game_data,
+                     uint8_t *num_ships) {
+  *num_ships = 0;
+  const char *str = server_response;
+  const char *delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);
 
-  uint8_t debug_team_ID = 0;
-  uint8_t debug_ship_ID = 0;
-  uint16_t debug_pos_X = 0;
-  uint16_t debug_pos_Y = 0;
-  uint8_t debug_broken = 0;
-
-  str_token =
-      strtok_r(server_response_copy, SERVER_RESPONSE_DELIMITER, &save_ptr);
-  while (str_token != NULL) {
-    if (str_token[0] == SERVER_RESPONSE_SHIP_DELIMITER) {
-      if (ship_id >= 36) {
-        // TODO while(1) tu pleures ?
+  while (delimiter != NULL) {
+    if (*str == SERVER_RESPONSE_SHIP_DELIMITER) {
+      if (*num_ships >= 36) {
+        break;
       }
 
-      sscanf(str_token, "S %hhu %hhu %hu %hu %hhu",
-             &game_data->ships[*num_ship].team_ID,
-             &game_data->ships[*num_ship].ship_ID,
-             &game_data->ships[*num_ship].pos_X,
-             &game_data->ships[*num_ship].pos_Y,
-             &game_data->ships[*num_ship].broken);
-
-      (*num_ship)++;
+      sscanf(str, "S %hhu %hhu %hu %hu %hhu",
+             &game_data->ships[*num_ships].team_ID,
+             &game_data->ships[*num_ships].ship_ID,
+             &game_data->ships[*num_ships].pos_X,
+             &game_data->ships[*num_ships].pos_Y,
+             &game_data->ships[*num_ships].broken);
+      (*num_ships)++;
     }
 
-    str_token = strtok_r(NULL, SERVER_RESPONSE_DELIMITER, &save_ptr);
+    str = delimiter + 1; // Passer au prochain caractère après le délimiteur
+    delimiter = strchr(
+        str, SERVER_RESPONSE_DELIMITER[0]); // Recherche du prochain délimiteur
   }
 }
 
@@ -241,8 +187,8 @@ void parse_base(const char *server_response, T_game_data *game_data) {
       strtok_r(server_response_copy, SERVER_RESPONSE_DELIMITER, &save_ptr);
   while (str_token != NULL) {
     if (str_token[0] == 'B') {
-      sscanf(str_token, "B %hu %hu", &game_data->base[0].pos_X,
-             &game_data->base[0].pos_Y);
+      sscanf(str_token, "B %hu %hu", &game_data->base.pos_X,
+             &game_data->base.pos_Y);
     }
 
     str_token = strtok_r(NULL, SERVER_RESPONSE_DELIMITER, &save_ptr);
@@ -273,13 +219,13 @@ void initialize_game_data(T_game_data *game_data) {
   }
 
   for (int i = 0; i < 9 * 4; i++) {
-    game_data->ships[i].team_ID = 1;
-    game_data->ships[i].ship_ID = 1;
-    game_data->ships[i].pos_X = 1;
-    game_data->ships[i].pos_Y = 1;
-    game_data->ships[i].broken = 1;
+    game_data->ships[i].team_ID = 3;
+    game_data->ships[i].ship_ID = 3;
+    game_data->ships[i].pos_X = 3;
+    game_data->ships[i].pos_Y = 3;
+    game_data->ships[i].broken = 3;
   }
 
-  game_data->base->pos_X = 0;
-  game_data->base->pos_Y = 0;
+  game_data->base.pos_X = 0;
+  game_data->base.pos_Y = 0;
 }
