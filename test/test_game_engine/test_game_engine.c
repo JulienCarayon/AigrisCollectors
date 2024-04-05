@@ -105,6 +105,24 @@ void test_get_ship_position(void) {
   TEST_ASSERT_EQUAL_INT(exepected_ship_pos.pos_Y, ship_pos.pos_Y);
 }
 
+void test_get_planet_position(void) {
+  T_planet planet = {495, 10000, 20000, -1, 0};
+  T_point planet_pos = get_planet_position(planet);
+  T_point exepected_planet_pos = {10000, 20000};
+
+  TEST_ASSERT_EQUAL_INT(exepected_planet_pos.pos_X, planet_pos.pos_X);
+  TEST_ASSERT_EQUAL_INT(exepected_planet_pos.pos_Y, planet_pos.pos_Y);
+}
+
+void test_get_base_position(void) {
+  T_base base = {10000, 0};
+  T_point base_pos = get_base_position(base);
+  T_point exepected_base_pos = {10000, 0};
+
+  TEST_ASSERT_EQUAL_INT(exepected_base_pos.pos_X, base_pos.pos_X);
+  TEST_ASSERT_EQUAL_INT(exepected_base_pos.pos_Y, base_pos.pos_Y);
+}
+
 void test_direction(void) {
 
   // arguments :
@@ -190,6 +208,8 @@ int main() {
   RUN_TEST(test_ship_parsing);
   // RUN_TEST(test_direction);
   RUN_TEST(test_get_ship_position);
+  RUN_TEST(test_get_planet_position);
+  RUN_TEST(test_get_base_position);
   // RUN_TEST(test_ship_parsing_error);
   // RUN_TEST(test_base_parsing);
   UNITY_END(); // stop unit testing

@@ -3,6 +3,7 @@
 
 uint8_t nb_planets = 0;
 uint8_t nb_ships = 0;
+bool flag = false;
 T_game_data game_data[NUMBER_OF_GAME_DATA];
 T_planet planets[MAX_PLANETS_NUMBER] = {
     {1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {3, 3, 3, 3, 3}, {4, 4, 4, 4, 4},
@@ -54,8 +55,15 @@ void ship_manager(uint8_t id) {
       parse_ships_gpt(answer_buffer, game_data, &nb_ships);
       parse_base(answer_buffer, game_data);
     } else {
-      collect_planet(game_data, command_buffer);
-      send_command(command_buffer, answer_buffer);
+      if (game_data->planets[0].ship_ID != -1) {
+        set_direction(GO_TO_BASE, game_data->ships[8], game_data->planets[0],
+                      game_data->base, 1000, command_buffer);
+        send_command(command_buffer, answer_buffer);
+      } else {
+        set_direction(GO_TO_PLANET, game_data->ships[8], game_data->planets[0],
+                      game_data->base, 1000, command_buffer);
+        send_command(command_buffer, answer_buffer);
+      }
     }
     memset(command_buffer, 0, sizeof(command_buffer));
     memset(answer_buffer, 0, sizeof(answer_buffer));
@@ -127,14 +135,29 @@ T_point get_ship_position(T_ship ship) {
   return ship_pos;
 }
 
+T_point get_planet_position(T_planet planet) {
+  T_point planet_pos = {planet.pos_X, planet.pos_Y};
+  return planet_pos;
+}
+
+T_point get_base_position(T_base base) {
+  T_point base_pos = {base.pos_X, base.pos_Y};
+  return base_pos;
+}
+
+// set_direction(GO_TO_PLANET, game_data.ship)
 void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
-                   T_base base, char *command_buffer) {
+                   T_base base, uint16_t ship_speed, char *command_buffer) {
 
   T_point ship_pos = get_ship_position(ship);
+  T_point planet_pos = get_planet_position(planet);
+  T_point base_pos = get_base_position(base);
 
   switch (mode) {
   case GO_TO_PLANET:
-
+    generate_command(MOVE_CMD, ship.ship_ID,
+                     get_angle_between_two_points(ship_pos, planet_pos),
+                     ship_speed, command_buffer);
     break;
 
   case GO_TO_SHIP:
@@ -142,7 +165,9 @@ void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
     break;
 
   case GO_TO_BASE:
-    /* code */
+    generate_command(MOVE_CMD, ship.ship_ID,
+                     get_angle_between_two_points(ship_pos, base_pos),
+                     ship_speed, command_buffer);
     break;
 
   default:

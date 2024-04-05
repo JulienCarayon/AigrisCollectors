@@ -88,7 +88,9 @@ void show_planet(T_planet *planet);
 void initialize_game_data(T_game_data *game_data);
 void collect_planet(T_game_data *game_data, char *command_buffer);
 T_point get_ship_position(T_ship ship);
+T_point get_planet_position(T_planet planet);
+T_point get_base_position(T_base base);
 void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
-                   T_base base, char *command_buffer);
+                   T_base base, uint16_t ship_speed, char *command_buffer);
 
 #endif // GAME_ENGINE_H
