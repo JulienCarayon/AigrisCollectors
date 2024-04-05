@@ -9,14 +9,20 @@ bool is_comptetion_started = false;
 bool rx_command_received = false;
 char rx_command_buffer[RX_COMMAND_BUFFER_SIZE] = {""};
 
-static os_mutex_id uartMutex_M;
+static os_mutex_id uart_mutex_id;
+static os_mutex_id data_mutex_id;
 
 void os_engine_init(void)
 {
-  const os_mutex_attr uartMutex_attributes = {
+  const os_mutex_attr uart_mutex_attributes = {
       .name = "uartMutex", osMutexPrioInherit, NULL, 0U};
 
-  uartMutex_M = os_create_mutex(uartMutex_attributes);
+  uart_mutex_id = os_create_mutex(uart_mutex_attributes);
+
+  const os_mutex_attr data_mutex_attributes = {
+      .name = "dataMutex", osMutexPrioInherit, NULL, 0U};
+
+  data_mutex_id = os_create_mutex(data_mutex_attributes);
 }
 
 void wait_start(void)
@@ -51,7 +57,7 @@ void os_acquire_mutex(os_mutex_id mutex_id, uint32_t timeout)
 
 void os_release_mutex(os_mutex_id mutex_id)
 {
-  osStatus_t release_status = osMutexRelease(uartMutex_M);
+  osStatus_t release_status = osMutexRelease(uart_mutex_id);
 
   if (release_status != osOK)
     while (1)
@@ -62,7 +68,7 @@ void os_release_mutex(os_mutex_id mutex_id)
 
 void send_command(char *command, char *response_buffer)
 {
-  os_acquire_mutex(uartMutex_M, osWaitForever);
+  os_acquire_mutex(uart_mutex_id, osWaitForever);
   puts(command);
 
   while (rx_command_received == false)
@@ -74,13 +80,13 @@ void send_command(char *command, char *response_buffer)
   {
     rx_command_received = false;
     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-    os_release_mutex(uartMutex_M);
+    os_release_mutex(uart_mutex_id);
   }
   else if (strstr(rx_command_buffer, "KO") != NULL)
   {
     rx_command_received = false;
     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-    os_release_mutex(uartMutex_M);
+    os_release_mutex(uart_mutex_id);
   }
   else
   {
@@ -90,24 +96,25 @@ void send_command(char *command, char *response_buffer)
     response_buffer[sizeof(rx_command_buffer) - 1] = '\0';
 
     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-    os_release_mutex(uartMutex_M);
+    os_release_mutex(uart_mutex_id);
   }
   osDelay(OS_DELAY); // TODO Why ?
 }
 
+// TODO remove os_mutex_id parameters for putsMutex
 void putsMutex(char *text)
 {
-  os_acquire_mutex(uartMutex_M, osWaitForever);
+  os_acquire_mutex(uart_mutex_id, osWaitForever);
   puts(text);
-  os_release_mutex(uartMutex_M);
+  os_release_mutex(uart_mutex_id);
 }
 
 char *getsMutex(char *text)
 {
   char *original_str = text;
-  os_acquire_mutex(uartMutex_M, osWaitForever);
+  os_acquire_mutex(uart_mutex_id, osWaitForever);
   gets(text);
-  os_release_mutex(uartMutex_M);
+  os_release_mutex(uart_mutex_id);
   return original_str;
 }
 
