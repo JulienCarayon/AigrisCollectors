@@ -5,7 +5,8 @@
 void setUp(void) {}
 void tearDown(void) {}
 
-void test_get_angle_between_two_points(void) {
+void test_get_angle_between_two_points(void)
+{
   T_point point_A;
   point_A.pos_X = 5000;
   point_A.pos_Y = 11000;
@@ -17,7 +18,8 @@ void test_get_angle_between_two_points(void) {
   TEST_ASSERT_EQUAL_INT(get_angle_between_two_points(point_A, point_B), 349);
 }
 
-void test_get_distance_between_two_points(void) {
+void test_get_distance_between_two_points(void)
+{
   T_point point_A;
   point_A.pos_X = 5000;
   point_A.pos_Y = 11000;
@@ -30,12 +32,22 @@ void test_get_distance_between_two_points(void) {
                         15620);
 }
 
-void test_explore(void) {
+void test_coordinate_to_point(void)
+{
+  T_point test_1 = coordinate_to_point(5000, 11000);
+
+  TEST_ASSERT_EQUAL_INT(test_1.pos_X, 5000);
+  TEST_ASSERT_EQUAL_INT(test_1.pos_Y, 11000);
+}
+
+void test_explore(void)
+{
   char *buffer = create_buffer(BUFFER_SIZE);
   TEST_ASSERT_EQUAL_STRING(explore(7, buffer), "RADAR 7\n");
 }
 
-void test_planet_parsing(void) {
+void test_planet_parsing(void)
+{
   const char *input =
       "P 495 10000 20000 -1 0,P 25 3040 40 -1 1,P 11113 15410 6100 7 0,S 0 1 "
       "10000 253 1,S 0 2 11500 0 0,S 0 3 8500 1546 0,S 0 4 13000 0 0,S 0 5 "
@@ -55,7 +67,8 @@ void test_planet_parsing(void) {
       sizeof(expected_planets) / sizeof(expected_planets[0]), number_of_planets,
       "Number of expected_planets invalid !");
 
-  for (int i = 0; i < number_of_planets; i++) {
+  for (int i = 0; i < number_of_planets; i++)
+  {
     TEST_ASSERT_EQUAL_INT(expected_planets[i].planet_ID,
                           parsed_planets[i].planet_ID);
     TEST_ASSERT_EQUAL_INT(expected_planets[i].pos_X, parsed_planets[i].pos_X);
@@ -67,7 +80,8 @@ void test_planet_parsing(void) {
   }
 }
 
-void test_ship_parsing(void) {
+void test_ship_parsing(void)
+{
   const char *input =
       "P 495 10000 20000 -1 0,P 25 3040 40 -1 1,P 11113 15410 6100 7 0,S 0 1 "
       "10000 253 1,S 0 2 11500 0 0,S 0 3 8500 1546 0,S 0 4 13000 0 0,S 0 5 "
@@ -77,15 +91,24 @@ void test_ship_parsing(void) {
       "1 9 4000 0 1,B 10000 0";
 
   T_ship expected_ships[] = {
-      {0, 1, 10000, 253, true},  {0, 2, 11500, 0, false},
-      {0, 3, 8500, 1546, false}, {0, 4, 13000, 0, false},
-      {0, 5, 7000, 19999, true}, {0, 6, 14500, 0, false},
-      {0, 7, 5500, 21, false},   {0, 8, 16000, 0, false},
-      {0, 9, 4000, 0, true},     {1, 1, 10000, 253, true},
-      {1, 2, 11500, 0, false},   {1, 3, 8500, 1546, false},
-      {1, 4, 13000, 0, false},   {1, 5, 7000, 19999, true},
-      {1, 6, 14500, 0, false},   {1, 7, 5500, 21, false},
-      {1, 8, 16000, 0, false},   {1, 9, 4000, 0, true},
+      {0, 1, 10000, 253, true},
+      {0, 2, 11500, 0, false},
+      {0, 3, 8500, 1546, false},
+      {0, 4, 13000, 0, false},
+      {0, 5, 7000, 19999, true},
+      {0, 6, 14500, 0, false},
+      {0, 7, 5500, 21, false},
+      {0, 8, 16000, 0, false},
+      {0, 9, 4000, 0, true},
+      {1, 1, 10000, 253, true},
+      {1, 2, 11500, 0, false},
+      {1, 3, 8500, 1546, false},
+      {1, 4, 13000, 0, false},
+      {1, 5, 7000, 19999, true},
+      {1, 6, 14500, 0, false},
+      {1, 7, 5500, 21, false},
+      {1, 8, 16000, 0, false},
+      {1, 9, 4000, 0, true},
   };
 
   uint8_t number_of_teams = 2;
@@ -93,7 +116,8 @@ void test_ship_parsing(void) {
 
   parse_ships(input, parsed_ships);
 
-  for (int i = 0; i < SHIPS_NUMBER * number_of_teams; i++) {
+  for (int i = 0; i < SHIPS_NUMBER * number_of_teams; i++)
+  {
     TEST_ASSERT_EQUAL_INT(expected_ships[i].team_ID, parsed_ships[i].team_ID);
     TEST_ASSERT_EQUAL_INT(expected_ships[i].ship_ID, parsed_ships[i].ship_ID);
     TEST_ASSERT_EQUAL_INT(expected_ships[i].pos_X, parsed_ships[i].pos_X);
@@ -102,7 +126,8 @@ void test_ship_parsing(void) {
   }
 }
 
-void test_ship_parsing_error(void) {
+void test_ship_parsing_error(void)
+{
   const char *input =
       "P 495 10000 20000 -1 0,P 25 3040 40 -1 1,P 11113 15410 6100 7 0,S 0 1 "
       "10000 253 1,S 0 2 11500 0 0,S 0 3 8500 1546 0,S 0 4 13000 0 0,S 0 5 "
@@ -110,10 +135,14 @@ void test_ship_parsing_error(void) {
       "0 1,B 10000 0";
 
   T_ship expected_ships[] = {
-      {1, 9, 1000, 2513, false}, {1, 8, 1100, 10, true},
-      {1, 7, 850, 15146, true},  {1, 6, 1300, 10, true},
-      {1, 10, 700, 1999, false}, {1, 4, 1450, 10, true},
-      {1, 3, 500, 211, true},    {1, 2, 1600, 10, true},
+      {1, 9, 1000, 2513, false},
+      {1, 8, 1100, 10, true},
+      {1, 7, 850, 15146, true},
+      {1, 6, 1300, 10, true},
+      {1, 10, 700, 1999, false},
+      {1, 4, 1450, 10, true},
+      {1, 3, 500, 211, true},
+      {1, 2, 1600, 10, true},
       {1, 1, 400, 10, false},
   };
 
@@ -121,7 +150,8 @@ void test_ship_parsing_error(void) {
 
   parse_ships(input, parsed_ships);
 
-  for (int i = 0; i < SHIPS_NUMBER; i++) {
+  for (int i = 0; i < SHIPS_NUMBER; i++)
+  {
     TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].team_ID,
                               parsed_ships[i].team_ID);
     TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].ship_ID,
@@ -132,7 +162,8 @@ void test_ship_parsing_error(void) {
   }
 }
 
-void test_base_parsing(void) {
+void test_base_parsing(void)
+{
   const char *input =
       "P 495 10000 20000 -1 0,P 25 3040 40 -1 1,P 11113 15410 6100 7 0,S 0 1 "
       "10000 253 1,S 0 2 11500 0 0,S 0 3 8500 1546 0,S 0 4 13000 0 0,S 0 5 "
@@ -155,7 +186,8 @@ void test_base_parsing(void) {
                         parsed_base[0].uint8_data_2);
 }
 
-int main() {
+int main()
+{
   UNITY_BEGIN();
   RUN_TEST(test_get_angle_between_two_points);
   RUN_TEST(test_get_distance_between_two_points);

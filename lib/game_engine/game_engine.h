@@ -12,22 +12,30 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
+typedef struct
+{
   uint16_t pos_X;
   uint16_t pos_Y;
 } T_point;
 
-typedef enum {
+typedef enum
+{
   UNKNOWN_SHIP,
   ATTACKERS_SHIP,
   EXPLORER_SHIP,
   COLLECTOR_SHIP
 } T_ship_type;
 
-typedef enum { MOVE_CMD, FIRE_CMD, RADAR_CMD } T_command_type;
+typedef enum
+{
+  MOVE_CMD,
+  FIRE_CMD,
+  RADAR_CMD
+} T_command_type;
 
 // TODO add T_ship_type (modify set_ship_type)?
-typedef struct {
+typedef struct
+{
   int8_t team_ID;
   int8_t ship_ID;
   uint16_t pos_X;
@@ -35,7 +43,8 @@ typedef struct {
   uint8_t broken; // same size as an boolean
 } T_ship;
 
-typedef struct {
+typedef struct
+{
   uint16_t planet_ID;
   uint16_t pos_X;
   uint16_t pos_Y;
@@ -43,7 +52,8 @@ typedef struct {
   uint8_t planet_saved; // same size as an boolean
 } T_planet;
 
-typedef struct {
+typedef struct
+{
   uint16_t pos_X;
   uint16_t pos_Y;
   uint16_t uint16_data;
@@ -76,7 +86,7 @@ uint16_t get_distance_between_two_points(T_point starting_point,
                                          T_point ending_point);
 uint16_t get_angle_between_two_points(T_point starting_point,
                                       T_point ending_point);
-
+T_point coordinate_to_point(uint16_t x, uint16_t y);
 char *create_buffer(int buffer_size);
 void free_buffer(char *buffer_ptr);
 
