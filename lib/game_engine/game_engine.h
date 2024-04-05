@@ -28,19 +28,19 @@ typedef enum { MOVE_CMD, FIRE_CMD, RADAR_CMD } T_command_type;
 
 // TODO add T_ship_type (modify set_ship_type)?
 typedef struct {
-  uint8_t team_ID;
-  uint8_t ship_ID;
+  uint16_t team_ID;
+  uint16_t ship_ID;
   uint16_t pos_X;
   uint16_t pos_Y;
-  uint8_t broken; // same size as an boolean
+  uint16_t broken; // same size as an boolean
 } T_ship;
 
 typedef struct {
   uint16_t planet_ID;
   uint16_t pos_X;
   uint16_t pos_Y;
-  int8_t ship_ID;
-  uint8_t planet_saved; // same size as an boolean
+  int16_t ship_ID;
+  uint16_t planet_saved; // same size as an boolean
 } T_planet;
 
 typedef struct {
@@ -49,8 +49,8 @@ typedef struct {
 } T_base;
 
 typedef struct {
+  T_ship ships[9];
   T_planet planets[MAX_PLANETS_NUMBER];
-  T_ship ships[36];
   T_base base;
 } T_game_data;
 

@@ -39,23 +39,24 @@ char *generate_command(T_command_type command_type, int ship_id, int angle,
 }
 
 void ship_manager(uint8_t id) {
-  static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
-  char command_buffer[BUFFER_SIZE] = {0};
 
   while (1) {
-    memset(command_buffer, 0, sizeof(command_buffer));
-    memset(answer_buffer, 10, sizeof(answer_buffer));
 
     static int _angle = 90;
     static int _speed = 0;
 
 #ifndef DEMO
     if (id == 6) {
+      char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
+      char command_buffer[BUFFER_SIZE] = {0};
       generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
       send_command(command_buffer, answer_buffer);
-      parse_ships_gpt(answer_buffer, game_data, &nb_ships);
       parse_planets_gpt(answer_buffer, game_data, &nb_planets);
-      // parse_base(answer_buffer, game_data);
+      parse_ships_gpt(answer_buffer, game_data, &nb_ships);
+      parse_base(answer_buffer, game_data);
+
+      memset(command_buffer, 0, sizeof(command_buffer));
+      memset(answer_buffer, 10, sizeof(answer_buffer));
     }
 #endif
 #ifdef DEMO
@@ -125,16 +126,13 @@ void parse_planets_gpt(const char *server_response, T_game_data *game_data,
                        uint8_t *num_planets) {
   *num_planets = 0;
   const char *str = server_response;
-  const char *delimiter = strchr(
-      str, SERVER_RESPONSE_DELIMITER[0]); // Recherche du premier délimiteur
+  const char *delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);
 
   while (delimiter != NULL) {
     if (*str == SERVER_RESPONSE_PLANET_DELIMITER) {
       if (*num_planets >= MAX_PLANETS_NUMBER) {
-        // Gérer le dépassement du nombre maximal de planètes
         break;
       }
-
       sscanf(str, "P %hu %hu %hu %hhd %hhu",
              &game_data->planets[*num_planets].planet_ID,
              &game_data->planets[*num_planets].pos_X,
@@ -144,9 +142,8 @@ void parse_planets_gpt(const char *server_response, T_game_data *game_data,
       (*num_planets)++;
     }
 
-    str = delimiter + 1; // Passer au prochain caractère après le délimiteur
-    delimiter = strchr(
-        str, SERVER_RESPONSE_DELIMITER[0]); // Recherche du prochain délimiteur
+    str = delimiter + 1;
+    delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);
   }
 }
 
@@ -161,8 +158,7 @@ void parse_ships_gpt(const char *server_response, T_game_data *game_data,
       if (*num_ships >= 36) {
         break;
       }
-
-      sscanf(str, "S %hhu %hhu %hu %hu %hhu",
+      sscanf(str, "S %hu %hu %hu %hu %hu",
              &game_data->ships[*num_ships].team_ID,
              &game_data->ships[*num_ships].ship_ID,
              &game_data->ships[*num_ships].pos_X,
@@ -171,9 +167,8 @@ void parse_ships_gpt(const char *server_response, T_game_data *game_data,
       (*num_ships)++;
     }
 
-    str = delimiter + 1; // Passer au prochain caractère après le délimiteur
-    delimiter = strchr(
-        str, SERVER_RESPONSE_DELIMITER[0]); // Recherche du prochain délimiteur
+    str = delimiter + 1;
+    delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);
   }
 }
 
