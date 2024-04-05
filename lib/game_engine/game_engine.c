@@ -1,6 +1,5 @@
 #include "game_engine.h"
 #include "OS_engine.h"
-#include "explorators/explorators.h"
 
 uint8_t nb_planets = 0;
 T_planet planets[MAX_PLANETS_NUMBER] = {
@@ -130,7 +129,6 @@ void parse_planets(const char *server_response, T_planet *planets,
       strtok_r(server_response_copy, SERVER_RESPONSE_DELIMITER, &save_ptr);
 
   while (str_token != NULL) {
-    getUsedStackSpace(exploratorTaskHandles_1);
     if (str_token[0] == SERVER_RESPONSE_PLANET_DELIMITER) {
       if (*num_planets >= MAX_PLANETS_NUMBER) {
         exit(1);

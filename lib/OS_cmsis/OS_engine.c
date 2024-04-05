@@ -86,6 +86,7 @@ void send_command(char *command, char *response_buffer) {
   osDelay(OS_DELAY); // TODO Why ?
 }
 
+// TODO remove os_mutex_id parameters for putsMutex
 void putsMutex(os_mutex_id mutex_id, char *text) {
   os_acquire_mutex(mutex_id, osWaitForever);
   puts(text);
