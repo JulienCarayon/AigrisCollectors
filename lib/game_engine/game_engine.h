@@ -26,7 +26,6 @@ typedef enum {
 
 typedef enum { MOVE_CMD, FIRE_CMD, RADAR_CMD } T_command_type;
 
-// TODO add T_ship_type (modify set_ship_type)?
 typedef struct {
   uint16_t team_ID;
   uint16_t ship_ID;
@@ -85,5 +84,6 @@ void free_buffer(char *buffer_ptr);
 
 void show_planet(T_planet *planet);
 void initialize_game_data(T_game_data *game_data);
+void collect_planet(T_game_data *game_data, char *command_buffer);
 
 #endif // GAME_ENGINE_H

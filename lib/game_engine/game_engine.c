@@ -39,26 +39,29 @@ char *generate_command(T_command_type command_type, int ship_id, int angle,
 }
 
 void ship_manager(uint8_t id) {
+  static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
+  char command_buffer[BUFFER_SIZE] = {0};
 
   while (1) {
-
     static int _angle = 90;
     static int _speed = 0;
 
 #ifndef DEMO
     if (id == 6) {
-      char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
-      char command_buffer[BUFFER_SIZE] = {0};
       generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
       send_command(command_buffer, answer_buffer);
       parse_planets_gpt(answer_buffer, game_data, &nb_planets);
       parse_ships_gpt(answer_buffer, game_data, &nb_ships);
       parse_base(answer_buffer, game_data);
 
-      memset(command_buffer, 0, sizeof(command_buffer));
-      memset(answer_buffer, 10, sizeof(answer_buffer));
+    } else {
+      collect_planet(game_data, command_buffer);
+      send_command(command_buffer, answer_buffer);
     }
+    memset(command_buffer, 0, sizeof(command_buffer));
+    memset(answer_buffer, 0, sizeof(answer_buffer));
 #endif
+
 #ifdef DEMO
     if (_angle >= 359) {
       _angle = 0;
@@ -120,7 +123,15 @@ void free_buffer(char *buffer_ptr) {
   }
 }
 
-void write_game_data(const char *server_response) {}
+void collect_planet(T_game_data *game_data, char *command_buffer) {
+  T_point ship_point = {game_data->ships[8].pos_X, game_data->ships[8].pos_Y};
+  T_point planet_point = {game_data->planets[0].pos_X,
+                          game_data->planets[0].pos_Y};
+
+  uint16_t angle = get_angle_between_two_points(ship_point, planet_point);
+  generate_command(MOVE_CMD, game_data->ships[8].ship_ID, angle, 1000,
+                   command_buffer);
+}
 
 void parse_planets_gpt(const char *server_response, T_game_data *game_data,
                        uint8_t *num_planets) {
