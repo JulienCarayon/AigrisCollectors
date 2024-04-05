@@ -96,6 +96,33 @@ void test_ship_parsing(void) {
   }
 }
 
+void test_get_ship_position(void) {
+  T_ship ship = {0, 1, 1520, 11325, 0};
+  T_point ship_pos = get_ship_position(ship);
+  T_point exepected_ship_pos = {1520, 11325};
+
+  TEST_ASSERT_EQUAL_INT(exepected_ship_pos.pos_X, ship_pos.pos_X);
+  TEST_ASSERT_EQUAL_INT(exepected_ship_pos.pos_Y, ship_pos.pos_Y);
+}
+
+void test_direction(void) {
+
+  // arguments :
+  //    - mode : 1 planet / 2 ship / 3 base
+  //    - who  : id ship
+  //    - item id
+
+  // TODO add base coo for other teams
+
+  // T_ship ships = {{0, 1, 1000, 0, 0}, {0, 6, 2000, 0, 0}, {0, 9, 30000, 0,
+  // 0}}; T_planet planets = {{45106, 10000, 20000, -1, 0}, {785, 2000, 2000,
+  // -1, 0}}; T_base base = {10000, 0};
+
+  // 1er test  : ship id (8) vers planet (0) -> mode 1
+
+  // 2eme test : ship id (8) vers base       -> mode 3
+}
+
 void test_ship_parsing_error(void) {
   // const char *input =
   //     "P 495 10000 20000 -1 0,P 25 3040 40 -1 1,P 11113 15410 6100 7 0,S 0 1
@@ -161,6 +188,8 @@ int main() {
   RUN_TEST(test_explore);
   RUN_TEST(test_planet_parsing);
   RUN_TEST(test_ship_parsing);
+  // RUN_TEST(test_direction);
+  RUN_TEST(test_get_ship_position);
   // RUN_TEST(test_ship_parsing_error);
   // RUN_TEST(test_base_parsing);
   UNITY_END(); // stop unit testing

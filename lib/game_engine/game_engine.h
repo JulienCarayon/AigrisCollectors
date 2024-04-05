@@ -24,6 +24,8 @@ typedef enum {
   COLLECTOR_SHIP
 } T_ship_type;
 
+typedef enum { GO_TO_PLANET, GO_TO_SHIP, GO_TO_BASE } T_mode_direction;
+
 typedef enum { MOVE_CMD, FIRE_CMD, RADAR_CMD } T_command_type;
 
 typedef struct {
@@ -85,5 +87,8 @@ void free_buffer(char *buffer_ptr);
 void show_planet(T_planet *planet);
 void initialize_game_data(T_game_data *game_data);
 void collect_planet(T_game_data *game_data, char *command_buffer);
+T_point get_ship_position(T_ship ship);
+void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
+                   T_base base, char *command_buffer);
 
 #endif // GAME_ENGINE_H

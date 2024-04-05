@@ -53,7 +53,6 @@ void ship_manager(uint8_t id) {
       parse_planets_gpt(answer_buffer, game_data, &nb_planets);
       parse_ships_gpt(answer_buffer, game_data, &nb_ships);
       parse_base(answer_buffer, game_data);
-
     } else {
       collect_planet(game_data, command_buffer);
       send_command(command_buffer, answer_buffer);
@@ -120,6 +119,34 @@ void free_buffer(char *buffer_ptr) {
   } else {
     while (1)
       ;
+  }
+}
+
+T_point get_ship_position(T_ship ship) {
+  T_point ship_pos = {ship.pos_X, ship.pos_Y};
+  return ship_pos;
+}
+
+void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
+                   T_base base, char *command_buffer) {
+
+  T_point ship_pos = get_ship_position(ship);
+
+  switch (mode) {
+  case GO_TO_PLANET:
+
+    break;
+
+  case GO_TO_SHIP:
+    /* code */
+    break;
+
+  case GO_TO_BASE:
+    /* code */
+    break;
+
+  default:
+    break;
   }
 }
 
