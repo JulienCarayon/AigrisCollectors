@@ -586,16 +586,15 @@ osThreadState_t osThreadGetState(osThreadId_t thread_id)
 
 uint32_t osThreadGetStackSpace(osThreadId_t thread_id)
 {
-  TaskHandle_t hTask = (TaskHandle_t)thread_id;
   uint32_t sz;
 
-  if (IS_IRQ() || (hTask == NULL))
+  if (IS_IRQ() || (thread_id == NULL))
   {
     sz = 0U;
   }
   else
   {
-    sz = (uint32_t)uxTaskGetStackHighWaterMark(hTask);
+    sz = (uint32_t)uxTaskGetStackHighWaterMark(thread_id) * sizeof(StackType_t);
   }
 
   return (sz);
@@ -2556,14 +2555,19 @@ void *osMemoryPoolAlloc(osMemoryPoolId_t mp_id, uint32_t timeout)
 
     if ((mp->status & MPOOL_STATUS) == MPOOL_STATUS)
     {
+      putsMutex("///1///\n");
       if (IS_IRQ())
       {
+        putsMutex("///2///\n");
         if (timeout == 0U)
         {
+          putsMutex("///3///\n");
           if (xSemaphoreTakeFromISR(mp->sem, NULL) == pdTRUE)
           {
+            putsMutex("///4///\n");
             if ((mp->status & MPOOL_STATUS) == MPOOL_STATUS)
             {
+              putsMutex("///5///\n");
               isrm = taskENTER_CRITICAL_FROM_ISR();
 
               /* Get a block from the free-list */
@@ -2571,6 +2575,7 @@ void *osMemoryPoolAlloc(osMemoryPoolId_t mp_id, uint32_t timeout)
 
               if (block == NULL)
               {
+                putsMutex("///6///\n");
                 /* List of free blocks is empty, 'create' new block */
                 block = CreateBlock(mp);
               }

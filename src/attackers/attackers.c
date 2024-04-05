@@ -7,27 +7,32 @@ const osThreadAttr_t attackersTask_attributes = {
     .stack_size = TASKS_SIZES,
 };
 
-void StartAttackerTask_1(void *argument) {
+void StartAttackerTask_1(void *argument)
+{
   wait_start();
   ship_manager(1);
 }
 
-void StartAttackerTask_2(void *argument) {
+void StartAttackerTask_2(void *argument)
+{
   wait_start();
   ship_manager(2);
 }
 
-void StartAttackerTask_3(void *argument) {
+void StartAttackerTask_3(void *argument)
+{
   wait_start();
   ship_manager(3);
 }
 
-void StartAttackerTask_4(void *argument) {
+void StartAttackerTask_4(void *argument)
+{
   wait_start();
   ship_manager(4);
 }
 
-void StartAttackerTask_5(void *argument) {
+void StartAttackerTask_5(void *argument)
+{
   wait_start();
   ship_manager(5);
 }

@@ -7,12 +7,14 @@ const osThreadAttr_t collectorsTask_attributes = {
     .stack_size = TASKS_SIZES,
 };
 
-void StartCollectorTask_1(void *argument) {
+void StartCollectorTask_1(void *argument)
+{
   wait_start();
   ship_manager(8);
 }
 
-void StartCollectorTask_2(void *argument) {
+void StartCollectorTask_2(void *argument)
+{
   wait_start();
   ship_manager(9);
 }

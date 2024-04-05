@@ -7,12 +7,14 @@ const osThreadAttr_t exploratorsTask_attributes = {
     .stack_size = TASKS_SIZES_EXPLORER,
 };
 
-void StartExploratorTask_1(void *argument) {
+void StartExploratorTask_1(void *argument)
+{
   wait_start();
   ship_manager(6);
 }
 
-void StartExploratorTask_2(void *argument) {
+void StartExploratorTask_2(void *argument)
+{
   wait_start();
   ship_manager(7);
 }
