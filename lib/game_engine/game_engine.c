@@ -133,7 +133,7 @@ void parse_planets_gpt(const char *server_response, T_game_data *game_data,
       if (*num_planets >= MAX_PLANETS_NUMBER) {
         break;
       }
-      sscanf(str, "P %hu %hu %hu %hhd %hhu",
+      sscanf(str, "P %hu %hu %hu %hu %hu",
              &game_data->planets[*num_planets].planet_ID,
              &game_data->planets[*num_planets].pos_X,
              &game_data->planets[*num_planets].pos_Y,

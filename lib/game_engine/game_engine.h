@@ -49,8 +49,8 @@ typedef struct {
 } T_base;
 
 typedef struct {
-  T_ship ships[9];
   T_planet planets[MAX_PLANETS_NUMBER];
+  T_ship ships[SHIPS_NUMBER * NUMBER_OF_TEAM];
   T_base base;
 } T_game_data;
 
