@@ -52,7 +52,7 @@ void ship_manager(uint8_t id) {
       generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
       send_command(command_buffer, answer_buffer);
       parse_planets_gpt(answer_buffer, game_data, &nb_planets);
-      parse_ships_gpt(answer_buffer, game_data, &nb_ships);
+      parse_ships(answer_buffer, game_data, &nb_ships);
       parse_base(answer_buffer, game_data);
     } else {
       if (game_data->planets[0].ship_ID != -1) {
@@ -210,8 +210,8 @@ void parse_planets_gpt(const char *server_response, T_game_data *game_data,
   }
 }
 
-void parse_ships_gpt(const char *server_response, T_game_data *game_data,
-                     uint8_t *num_ships) {
+void parse_ships(const char *server_response, T_game_data *game_data,
+                 uint8_t *num_ships) {
   *num_ships = 0;
   const char *str = server_response;
   const char *delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);

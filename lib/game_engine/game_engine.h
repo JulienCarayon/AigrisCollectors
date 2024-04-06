@@ -69,8 +69,8 @@ char *generate_command(T_command_type command_type, int ship_id, int angle,
 
 void parse_planets_gpt(const char *server_response, T_game_data *game_data,
                        uint8_t *num_planets);
-void parse_ships_gpt(const char *server_response, T_game_data *game_data,
-                     uint8_t *num_ships);
+void parse_ships(const char *server_response, T_game_data *game_data,
+                 uint8_t *num_ships);
 
 void parse_base(const char *server_response, T_game_data *game_data);
 

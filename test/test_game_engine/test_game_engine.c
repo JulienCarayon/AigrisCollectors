@@ -81,7 +81,7 @@ void test_ship_parsing(void) {
   T_game_data game_data[NUMBER_OF_GAME_DATA];
   uint8_t number_of_ships = 0;
 
-  parse_ships_gpt(input, game_data, &number_of_ships);
+  parse_ships(input, game_data, &number_of_ships);
 
   TEST_ASSERT_EQUAL_INT(4, number_of_ships);
 
@@ -162,9 +162,9 @@ void test_ship_parsing_numberf_of_ships(void) {
   uint8_t number_of_ships_4 = 0;
   uint8_t number_of_ships_10 = 0;
 
-  parse_ships_gpt(input_1_ship, game_data, &number_of_ships_1);
-  parse_ships_gpt(input_4_ships, game_data, &number_of_ships_4);
-  parse_ships_gpt(input_10_ships, game_data, &number_of_ships_10);
+  parse_ships(input_1_ship, game_data, &number_of_ships_1);
+  parse_ships(input_4_ships, game_data, &number_of_ships_4);
+  parse_ships(input_10_ships, game_data, &number_of_ships_10);
 
   TEST_ASSERT_EQUAL_INT(1, number_of_ships_1);
   TEST_ASSERT_EQUAL_INT(4, number_of_ships_4);
@@ -177,7 +177,7 @@ void test_ship_parsing_error(void) {
   T_ship expected_ships[] = {{1, 9, 1100, 2513, false}};
   T_game_data game_data[NUMBER_OF_GAME_DATA];
   uint8_t number_of_ships = 0;
-  parse_ships_gpt(input, game_data, &number_of_ships);
+  parse_ships(input, game_data, &number_of_ships);
 
   for (int i = 0; i < number_of_ships; i++) {
     TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].team_ID,
