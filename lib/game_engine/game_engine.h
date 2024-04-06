@@ -71,7 +71,6 @@ void parse_planets(const char *server_response, T_game_data *game_data,
                    uint8_t *num_planets);
 void parse_ships(const char *server_response, T_game_data *game_data,
                  uint8_t *num_ships);
-
 void parse_base(const char *server_response, T_game_data *game_data);
 
 uint16_t get_distance_between_two_points(T_point starting_point,
