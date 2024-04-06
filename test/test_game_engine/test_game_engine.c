@@ -172,9 +172,9 @@ void test_ship_parsing_numberf_of_ships(void) {
 }
 
 void test_ship_parsing_error(void) {
-  const char *input = "S 0 2 11500 0 0,";
+  const char *input = "S 0 2 11500 0 1,";
 
-  T_ship expected_ships[] = {{1, 9, 1100, 2513, false}};
+  T_ship expected_ships[] = {{1, 9, 1100, 2513, 0}};
   T_game_data game_data[NUMBER_OF_GAME_DATA];
   uint8_t number_of_ships = 0;
   parse_ships(input, game_data, &number_of_ships);
