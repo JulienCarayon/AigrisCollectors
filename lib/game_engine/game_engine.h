@@ -12,23 +12,36 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
+typedef struct
+{
   uint16_t pos_X;
   uint16_t pos_Y;
 } T_point;
 
-typedef enum {
+typedef enum
+{
   UNKNOWN_SHIP,
   ATTACKERS_SHIP,
   EXPLORER_SHIP,
   COLLECTOR_SHIP
 } T_ship_type;
 
-typedef enum { GO_TO_PLANET, GO_TO_SHIP, GO_TO_BASE } T_mode_direction;
+typedef enum
+{
+  GO_TO_PLANET,
+  GO_TO_SHIP,
+  GO_TO_BASE
+} T_mode_direction;
 
-typedef enum { MOVE_CMD, FIRE_CMD, RADAR_CMD } T_command_type;
+typedef enum
+{
+  MOVE_CMD,
+  FIRE_CMD,
+  RADAR_CMD
+} T_command_type;
 
-typedef struct {
+typedef struct
+{
   uint16_t team_ID;
   uint16_t ship_ID;
   uint16_t pos_X;
@@ -36,7 +49,8 @@ typedef struct {
   uint16_t broken; // same size as an boolean
 } T_ship;
 
-typedef struct {
+typedef struct
+{
   uint16_t planet_ID;
   uint16_t pos_X;
   uint16_t pos_Y;
@@ -44,12 +58,14 @@ typedef struct {
   uint16_t planet_saved; // same size as an boolean
 } T_planet;
 
-typedef struct {
+typedef struct
+{
   uint16_t pos_X;
   uint16_t pos_Y;
 } T_base;
 
-typedef struct {
+typedef struct
+{
   T_planet planets[MAX_PLANETS_NUMBER];
   T_ship ships[SHIPS_NUMBER * NUMBER_OF_TEAM];
   T_base base;
