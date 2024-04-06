@@ -71,34 +71,21 @@ void clear_uart_buffer()
                         UART_FLAG_RXNE); // Clear flag RXNE (Receiver not empty)
 }
 
-// char *gets(char *str)
-// {
-//   char *original_str = str;
-//   char c = -1;
-//   while (c != '\n')
-//   {
-//     c = uart_read_char();
-//     *str++ = c;
-//   }
-//   *(str - 1) = 0;
-//   return original_str;
-// }
-
 char *gets(char *str)
 {
   char *original_str = str;
   char c = -1;
-  while (c != '\n')
+  while (true)
   {
-    // Polling for UART input
-    while (!(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE)))
+    if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE))
     {
-      // You might add some delay here if needed to avoid busy-waiting
+      c = uart_read_char(); // Assuming this function clears the RXNE flag by reading the DR register
+      if (c == '\n')
+        break;
+      *str++ = c;
     }
-    c = uart_read_char();
-    *str++ = c;
   }
-  *(str - 1) = 0; // Null terminate the string
+  *str = 0; // Null terminate the string
   return original_str;
 }
 
@@ -107,7 +94,9 @@ char *itoa(int value, char *str, int base)
   if (base != 10 || value < 0)
   {
     while (1)
-      ;
+    {
+      puts("base != 10 || value < 0");
+    }
   }
   if (value == 0)
   {

@@ -92,7 +92,6 @@ void send_command(char *command, char *response_buffer)
   else
   {
     rx_command_received = false;
-
     strncpy(response_buffer, rx_command_buffer, sizeof(rx_command_buffer) - 1);
     response_buffer[sizeof(rx_command_buffer) - 1] = '\0';
     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
