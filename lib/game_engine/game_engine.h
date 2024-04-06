@@ -67,6 +67,7 @@ char *move(uint8_t ship_id, uint16_t angle, uint16_t speed,
 char *generate_command(T_command_type command_type, int ship_id, int angle,
                        int speed, char *command_buffer);
 
+void parse_radar_data(char *answer_buffer);
 void parse_planets(const char *server_response, T_game_data *game_data,
                    uint8_t *num_planets);
 void parse_ships(const char *server_response, T_game_data *game_data,
@@ -91,5 +92,8 @@ T_point get_planet_position(T_planet planet);
 T_point get_base_position(T_base base);
 void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
                    T_base base, uint16_t ship_speed, char *command_buffer);
+
+void acquire_game_data_mutex(void);
+void release_game_data_mutex(void);
 
 #endif // GAME_ENGINE_H

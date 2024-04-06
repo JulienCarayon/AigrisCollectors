@@ -2,6 +2,8 @@
 #define OS_TYPES_H
 #include <stdint.h>
 
+#define os_wait_forever 1
+
 typedef struct {
   const char *name;   ///< name of the mutex
   uint32_t attr_bits; ///< attribute bits

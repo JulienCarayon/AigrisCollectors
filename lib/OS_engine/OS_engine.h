@@ -1,13 +1,16 @@
 #ifndef OS_ENGINE_H
 #define OS_ENGINE_H
 
+// TODO why <constants.h> not work (see game_engine.h)
+#include "../contants/constants.h"
 #include "OS_types.h"
-#include <constants.h>
 #include <stdbool.h>
 
 extern bool is_comptetion_started;
 extern bool rx_command_received;
 extern char rx_command_buffer[RX_COMMAND_BUFFER_SIZE];
+
+static os_mutex_id game_data_mutex_id;
 
 void putsMutex(char *text);
 char *getsMutex(char *text);

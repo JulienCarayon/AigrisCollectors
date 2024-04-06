@@ -6,6 +6,8 @@
 typedef osMutexId_t os_mutex_id;
 typedef osMutexAttr_t os_mutex_attr;
 
+#define os_wait_forever osWaitForever
+
 typedef osThreadId_t os_thread_id;
 
 typedef struct {

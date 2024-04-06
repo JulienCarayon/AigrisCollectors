@@ -10,7 +10,6 @@ bool rx_command_received = false;
 char rx_command_buffer[RX_COMMAND_BUFFER_SIZE] = {""};
 
 static os_mutex_id uart_mutex_id;
-static os_mutex_id data_mutex_id;
 
 void os_engine_init(void) {
   const os_mutex_attr uart_mutex_attributes = {
@@ -18,10 +17,10 @@ void os_engine_init(void) {
 
   uart_mutex_id = os_create_mutex(uart_mutex_attributes);
 
-  const os_mutex_attr data_mutex_attributes = {
+  const os_mutex_attr game_data_mutex_attributes = {
       .name = "dataMutex", osMutexPrioInherit, NULL, 0U};
 
-  data_mutex_id = os_create_mutex(data_mutex_attributes);
+  game_data_mutex_id = os_create_mutex(game_data_mutex_attributes);
 }
 
 void wait_start(void) {
@@ -126,4 +125,8 @@ void getUsedStackSpace(os_thread_id thread_id) {
   char buff_size[40] = {0};
   sprintf(buff_size, "Used stack space : %ld\n", used_stack_size);
   putsMutex(buff_size);
+}
+
+void read_game_data_mutex() {
+  os_acquire_mutex(game_data_mutex_id, osWaitForever);
 }

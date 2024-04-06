@@ -51,9 +51,7 @@ void ship_manager(uint8_t id) {
     if (id == 6) {
       generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
       send_command(command_buffer, answer_buffer);
-      parse_planets(answer_buffer, game_data, &nb_planets);
-      parse_ships(answer_buffer, game_data, &nb_ships);
-      parse_base(answer_buffer, game_data);
+      parse_radar_data(answer_buffer);
     } else {
       if (game_data->planets[0].ship_ID != -1) {
         set_direction(GO_TO_BASE, game_data->ships[8], game_data->planets[0],
@@ -145,6 +143,12 @@ T_point get_base_position(T_base base) {
   return base_pos;
 }
 
+void acquire_game_data_mutex(void) {
+  os_acquire_mutex(game_data_mutex_id, os_wait_forever);
+}
+
+void release_game_data_mutex(void) { os_release_mutex(game_data_mutex_id); }
+
 // set_direction(GO_TO_PLANET, game_data.ship)
 void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
                    T_base base, uint16_t ship_speed, char *command_buffer) {
@@ -183,6 +187,14 @@ void collect_planet(T_game_data *game_data, char *command_buffer) {
   uint16_t angle = get_angle_between_two_points(ship_point, planet_point);
   generate_command(MOVE_CMD, game_data->ships[8].ship_ID, angle, 1000,
                    command_buffer);
+}
+
+void parse_radar_data(char *answer_buffer) {
+  acquire_game_data_mutex();
+  parse_planets(answer_buffer, game_data, &nb_planets);
+  parse_ships(answer_buffer, game_data, &nb_ships);
+  parse_base(answer_buffer, game_data);
+  release_game_data_mutex();
 }
 
 void parse_planets(const char *server_response, T_game_data *game_data,
