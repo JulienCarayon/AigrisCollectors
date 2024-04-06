@@ -141,37 +141,56 @@ void test_direction(void) {
   // 2eme test : ship id (8) vers base       -> mode 3
 }
 
+void test_ship_parsing_numberf_of_ships(void) {
+
+  const char *input_1_ship = "S 0 1 10000 540 0,";
+
+  const char *input_4_ships =
+      "P 495 10000 20000 -1 0,P 95 1000 200 -1 0,S 0 1 10000 "
+      "253 1,S 0 2 12000 53 "
+      "0,S 0 3 10 13 0,S 4 4 4 4 4,B 11111 11111";
+
+  const char *input_10_ships =
+      "P 495 10000 20000 -1 0,P 95 1000 200 -1 0,S 0 1 10000 "
+      "253 1,S 0 2 12000 53 "
+      "0,S 0 3 10 13 0,S 0 3 10 13 0,S 0 3 10 13 0,S 0 3 10 13 0,S 0 3 10 13 "
+      "0,S 0 3 10 13 0,S 0 3 10 13 0,S 4 4 4 4 4,B 11111 11111";
+
+  T_game_data game_data[NUMBER_OF_GAME_DATA];
+
+  uint8_t number_of_ships_1 = 0;
+  uint8_t number_of_ships_4 = 0;
+  uint8_t number_of_ships_10 = 0;
+
+  parse_ships_gpt(input_1_ship, game_data, &number_of_ships_1);
+  parse_ships_gpt(input_4_ships, game_data, &number_of_ships_4);
+  parse_ships_gpt(input_10_ships, game_data, &number_of_ships_10);
+
+  TEST_ASSERT_EQUAL_INT(1, number_of_ships_1);
+  TEST_ASSERT_EQUAL_INT(4, number_of_ships_4);
+  TEST_ASSERT_EQUAL_INT(10, number_of_ships_10);
+}
+
 void test_ship_parsing_error(void) {
-  // const char *input =
-  //     "P 495 10000 20000 -1 0,P 25 3040 40 -1 1,P 11113 15410 6100 7 0,S 0 1
-  //     " "10000 253 1,S 0 2 11500 0 0,S 0 3 8500 1546 0,S 0 4 13000 0 0,S 0 5
-  //     " "7000 19999 1,S 0 6 14500 0 0,S 0 7 5500 21 0,S 0 8 16000 0 0,S 0 9
-  //     4000 " "0 1,B 10000 0";
+  const char *input = "S 0 2 11500 0 0,";
 
-  // T_ship expected_ships[] = {
-  //     {1, 9, 1000, 2513, false}, {1, 8, 1100, 10, true},
-  //     {1, 7, 850, 15146, true},  {1, 6, 1300, 10, true},
-  //     {1, 10, 700, 1999, false}, {1, 4, 1450, 10, true},
-  //     {1, 3, 500, 211, true},    {1, 2, 1600, 10, true},
-  //     {1, 1, 400, 10, false},
-  // };
+  T_ship expected_ships[] = {{1, 9, 1100, 2513, false}};
+  T_game_data game_data[NUMBER_OF_GAME_DATA];
+  uint8_t number_of_ships = 0;
+  parse_ships_gpt(input, game_data, &number_of_ships);
 
-  // T_ship parsed_ships[SHIPS_NUMBER];
-
-  // parse_ships(input, parsed_ships);
-
-  // for (int i = 0; i < SHIPS_NUMBER; i++) {
-  //   TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].team_ID,
-  //                             parsed_ships[i].team_ID);
-  //   TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].ship_ID,
-  //                             parsed_ships[i].ship_ID);
-  //   TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].pos_X,
-  //   parsed_ships[i].pos_X);
-  //   TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].pos_Y,
-  //   parsed_ships[i].pos_Y);
-  //   TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].broken,
-  //   parsed_ships[i].broken);
-  // }
+  for (int i = 0; i < number_of_ships; i++) {
+    TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].team_ID,
+                              game_data->ships[i].team_ID);
+    TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].ship_ID,
+                              game_data->ships[i].ship_ID);
+    TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].pos_X,
+                              game_data->ships[i].pos_X);
+    TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].pos_Y,
+                              game_data->ships[i].pos_Y);
+    TEST_ASSERT_NOT_EQUAL_INT(expected_ships[i].broken,
+                              game_data->ships[i].broken);
+  }
 }
 
 void test_base_parsing(void) {
@@ -210,7 +229,8 @@ int main() {
   RUN_TEST(test_get_ship_position);
   RUN_TEST(test_get_planet_position);
   RUN_TEST(test_get_base_position);
-  // RUN_TEST(test_ship_parsing_error);
+  RUN_TEST(test_ship_parsing_numberf_of_ships);
+  RUN_TEST(test_ship_parsing_error);
   // RUN_TEST(test_base_parsing);
   UNITY_END(); // stop unit testing
 }
