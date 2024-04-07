@@ -100,4 +100,5 @@ void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
                    T_base base, uint16_t ship_speed, char *command_buffer);
 
 T_test get_nearest_planet_available(T_game_data *game_data);
+uint16_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 #endif // GAME_ENGINE_H

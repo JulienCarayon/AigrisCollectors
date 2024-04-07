@@ -48,7 +48,7 @@ void ship_manager(uint8_t id) {
     static int _speed = 0;
 
 #ifndef DEMO
-    if (id == 6) {
+    if (id == EXPLORER_1) {
       generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
       send_command(command_buffer, answer_buffer);
       parse_planets(answer_buffer, game_data, &nb_planets);
@@ -57,13 +57,17 @@ void ship_manager(uint8_t id) {
       memset(command_buffer, 0, sizeof(command_buffer));
       memset(answer_buffer, 0, sizeof(answer_buffer));
     } else {
-      if (game_data->planets[0].ship_ID != -1) {
-        set_direction(GO_TO_BASE, game_data->ships[8], game_data->planets[0],
-                      game_data->base, 1000, command_buffer);
+      uint16_t planet_id = get_nearest_planet(COLLECTOR_1, game_data);
+
+      if (game_data->planets[planet_id].ship_ID != -1) {
+        set_direction(GO_TO_BASE, game_data->ships[COLLECTOR_1],
+                      game_data->planets[planet_id], game_data->base, 1000,
+                      command_buffer);
         send_command(command_buffer, answer_buffer);
       } else {
-        set_direction(GO_TO_PLANET, game_data->ships[8], game_data->planets[0],
-                      game_data->base, 1000, command_buffer);
+        set_direction(GO_TO_PLANET, game_data->ships[COLLECTOR_1],
+                      game_data->planets[planet_id], game_data->base, 1000,
+                      command_buffer);
         send_command(command_buffer, answer_buffer);
       }
     }
@@ -314,4 +318,29 @@ T_test get_nearest_planet_available(T_game_data *game_data) {
   }
 
   return best_data;
+}
+
+uint16_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
+  uint16_t distance = 0;
+  uint16_t distance_min = MAX_DISTANCE_BETWEEN_POINT;
+  uint16_t planet_id_to_collect = 0;
+
+  for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER; planet_num++) {
+    if (game_data->planets[planet_num].planet_saved != 1) {
+      distance = get_distance_between_two_points(
+          get_ship_position(game_data->ships[ship_id]),
+          get_planet_position(game_data->planets[planet_num]));
+
+      // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
+      //        ship_id, planet_num);
+      if (distance < distance_min) {
+        // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
+        //        ship_num, planet_num);
+        distance_min = distance;
+        planet_id_to_collect = planet_num;
+      }
+    }
+  }
+
+  return planet_id_to_collect;
 }

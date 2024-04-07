@@ -62,10 +62,6 @@ void send_command(char *command, char *response_buffer) {
   os_acquire_mutex(uart_mutex_id, osWaitForever);
   puts(command);
 
-  // while (rx_command_received == false)
-  // {
-  //   osDelay(OS_DELAY); // Let some time
-  // }
   gets(rx_command_buffer);
 
   if (strstr(rx_command_buffer, "OK") != NULL) {
