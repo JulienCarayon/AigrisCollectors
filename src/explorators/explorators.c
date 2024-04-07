@@ -3,7 +3,7 @@
 
 const osThreadAttr_t exploratorsTask_attributes = {
     .name = "exploratorsTask",
-    .priority = (osPriority_t)osPriorityHigh,
+    .priority = (osPriority_t)osPriorityNormal,
     .stack_size = TASKS_SIZES_EXPLORER,
 };
 
