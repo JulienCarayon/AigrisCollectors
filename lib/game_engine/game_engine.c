@@ -38,6 +38,26 @@ char *generate_command(T_command_type command_type, int ship_id, int angle,
   return command_buffer;
 }
 
+char *generate_command_2(T_command_type command_type, int ship_id, int angle,
+                         int speed) {
+  static char command_buffer[BUFFER_SIZE];
+
+  switch (command_type) {
+  case MOVE_CMD:
+    snprintf(command_buffer, BUFFER_SIZE, "MOVE %d %d %d\n", ship_id, angle,
+             speed);
+    break;
+  case FIRE_CMD:
+    snprintf(command_buffer, BUFFER_SIZE, "FIRE %d %d\n", ship_id, angle);
+    break;
+  case RADAR_CMD:
+    snprintf(command_buffer, BUFFER_SIZE, "RADAR %d\n", ship_id);
+    break;
+  }
+
+  return command_buffer;
+}
+
 void ship_manager(uint8_t id) {
   static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
   char command_buffer[BUFFER_SIZE] = {0};
@@ -61,15 +81,19 @@ void ship_manager(uint8_t id) {
       uint8_t planet_id = get_nearest_planet(COLLECTOR_1 - 1, game_data);
 
       if (game_data->planets[planet_id].ship_ID != -1) {
-        set_direction(GO_TO_BASE, game_data->ships[COLLECTOR_1 - 1],
-                      game_data->planets[planet_id], game_data->base,
-                      MAX_SPEED_CHEAT, command_buffer);
-        send_command(command_buffer, answer_buffer);
+        go_to_base(game_data->ships[COLLECTOR_1 - 1], game_data->base,
+                   COLLECTOR_SPEED, answer_buffer);
+        // set_direction(GO_TO_BASE, game_data->ships[COLLECTOR_1 - 1],
+        //               game_data->planets[planet_id], game_data->base,
+        //               MAX_SPEED_CHEAT, command_buffer);
+        // send_command(command_buffer, answer_buffer);
       } else {
-        set_direction(GO_TO_PLANET, game_data->ships[COLLECTOR_1 - 1],
-                      game_data->planets[planet_id], game_data->base,
-                      MAX_SPEED_CHEAT, command_buffer);
-        send_command(command_buffer, answer_buffer);
+        go_to_planet(game_data->ships[COLLECTOR_1 - 1],
+                     game_data->planets[planet_id], answer_buffer);
+        // set_direction(GO_TO_PLANET, game_data->ships[COLLECTOR_1 - 1],
+        //               game_data->planets[planet_id], game_data->base,
+        //               MAX_SPEED_CHEAT, command_buffer);
+        // send_command(command_buffer, answer_buffer);
       }
     }
     memset(command_buffer, 0, sizeof(command_buffer));
@@ -131,6 +155,29 @@ T_point get_planet_position(T_planet planet) {
 T_point get_base_position(T_base base) {
   T_point base_pos = {base.pos_X, base.pos_Y};
   return base_pos;
+}
+
+void go_to_planet(T_ship ship, T_planet planet, char *answer_buffer) {
+  T_point ship_pos = get_ship_position(ship);
+  T_point planet_pos = get_planet_position(planet);
+
+  send_command(
+      generate_command_2(MOVE_CMD, ship.ship_ID,
+                         get_angle_between_two_points(ship_pos, planet_pos),
+                         MAX_COLLECTOR_SPEED),
+      answer_buffer);
+}
+
+void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed,
+                char *answer_buffer) {
+  T_point ship_pos = get_ship_position(ship);
+  T_point base_pos = get_base_position(base);
+
+  send_command(
+      generate_command_2(MOVE_CMD, ship.ship_ID,
+                         get_angle_between_two_points(ship_pos, base_pos),
+                         ship_speed),
+      answer_buffer);
 }
 
 // set_direction(GO_TO_PLANET, game_data.ship)
@@ -286,31 +333,32 @@ void initialize_game_data(T_game_data *game_data) {
   game_data->base.pos_Y = 0;
 }
 
-T_test get_nearest_planet_available(T_game_data *game_data) {
-  T_test best_data = {0, 0, 20000};
-  uint16_t distance = 0;
+// T_test get_nearest_planet_available(T_game_data *game_data) {
+//   T_test best_data = {0, 0, 20000};
+//   uint16_t distance = 0;
 
-  for (uint8_t ship_num = 8; ship_num <= SHIPS_NUMBER; ship_num++) {
-    for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER;
-         planet_num++) {
-      distance = get_distance_between_two_points(
-          get_ship_position(game_data->ships[ship_num]),
-          get_planet_position(game_data->planets[planet_num]));
+//   for (uint8_t ship_num = 8; ship_num <= SHIPS_NUMBER; ship_num++) {
+//     for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER;
+//          planet_num++) {
+//       distance = get_distance_between_two_points(
+//           get_ship_position(game_data->ships[ship_num]),
+//           get_planet_position(game_data->planets[planet_num]));
 
-      printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
-             ship_num, planet_num);
-      if (distance < best_data.distance) {
-        // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
-        //        ship_num, planet_num);
-        best_data.distance = distance;
-        best_data.ship_id = ship_num;
-        best_data.planet_id = planet_num;
-      }
-    }
-  }
+//       printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
+//              ship_num, planet_num);
+//       if (distance < best_data.distance) {
+//         // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n",
+//         distance,
+//         //        ship_num, planet_num);
+//         best_data.distance = distance;
+//         best_data.ship_id = ship_num;
+//         best_data.planet_id = planet_num;
+//       }
+//     }
+//   }
 
-  return best_data;
-}
+//   return best_data;
+// }
 
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
   uint16_t distance = 0;
