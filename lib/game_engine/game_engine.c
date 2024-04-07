@@ -326,8 +326,8 @@ uint16_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
         get_ship_position(game_data->ships[ship_id]),
         get_planet_position(game_data->planets[planet_num]));
 
-    printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
-           ship_id, planet_num);
+    // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
+    //        ship_id, planet_num);
     if (distance < distance_min) {
       // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
       //        ship_num, planet_num);
