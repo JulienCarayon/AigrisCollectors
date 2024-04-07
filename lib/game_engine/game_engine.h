@@ -55,6 +55,12 @@ typedef struct {
   T_base base;
 } T_game_data;
 
+typedef struct {
+  uint8_t ship_id;
+  uint16_t planet_id;
+  uint16_t distance;
+} T_test;
+
 extern uint8_t nb_planets;
 extern uint8_t nb_ships;
 extern T_game_data game_data[NUMBER_OF_GAME_DATA];
@@ -69,8 +75,8 @@ char *generate_command(T_command_type command_type, int ship_id, int angle,
 
 void parse_planets_gpt(const char *server_response, T_game_data *game_data,
                        uint8_t *num_planets);
-void parse_ships_gpt(const char *server_response, T_game_data *game_data,
-                     uint8_t *num_ships);
+void parse_ships(const char *server_response, T_game_data *game_data,
+                 uint8_t *num_ships);
 
 void parse_base(const char *server_response, T_game_data *game_data);
 
@@ -93,4 +99,5 @@ T_point get_base_position(T_base base);
 void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
                    T_base base, uint16_t ship_speed, char *command_buffer);
 
+T_test get_nearest_planet_available(T_game_data *game_data);
 #endif // GAME_ENGINE_H

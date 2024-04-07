@@ -51,9 +51,8 @@ void ship_manager(uint8_t id) {
     if (id == 6) {
       generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
       send_command(command_buffer, answer_buffer);
-
       parse_planets_gpt(answer_buffer, game_data, &nb_planets);
-      parse_ships_gpt(answer_buffer, game_data, &nb_ships);
+      parse_ships(answer_buffer, game_data, &nb_ships);
       parse_base(answer_buffer, game_data);
       memset(command_buffer, 0, sizeof(command_buffer));
       memset(answer_buffer, 0, sizeof(answer_buffer));
@@ -213,8 +212,8 @@ void parse_planets_gpt(const char *server_response, T_game_data *game_data,
   }
 }
 
-void parse_ships_gpt(const char *server_response, T_game_data *game_data,
-                     uint8_t *num_ships) {
+void parse_ships(const char *server_response, T_game_data *game_data,
+                 uint8_t *num_ships) {
   *num_ships = 0;
   const char *str = server_response;
   const char *delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);
@@ -289,4 +288,30 @@ void initialize_game_data(T_game_data *game_data) {
 
   game_data->base.pos_X = 0;
   game_data->base.pos_Y = 0;
+}
+
+T_test get_nearest_planet_available(T_game_data *game_data) {
+  T_test best_data = {0, 0, 20000};
+  uint16_t distance = 0;
+
+  for (uint8_t ship_num = 8; ship_num <= SHIPS_NUMBER; ship_num++) {
+    for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER;
+         planet_num++) {
+      distance = get_distance_between_two_points(
+          get_ship_position(game_data->ships[ship_num]),
+          get_planet_position(game_data->planets[planet_num]));
+
+      printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
+             ship_num, planet_num);
+      if (distance < best_data.distance) {
+        // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
+        //        ship_num, planet_num);
+        best_data.distance = distance;
+        best_data.ship_id = ship_num;
+        best_data.planet_id = planet_num;
+      }
+    }
+  }
+
+  return best_data;
 }

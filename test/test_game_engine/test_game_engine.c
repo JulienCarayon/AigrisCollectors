@@ -81,7 +81,7 @@ void test_ship_parsing(void) {
   T_game_data game_data[NUMBER_OF_GAME_DATA];
   uint8_t number_of_ships = 0;
 
-  parse_ships_gpt(input, game_data, &number_of_ships);
+  parse_ships(input, game_data, &number_of_ships);
 
   TEST_ASSERT_EQUAL_INT(4, number_of_ships);
 
@@ -121,24 +121,6 @@ void test_get_base_position(void) {
 
   TEST_ASSERT_EQUAL_INT(exepected_base_pos.pos_X, base_pos.pos_X);
   TEST_ASSERT_EQUAL_INT(exepected_base_pos.pos_Y, base_pos.pos_Y);
-}
-
-void test_direction(void) {
-
-  // arguments :
-  //    - mode : 1 planet / 2 ship / 3 base
-  //    - who  : id ship
-  //    - item id
-
-  // TODO add base coo for other teams
-
-  // T_ship ships = {{0, 1, 1000, 0, 0}, {0, 6, 2000, 0, 0}, {0, 9, 30000, 0,
-  // 0}}; T_planet planets = {{45106, 10000, 20000, -1, 0}, {785, 2000, 2000,
-  // -1, 0}}; T_base base = {10000, 0};
-
-  // 1er test  : ship id (8) vers planet (0) -> mode 1
-
-  // 2eme test : ship id (8) vers base       -> mode 3
 }
 
 void test_ship_parsing_error(void) {
@@ -198,6 +180,35 @@ void test_base_parsing(void) {
   //                       parsed_base[0].uint8_data_2);
 }
 
+void test_get_nearest_planet_available(void) {
+  // P {planet_id} {abscissa} {ordinate} {ship_id} {saved}
+  // S {team} {ship_id} {abscissa} {ordinate} {broken}
+  T_test expected_data = {0, 0, 20000};
+  T_game_data game_data[NUMBER_OF_GAME_DATA] = {{{{1, 10000, 20000, -1, 0},
+                                                  {2, 10000, 20000, -1, 0},
+                                                  {3, 10000, 20000, -1, 0},
+                                                  {4, 10000, 20000, -1, 0},
+                                                  {5, 10000, 20000, -1, 0},
+                                                  {6, 10000, 20000, -1, 0},
+                                                  {7, 10000, 20000, -1, 0},
+                                                  {8, 10000, 1200, -1, 0}},
+                                                 {{0, 1, 0, 0, 0},
+                                                  {0, 2, 0, 0, 0},
+                                                  {0, 3, 0, 0, 0},
+                                                  {0, 4, 0, 0, 0},
+                                                  {0, 5, 0, 0, 0},
+                                                  {0, 6, 0, 0, 0},
+                                                  {0, 7, 0, 0, 0},
+                                                  {0, 8, 10000, 10000, 0},
+                                                  {0, 9, 10000, 1000, 0}},
+                                                 {10000, 0}}};
+  T_test data = get_nearest_planet_available(game_data);
+
+  TEST_ASSERT_EQUAL_INT(100, data.distance);
+  TEST_ASSERT_EQUAL_INT(10, data.ship_id);
+  TEST_ASSERT_EQUAL_INT(1, data.planet_id);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_test);
@@ -206,10 +217,10 @@ int main() {
   RUN_TEST(test_explore);
   RUN_TEST(test_planet_parsing);
   RUN_TEST(test_ship_parsing);
-  // RUN_TEST(test_direction);
   RUN_TEST(test_get_ship_position);
   RUN_TEST(test_get_planet_position);
   RUN_TEST(test_get_base_position);
+  RUN_TEST(test_get_nearest_planet_available);
   // RUN_TEST(test_ship_parsing_error);
   // RUN_TEST(test_base_parsing);
   UNITY_END(); // stop unit testing
