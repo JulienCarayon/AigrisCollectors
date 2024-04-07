@@ -45,7 +45,7 @@ void test_planet_parsing(void) {
   T_game_data game_data[NUMBER_OF_GAME_DATA];
   uint8_t number_of_planets;
 
-  parse_planets_gpt(input, game_data, &number_of_planets);
+  parse_planets(input, game_data, &number_of_planets);
 
   TEST_ASSERT_EQUAL_INT_MESSAGE(
       sizeof(expected_planets) / sizeof(expected_planets[0]), number_of_planets,

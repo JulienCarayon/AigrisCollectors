@@ -73,8 +73,8 @@ char *move(uint8_t ship_id, uint16_t angle, uint16_t speed,
 char *generate_command(T_command_type command_type, int ship_id, int angle,
                        int speed, char *command_buffer);
 
-void parse_planets_gpt(const char *server_response, T_game_data *game_data,
-                       uint8_t *num_planets);
+void parse_planets(const char *server_response, T_game_data *game_data,
+                   uint8_t *num_planets);
 void parse_ships(const char *server_response, T_game_data *game_data,
                  uint8_t *num_ships);
 
