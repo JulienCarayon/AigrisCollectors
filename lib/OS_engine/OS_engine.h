@@ -19,6 +19,8 @@ void os_engine_init(void);
 os_mutex_id os_create_mutex(const os_mutex_attr mutex_attribute);
 void os_acquire_mutex(os_mutex_id mutex_id, uint32_t timeout);
 void os_release_mutex(os_mutex_id mutex_id);
+void release_game_data_mutex(void);
+void aquire_game_data_mutex(void);
 
 uint32_t getFreeStackSpace(os_thread_id os_thread_id);
 void getUsedStackSpace(os_thread_id os_thread_id);

@@ -10,27 +10,31 @@ bool rx_command_received = false;
 char rx_command_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
 
 static os_mutex_id uart_mutex_id;
-static os_mutex_id data_mutex_id;
+static os_mutex_id game_data_mutex_id;
 
-void os_engine_init(void) {
+void os_engine_init(void)
+{
   const os_mutex_attr uart_mutex_attributes = {
       .name = "uartMutex", osMutexPrioInherit, NULL, 0U};
 
   uart_mutex_id = os_create_mutex(uart_mutex_attributes);
 
-  const os_mutex_attr data_mutex_attributes = {
+  const os_mutex_attr game_data_mutex_attributes = {
       .name = "dataMutex", osMutexPrioInherit, NULL, 0U};
 
-  data_mutex_id = os_create_mutex(data_mutex_attributes);
+  game_data_mutex_id = os_create_mutex(game_data_mutex_attributes);
 }
 
-void wait_start(void) {
-  while (!is_comptetion_started) {
+void wait_start(void)
+{
+  while (!is_comptetion_started)
+  {
     osDelay(OS_DELAY);
   }
 }
 
-os_mutex_id os_create_mutex(const os_mutex_attr mutex_attribute) {
+os_mutex_id os_create_mutex(const os_mutex_attr mutex_attribute)
+{
   os_mutex_id uart_mutex = osMutexNew(&mutex_attribute);
 
   if (uart_mutex == NULL)
@@ -40,39 +44,59 @@ os_mutex_id os_create_mutex(const os_mutex_attr mutex_attribute) {
   return uart_mutex;
 }
 
-void os_acquire_mutex(os_mutex_id mutex_id, uint32_t timeout) {
+void os_acquire_mutex(os_mutex_id mutex_id, uint32_t timeout)
+{
   osStatus_t aquire_status = osMutexAcquire(mutex_id, timeout);
 
   if (aquire_status != osOK)
-    while (1) {
+    while (1)
+    {
       puts("ERRORS ACQUIRE\n");
     }
 }
 
-void os_release_mutex(os_mutex_id mutex_id) {
-  osStatus_t release_status = osMutexRelease(uart_mutex_id);
+void os_release_mutex(os_mutex_id mutex_id)
+{
+  osStatus_t release_status = osMutexRelease(mutex_id);
 
   if (release_status != osOK)
-    while (1) {
+    while (1)
+    {
       puts("ERRORS RELEASE\n");
     }
 }
 
-void send_command(char *command, char *response_buffer) {
+void aquire_game_data_mutex(void)
+{
+  os_acquire_mutex(game_data_mutex_id, osWaitForever);
+}
+
+void release_game_data_mutex(void)
+{
+  os_release_mutex(game_data_mutex_id);
+}
+
+void send_command(char *command, char *response_buffer)
+{
   os_acquire_mutex(uart_mutex_id, osWaitForever);
   puts(command);
 
   gets(rx_command_buffer);
 
-  if (strstr(rx_command_buffer, "OK") != NULL) {
+  if (strstr(rx_command_buffer, "OK") != NULL)
+  {
     rx_command_received = false;
     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
     os_release_mutex(uart_mutex_id);
-  } else if (strstr(rx_command_buffer, "KO") != NULL) {
+  }
+  else if (strstr(rx_command_buffer, "KO") != NULL)
+  {
     rx_command_received = false;
     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
     os_release_mutex(uart_mutex_id);
-  } else {
+  }
+  else
+  {
     rx_command_received = false;
     strncpy(response_buffer, rx_command_buffer, sizeof(rx_command_buffer) - 1);
     response_buffer[sizeof(rx_command_buffer) - 1] = '\0';
@@ -82,13 +106,15 @@ void send_command(char *command, char *response_buffer) {
   osDelay(OS_DELAY); // TODO Why ?
 }
 
-void putsMutex(char *text) {
+void putsMutex(char *text)
+{
   os_acquire_mutex(uart_mutex_id, osWaitForever);
   puts(text);
   os_release_mutex(uart_mutex_id);
 }
 
-char *getsMutex(char *text) {
+char *getsMutex(char *text)
+{
   char *original_str = text;
   os_acquire_mutex(uart_mutex_id, osWaitForever);
   gets(text);
@@ -96,7 +122,8 @@ char *getsMutex(char *text) {
   return original_str;
 }
 
-uint32_t getFreeStackSpace(os_thread_id thread_id) {
+uint32_t getFreeStackSpace(os_thread_id thread_id)
+{
   uint32_t stack_space = osThreadGetStackSpace(thread_id);
   char space[40] = {0};
   sprintf(space, "Free stack space : %ld\n", stack_space);
@@ -105,7 +132,8 @@ uint32_t getFreeStackSpace(os_thread_id thread_id) {
   return stack_space;
 }
 
-uint32_t getStackSize(os_thread_id thread_id) {
+uint32_t getStackSize(os_thread_id thread_id)
+{
   uint32_t stack_size = osThreadGetStackSize(thread_id);
   char buff_size[40] = {0};
   sprintf(buff_size, "Stack size : %ld\n", stack_size);
@@ -114,7 +142,8 @@ uint32_t getStackSize(os_thread_id thread_id) {
   return stack_size;
 }
 
-void getUsedStackSpace(os_thread_id thread_id) {
+void getUsedStackSpace(os_thread_id thread_id)
+{
   uint32_t used_stack_size =
       getStackSize(thread_id) - getFreeStackSpace(thread_id);
 
