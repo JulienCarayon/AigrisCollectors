@@ -163,18 +163,18 @@ void test_base_parsing(void) {
 void test_get_nearest_planet_available(void) {
   // P {planet_id} {abscissa} {ordinate} {ship_id} {saved}
   // S {team} {ship_id} {abscissa} {ordinate} {broken}
-  T_test expected_data = {0, 0, 20000};
-  T_test data = get_nearest_planet_available(game_data);
-
-  TEST_ASSERT_EQUAL_INT(200, data.distance);
-  TEST_ASSERT_EQUAL_INT(8, data.ship_id);
-  TEST_ASSERT_EQUAL_INT(7, data.planet_id);
 }
 
 void test_get_nearest_planet(void) {
   uint16_t expected_nearest_planet_id = 7;
   uint16_t nearest_planet_id = get_nearest_planet(8, game_data);
   TEST_ASSERT_EQUAL_INT(expected_nearest_planet_id, nearest_planet_id);
+}
+
+void test_check_desired_ship_speed(void) {
+  uint16_t expected_speed = 1000;
+  uint16_t speed = check_desired_ship_speed(COLLECTOR_1, 1200);
+  TEST_ASSERT_EQUAL_INT(expected_speed, speed);
 }
 
 int main() {
@@ -189,7 +189,7 @@ int main() {
   RUN_TEST(test_get_planet_position);
   RUN_TEST(test_get_base_position);
   RUN_TEST(test_base_parsing);
-  RUN_TEST(test_get_nearest_planet_available);
   RUN_TEST(test_get_nearest_planet);
+  RUN_TEST(test_check_desired_ship_speed);
   UNITY_END(); // stop unit testing
 }

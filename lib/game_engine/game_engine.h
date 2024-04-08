@@ -57,7 +57,7 @@ typedef struct {
 
 typedef enum {
   COLLECTOR_SPEED = 1000,
-  EXPLORATEUR_SPEED = 2000,
+  EXPLORER_SPEED = 2000,
   ATTACKER_SPEED = 3000
 } T_ships_speed;
 
@@ -72,8 +72,8 @@ char *move(uint8_t ship_id, uint16_t angle, uint16_t speed,
 
 char *generate_command(T_command_type command_type, int ship_id, int angle,
                        int speed, char *command_buffer);
-char *generate_command_2(T_command_type command_type, int ship_id, int angle,
-                         int speed);
+char *generate_command_2(T_command_type command_type, uint8_t ship_id,
+                         uint16_t angle, uint16_t speed);
 void parse_planets(const char *server_response, T_game_data *game_data,
                    uint8_t *num_planets);
 void parse_ships(const char *server_response, T_game_data *game_data,
@@ -104,4 +104,5 @@ uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 
 void go_to_planet(T_ship ship, T_planet planet);
 void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed);
+uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed);
 #endif // GAME_ENGINE_H

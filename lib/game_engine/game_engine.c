@@ -38,20 +38,49 @@ char *generate_command(T_command_type command_type, int ship_id, int angle,
   return command_buffer;
 }
 
-char *generate_command_2(T_command_type command_type, int ship_id, int angle,
-                         int speed) {
+uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed) {
+  uint16_t speed = 0;
+
+  if ((ship_id >= (uint8_t)ATTACKER_1) && (ship_id <= (uint8_t)ATTACKER_5)) {
+    if (desired_speed > ATTACKER_SPEED)
+      speed = ATTACKER_SPEED;
+    else
+      speed = desired_speed;
+  } else if (ship_id == (uint8_t)EXPLORER_1 || ship_id == (uint8_t)EXPLORER_2) {
+    if (desired_speed > EXPLORER_SPEED)
+      speed = EXPLORER_SPEED;
+    else
+      speed = desired_speed;
+  } else if (ship_id == (uint8_t)COLLECTOR_1 ||
+             ship_id == (uint8_t)COLLECTOR_2) {
+    if (desired_speed > COLLECTOR_SPEED)
+      speed = COLLECTOR_SPEED;
+    else
+      speed = desired_speed;
+  }
+
+  return speed;
+}
+
+char *generate_command_2(T_command_type command_type, uint8_t ship_id,
+                         uint16_t angle, uint16_t speed) {
   static char command_buffer[BUFFER_SIZE];
 
   switch (command_type) {
   case MOVE_CMD:
+    speed = check_desired_ship_speed(ship_id, speed);
     snprintf(command_buffer, BUFFER_SIZE, "MOVE %d %d %d\n", ship_id, angle,
              speed);
     break;
   case FIRE_CMD:
-    snprintf(command_buffer, BUFFER_SIZE, "FIRE %d %d\n", ship_id, angle);
+    if (ship_id >= ATTACKER_1 && ship_id <= ATTACKER_5) {
+      snprintf(command_buffer, BUFFER_SIZE, "FIRE %d %d\n", ship_id, angle);
+    }
     break;
   case RADAR_CMD:
-    snprintf(command_buffer, BUFFER_SIZE, "RADAR %d\n", ship_id);
+    if (ship_id == EXPLORER_1 || ship_id == EXPLORER_2) {
+      snprintf(command_buffer, BUFFER_SIZE, "RADAR %d\n", ship_id);
+    }
     break;
   }
 
@@ -97,17 +126,9 @@ void ship_manager(uint8_t id) {
       if (game_data->planets[planet_id].ship_ID != -1) {
         go_to_base(game_data->ships[COLLECTOR_1 - 1], game_data->base,
                    COLLECTOR_SPEED);
-        // set_direction(GO_TO_BASE, game_data->ships[COLLECTOR_1 - 1],
-        //               game_data->planets[planet_id], game_data->base,
-        //               MAX_SPEED_CHEAT, command_buffer);
-        // send_command(command_buffer, answer_buffer);
       } else {
         go_to_planet(game_data->ships[COLLECTOR_1 - 1],
                      game_data->planets[planet_id]);
-        // set_direction(GO_TO_PLANET, game_data->ships[COLLECTOR_1 - 1],
-        //               game_data->planets[planet_id], game_data->base,
-        //               MAX_SPEED_CHEAT, command_buffer);
-        // send_command(command_buffer, answer_buffer);
       }
     } else if (id == ATTACKER_1 || id == ATTACKER_2 || id == ATTACKER_3 ||
                id == ATTACKER_4 || id == ATTACKER_5) {
@@ -118,7 +139,7 @@ void ship_manager(uint8_t id) {
     memset(answer_buffer, 0, sizeof(answer_buffer));
 
     release_game_data_mutex();
-    osDelay(OS_DELAY);
+    os_delay(OS_DELAY);
   }
 }
 
@@ -181,7 +202,7 @@ void go_to_planet(T_ship ship, T_planet planet) {
 
   send_command(generate_command_2(
       MOVE_CMD, ship.ship_ID,
-      get_angle_between_two_points(ship_pos, planet_pos), MAX_COLLECTOR_SPEED));
+      get_angle_between_two_points(ship_pos, planet_pos), COLLECTOR_SPEED));
 }
 
 void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed) {
@@ -388,7 +409,8 @@ uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
       // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
       //        ship_id, planet_num);
       if (distance < distance_min) {
-        // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
+        // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n",
+        // distance,
         //        ship_num, planet_num);
         distance_min = distance;
         planet_id_to_collect = planet_num;

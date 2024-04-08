@@ -58,6 +58,8 @@ void os_release_mutex(os_mutex_id mutex_id) {
     }
 }
 
+void os_delay(uint32_t os_delay) { osDelay(OS_DELAY); }
+
 void aquire_game_data_mutex(void) {
   os_acquire_mutex(game_data_mutex_id, osWaitForever);
 }
