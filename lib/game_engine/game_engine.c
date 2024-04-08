@@ -73,11 +73,25 @@ char *generate_command_2(T_command_type command_type, uint8_t ship_id,
 void explorer_manager(uint8_t explorer_id) {
   static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
   char command_buffer[BUFFER_SIZE] = {0};
+
+  while (1) {
+    aquire_game_data_mutex();
+    generate_command(RADAR_CMD, EXPLORER_1, 0, 0, command_buffer);
+    send_command_radar(command_buffer, answer_buffer);
+
+    parse_planets(answer_buffer, game_data, &nb_planets);
+    parse_ships(answer_buffer, game_data);
+    parse_base(answer_buffer, game_data);
+
+    release_game_data_mutex();
+
+    // memset(command_buffer, 0, sizeof(command_buffer));
+    // memset(answer_buffer, 0, sizeof(answer_buffer));
+    os_delay(OS_DELAY);
+  }
 }
 
 void collector_manager(uint8_t collector_id) {
-  char command_buffer[BUFFER_SIZE] = {0};
-
   while (1) {
     aquire_game_data_mutex();
     uint8_t planet_id = get_nearest_planet(COLLECTOR_1 - 1, game_data);
@@ -95,25 +109,25 @@ void collector_manager(uint8_t collector_id) {
 }
 
 void ship_manager(uint8_t id) {
-  static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
+  // static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
   char command_buffer[BUFFER_SIZE] = {0};
 
   while (1) {
     aquire_game_data_mutex();
-    static int _angle = 90;
-    static int _speed = 0;
+    // static int _angle = 90;
+    // static int _speed = 0;
 
-    if (id == EXPLORER_1) {
-      generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
-      send_command_radar(command_buffer, answer_buffer);
+    // if (id == EXPLORER_1) {
+    //   generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
+    //   send_command_radar(command_buffer, answer_buffer);
 
-      parse_planets(answer_buffer, game_data, &nb_planets);
-      parse_ships(answer_buffer, game_data);
-      parse_base(answer_buffer, game_data);
+    //   parse_planets(answer_buffer, game_data, &nb_planets);
+    //   parse_ships(answer_buffer, game_data);
+    //   parse_base(answer_buffer, game_data);
 
-      memset(command_buffer, 0, sizeof(command_buffer));
-      memset(answer_buffer, 0, sizeof(answer_buffer));
-    }
+    //   memset(command_buffer, 0, sizeof(command_buffer));
+    //   memset(answer_buffer, 0, sizeof(answer_buffer));
+    // }
     // else if (id == COLLECTOR_1) {
     //   uint8_t planet_id = get_nearest_planet(COLLECTOR_1 - 1, game_data);
 
@@ -125,13 +139,15 @@ void ship_manager(uint8_t id) {
     //                  game_data->planets[planet_id]);
     //   }
     // }
-    else if (id == ATTACKER_1 || id == ATTACKER_2 || id == ATTACKER_3 ||
-             id == ATTACKER_4 || id == ATTACKER_5) {
+    // else
+    if (id == ATTACKER_1 || id == ATTACKER_2 || id == ATTACKER_3 ||
+        id == ATTACKER_4 || id == ATTACKER_5) {
       generate_command(FIRE_CMD, id, 90, 0, command_buffer);
       send_command(command_buffer);
     }
-    memset(command_buffer, 0, sizeof(command_buffer));
-    memset(answer_buffer, 0, sizeof(answer_buffer));
+
+    // memset(command_buffer, 0, sizeof(command_buffer));
+    //  memset(answer_buffer, 0, sizeof(answer_buffer));
 
     release_game_data_mutex();
     os_delay(OS_DELAY);
