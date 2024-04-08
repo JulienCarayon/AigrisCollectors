@@ -58,6 +58,20 @@ char *generate_command_2(T_command_type command_type, int ship_id, int angle,
   return command_buffer;
 }
 
+// void collector_manager(uint8_t collector_id) {
+//   while (1) {
+//     uint8_t planet_id = get_nearest_planet(COLLECTOR_1 - 1, game_data);
+
+//     if (game_data->planets[planet_id].ship_ID != -1) {
+//       go_to_base(game_data->ships[COLLECTOR_1 - 1], game_data->base,
+//                  COLLECTOR_SPEED, answer_buffer);
+//     } else {
+//       go_to_planet(game_data->ships[COLLECTOR_1 - 1],
+//                    game_data->planets[planet_id], answer_buffer);
+//     }
+//   }
+// }
+
 void ship_manager(uint8_t id) {
   static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
   char command_buffer[BUFFER_SIZE] = {0};
@@ -69,7 +83,7 @@ void ship_manager(uint8_t id) {
 
     if (id == EXPLORER_1) {
       generate_command(RADAR_CMD, id, _angle, _speed, command_buffer);
-      send_command(command_buffer, answer_buffer);
+      send_command_radar(command_buffer, answer_buffer);
 
       parse_planets(answer_buffer, game_data, &nb_planets);
       parse_ships(answer_buffer, game_data, &nb_ships);
@@ -82,19 +96,23 @@ void ship_manager(uint8_t id) {
 
       if (game_data->planets[planet_id].ship_ID != -1) {
         go_to_base(game_data->ships[COLLECTOR_1 - 1], game_data->base,
-                   COLLECTOR_SPEED, answer_buffer);
+                   COLLECTOR_SPEED);
         // set_direction(GO_TO_BASE, game_data->ships[COLLECTOR_1 - 1],
         //               game_data->planets[planet_id], game_data->base,
         //               MAX_SPEED_CHEAT, command_buffer);
         // send_command(command_buffer, answer_buffer);
       } else {
         go_to_planet(game_data->ships[COLLECTOR_1 - 1],
-                     game_data->planets[planet_id], answer_buffer);
+                     game_data->planets[planet_id]);
         // set_direction(GO_TO_PLANET, game_data->ships[COLLECTOR_1 - 1],
         //               game_data->planets[planet_id], game_data->base,
         //               MAX_SPEED_CHEAT, command_buffer);
         // send_command(command_buffer, answer_buffer);
       }
+    } else if (id == ATTACKER_1 || id == ATTACKER_2 || id == ATTACKER_3 ||
+               id == ATTACKER_4 || id == ATTACKER_5) {
+      generate_command(FIRE_CMD, id, 90, 0, command_buffer);
+      send_command(command_buffer);
     }
     memset(command_buffer, 0, sizeof(command_buffer));
     memset(answer_buffer, 0, sizeof(answer_buffer));
@@ -157,27 +175,22 @@ T_point get_base_position(T_base base) {
   return base_pos;
 }
 
-void go_to_planet(T_ship ship, T_planet planet, char *answer_buffer) {
+void go_to_planet(T_ship ship, T_planet planet) {
   T_point ship_pos = get_ship_position(ship);
   T_point planet_pos = get_planet_position(planet);
 
-  send_command(
-      generate_command_2(MOVE_CMD, ship.ship_ID,
-                         get_angle_between_two_points(ship_pos, planet_pos),
-                         MAX_COLLECTOR_SPEED),
-      answer_buffer);
+  send_command(generate_command_2(
+      MOVE_CMD, ship.ship_ID,
+      get_angle_between_two_points(ship_pos, planet_pos), MAX_COLLECTOR_SPEED));
 }
 
-void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed,
-                char *answer_buffer) {
+void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed) {
   T_point ship_pos = get_ship_position(ship);
   T_point base_pos = get_base_position(base);
 
-  send_command(
-      generate_command_2(MOVE_CMD, ship.ship_ID,
-                         get_angle_between_two_points(ship_pos, base_pos),
-                         ship_speed),
-      answer_buffer);
+  send_command(generate_command_2(
+      MOVE_CMD, ship.ship_ID, get_angle_between_two_points(ship_pos, base_pos),
+      ship_speed));
 }
 
 // set_direction(GO_TO_PLANET, game_data.ship)

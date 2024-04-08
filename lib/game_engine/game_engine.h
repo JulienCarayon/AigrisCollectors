@@ -102,7 +102,6 @@ void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
 
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 
-void go_to_planet(T_ship ship, T_planet planet, char *answer_buffer);
-void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed,
-                char *answer_buffer);
+void go_to_planet(T_ship ship, T_planet planet);
+void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed);
 #endif // GAME_ENGINE_H

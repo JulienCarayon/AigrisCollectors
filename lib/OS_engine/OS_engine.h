@@ -12,7 +12,8 @@ extern char rx_command_buffer[RX_COMMAND_BUFFER_SIZE];
 void putsMutex(char *text);
 char *getsMutex(char *text);
 
-void send_command(char *command, char *response_buffer);
+void send_command(char *command);
+void send_command_radar(char *command, char *response_buffer);
 void wait_start(void);
 
 void os_engine_init(void);
