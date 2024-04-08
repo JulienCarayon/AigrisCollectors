@@ -72,12 +72,14 @@ char *generate_command_2(T_command_type command_type, uint8_t ship_id,
 
 void explorer_manager(uint8_t explorer_id) {
   static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
-  char command_buffer[BUFFER_SIZE] = {0};
+  // char command_buffer[BUFFER_SIZE] = {0};
 
   while (1) {
     aquire_game_data_mutex();
-    generate_command(RADAR_CMD, EXPLORER_1, 0, 0, command_buffer);
-    send_command_radar(command_buffer, answer_buffer);
+    // generate_command(RADAR_CMD, EXPLORER_1, 0, 0, command_buffer);
+    // send_command_radar(command_buffer, answer_buffer);
+    send_command_radar(generate_command_2(RADAR_CMD, EXPLORER_1, 0, 0),
+                       answer_buffer);
 
     parse_planets(answer_buffer, game_data, &nb_planets);
     parse_ships(answer_buffer, game_data);
