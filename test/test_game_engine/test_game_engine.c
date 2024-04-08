@@ -81,8 +81,6 @@ void test_planet_parsing(void) {
   }
 }
 
-void test_test(void) { TEST_ASSERT_EQUAL_UINT8(6, 6); }
-
 void test_ship_parsing(void) {
   const char *input = "P 495 10000 20000 -1 0,P 95 1000 200 -1 0,S 0 1 10000 "
                       "253 1,S 0 2 12000 53 "
@@ -172,7 +170,6 @@ void test_check_desired_ship_speed(void) {
 
 int main() {
   UNITY_BEGIN();
-  RUN_TEST(test_test);
   RUN_TEST(test_get_angle_between_two_points);
   RUN_TEST(test_get_distance_between_two_points);
   RUN_TEST(test_planet_parsing);

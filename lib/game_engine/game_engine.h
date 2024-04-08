@@ -12,21 +12,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef enum { GO_TO_PLANET, GO_TO_SHIP, GO_TO_BASE } T_mode_direction;
+
+typedef enum { MOVE_CMD, FIRE_CMD, RADAR_CMD } T_command_type;
+
+typedef enum {
+  COLLECTOR_SPEED = 1000,
+  EXPLORER_SPEED = 2000,
+  ATTACKER_SPEED = 3000
+} T_ships_speed;
+
 typedef struct {
   uint16_t pos_X;
   uint16_t pos_Y;
 } T_point;
-
-typedef enum {
-  UNKNOWN_SHIP,
-  ATTACKERS_SHIP,
-  EXPLORER_SHIP,
-  COLLECTOR_SHIP
-} T_ship_type;
-
-typedef enum { GO_TO_PLANET, GO_TO_SHIP, GO_TO_BASE } T_mode_direction;
-
-typedef enum { MOVE_CMD, FIRE_CMD, RADAR_CMD } T_command_type;
 
 typedef struct {
   uint16_t team_ID;
@@ -55,52 +54,47 @@ typedef struct {
   T_base base;
 } T_game_data;
 
-typedef enum {
-  COLLECTOR_SPEED = 1000,
-  EXPLORER_SPEED = 2000,
-  ATTACKER_SPEED = 3000
-} T_ships_speed;
-
 extern uint8_t nb_planets;
-extern uint8_t nb_ships;
 extern T_game_data game_data[NUMBER_OF_GAME_DATA];
 
+// Main functions for ships
 void ship_manager(uint8_t id);
+void attacker_manager(uint8_t id);
+void explorer_manager(uint8_t id);
+void collector_manager(uint8_t id);
 
-char *generate_command(T_command_type command_type, int ship_id, int angle,
-                       int speed, char *command_buffer);
-char *generate_command_2(T_command_type command_type, uint8_t ship_id,
-                         uint16_t angle, uint16_t speed);
-
-// PARSING FUNCTION FOR RADAR COMMAND
+// Parsing functions
 void parse_planets(const char *server_response, T_game_data *game_data,
                    uint8_t *num_planets);
 void parse_ships(const char *server_response, T_game_data *game_data);
 void parse_base(const char *server_response, T_game_data *game_data);
 
+// Command functions
+char *generate_command(T_command_type command_type, int ship_id, int angle,
+                       int speed, char *command_buffer);
+char *generate_command_2(T_command_type command_type, uint8_t ship_id,
+                         uint16_t angle, uint16_t speed);
+void collect_planet(T_game_data *game_data, char *command_buffer);
+void go_to_planet(T_ship ship, T_planet planet);
+void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed);
+void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
+                   T_base base, uint16_t ship_speed, char *command_buffer);
+
+// Trigonometry functions
 uint16_t get_distance_between_two_points(T_point starting_point,
                                          T_point ending_point);
 uint16_t get_angle_between_two_points(T_point starting_point,
                                       T_point ending_point);
-
-void write_game_data(const char *server_response);
-
-char *create_buffer(int buffer_size);
-void free_buffer(char *buffer_ptr);
-
-void show_planet(T_planet *planet);
-void initialize_game_data(T_game_data *game_data);
-void collect_planet(T_game_data *game_data, char *command_buffer);
 T_point get_ship_position(T_ship ship);
 T_point get_planet_position(T_planet planet);
 T_point get_base_position(T_base base);
-void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
-                   T_base base, uint16_t ship_speed, char *command_buffer);
-
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
-
-void go_to_planet(T_ship ship, T_planet planet);
-void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed);
 uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed);
+
+// Initialiazing functions
+void initialize_game_data(T_game_data *game_data);
+
+// Debug functions
+void show_planet(T_planet *planet);
 
 #endif // GAME_ENGINE_H

@@ -2,7 +2,6 @@
 #include "OS_engine.h"
 
 uint8_t nb_planets = 0;
-uint8_t nb_ships = 0;
 T_game_data game_data[NUMBER_OF_GAME_DATA];
 
 char *generate_command(T_command_type command_type, int ship_id, int angle,
@@ -146,26 +145,6 @@ uint16_t get_angle_between_two_points(T_point starting_point,
   return (uint16_t)angle_degree;
 }
 
-char *create_buffer(int buffer_size) {
-  char *buffer = (char *)malloc(buffer_size * sizeof(char));
-
-  if (buffer == NULL) {
-    while (1) {
-    }
-  }
-
-  return buffer;
-}
-
-void free_buffer(char *buffer_ptr) {
-  if (buffer_ptr != NULL) {
-    free(buffer_ptr);
-  } else {
-    while (1)
-      ;
-  }
-}
-
 T_point get_ship_position(T_ship ship) {
   T_point ship_pos = {ship.pos_X, ship.pos_Y};
   return ship_pos;
@@ -243,7 +222,7 @@ void parse_game_data(char *answer_buffer, T_game_data *game_data) {
   // aquire_game_data_mutex();
 
   // parse_planets(answer_buffer, game_data, &nb_planets);
-  // parse_ships(answer_buffer, game_data, &nb_ships);
+  // parse_ships(answer_buffer, game_data);
   // parse_base(answer_buffer, game_data);
 
   // release_game_data_mutex();
