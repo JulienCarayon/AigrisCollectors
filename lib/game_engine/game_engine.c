@@ -100,7 +100,7 @@ void ship_manager(uint8_t id) {
       send_command_radar(command_buffer, answer_buffer);
 
       parse_planets(answer_buffer, game_data, &nb_planets);
-      parse_ships(answer_buffer, game_data, &nb_ships);
+      parse_ships(answer_buffer, game_data);
       parse_base(answer_buffer, game_data);
 
       memset(command_buffer, 0, sizeof(command_buffer));
@@ -274,24 +274,24 @@ void parse_planets(const char *server_response, T_game_data *game_data,
   }
 }
 
-void parse_ships(const char *server_response, T_game_data *game_data,
-                 uint8_t *num_ships) {
-  *num_ships = 0;
+void parse_ships(const char *server_response, T_game_data *game_data) {
+  uint8_t num_ships = 0;
   const char *str = server_response;
   const char *delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);
 
   while (delimiter != NULL) {
     if (*str == SERVER_RESPONSE_SHIP_DELIMITER) {
-      if (*num_ships >= 36) {
-        break;
+      if (num_ships >= SHIPS_NUMBER * NUMBER_OF_TEAM) {
+        while (1) {
+          ;
+        }
       }
-      sscanf(str, "S %hu %hu %hu %hu %hu",
-             &game_data->ships[*num_ships].team_ID,
-             &game_data->ships[*num_ships].ship_ID,
-             &game_data->ships[*num_ships].pos_X,
-             &game_data->ships[*num_ships].pos_Y,
-             &game_data->ships[*num_ships].broken);
-      (*num_ships)++;
+      sscanf(str, "S %hu %hu %hu %hu %hu", &game_data->ships[num_ships].team_ID,
+             &game_data->ships[num_ships].ship_ID,
+             &game_data->ships[num_ships].pos_X,
+             &game_data->ships[num_ships].pos_Y,
+             &game_data->ships[num_ships].broken);
+      num_ships++;
     }
 
     str = delimiter + 1;
