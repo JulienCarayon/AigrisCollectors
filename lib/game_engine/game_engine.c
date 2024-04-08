@@ -4,21 +4,6 @@
 uint8_t nb_planets = 0;
 uint8_t nb_ships = 0;
 T_game_data game_data[NUMBER_OF_GAME_DATA];
-T_planet planets[MAX_PLANETS_NUMBER] = {
-    {1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {3, 3, 3, 3, 3}, {4, 4, 4, 4, 4},
-    {5, 5, 5, 5, 5}, {6, 6, 6, 6, 6}, {7, 7, 7, 7, 7}, {8, 8, 8, 8, 8}};
-
-char *explore(uint8_t ship_id, char *command_buffer) {
-  command_buffer = generate_command(RADAR_CMD, ship_id, 0, 0, command_buffer);
-  return command_buffer;
-}
-
-char *move(uint8_t ship_id, uint16_t angle, uint16_t speed,
-           char *command_buffer) {
-  command_buffer =
-      generate_command(MOVE_CMD, ship_id, angle, speed, command_buffer);
-  return command_buffer;
-}
 
 char *generate_command(T_command_type command_type, int ship_id, int angle,
                        int speed, char *command_buffer) {
@@ -347,7 +332,7 @@ void show_planet(T_planet *planet) {
 }
 
 void initialize_game_data(T_game_data *game_data) {
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < MAX_PLANETS_NUMBER; i++) {
     game_data->planets[i].planet_ID = 0;
     game_data->planets[i].pos_X = 0;
     game_data->planets[i].pos_Y = 0;
@@ -355,12 +340,12 @@ void initialize_game_data(T_game_data *game_data) {
     game_data->planets[i].planet_saved = 0;
   }
 
-  for (int i = 0; i < 9 * 4; i++) {
-    game_data->ships[i].team_ID = 3;
-    game_data->ships[i].ship_ID = 3;
-    game_data->ships[i].pos_X = 3;
-    game_data->ships[i].pos_Y = 3;
-    game_data->ships[i].broken = 3;
+  for (int i = 0; i < SHIPS_NUMBER * NUMBER_OF_TEAM; i++) {
+    game_data->ships[i].team_ID = 0;
+    game_data->ships[i].ship_ID = 0;
+    game_data->ships[i].pos_X = 0;
+    game_data->ships[i].pos_Y = 0;
+    game_data->ships[i].broken = 0;
   }
 
   game_data->base.pos_X = 0;

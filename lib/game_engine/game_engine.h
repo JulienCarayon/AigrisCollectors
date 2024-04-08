@@ -33,7 +33,7 @@ typedef struct {
   uint16_t ship_ID;
   uint16_t pos_X;
   uint16_t pos_Y;
-  uint16_t broken; // same size as an boolean
+  uint16_t broken;
 } T_ship;
 
 typedef struct {
@@ -41,7 +41,7 @@ typedef struct {
   uint16_t pos_X;
   uint16_t pos_Y;
   int16_t ship_ID;
-  uint16_t planet_saved; // same size as an boolean
+  uint16_t planet_saved;
 } T_planet;
 
 typedef struct {
@@ -66,9 +66,6 @@ extern uint8_t nb_ships;
 extern T_game_data game_data[NUMBER_OF_GAME_DATA];
 
 void ship_manager(uint8_t id);
-char *explore(uint8_t ship_id, char *command_buffer);
-char *move(uint8_t ship_id, uint16_t angle, uint16_t speed,
-           char *command_buffer);
 
 char *generate_command(T_command_type command_type, int ship_id, int angle,
                        int speed, char *command_buffer);
@@ -105,4 +102,5 @@ uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 void go_to_planet(T_ship ship, T_planet planet);
 void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed);
 uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed);
+
 #endif // GAME_ENGINE_H
