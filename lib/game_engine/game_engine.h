@@ -74,7 +74,6 @@ char *generate_command(T_command_type command_type, int ship_id, int angle,
                        int speed, char *command_buffer);
 char *generate_command_2(T_command_type command_type, uint8_t ship_id,
                          uint16_t angle, uint16_t speed);
-void collect_planet(T_game_data *game_data, char *command_buffer);
 void go_to_planet(T_ship ship, T_planet planet);
 void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed);
 
