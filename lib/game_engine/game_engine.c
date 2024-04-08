@@ -94,6 +94,7 @@ void explorer_manager(uint8_t explorer_id) {
 void collector_manager(uint8_t collector_id) {
   while (1) {
     aquire_game_data_mutex();
+
     uint8_t planet_id = get_nearest_planet(COLLECTOR_1 - 1, game_data);
 
     if (game_data->planets[planet_id].ship_ID != -1) {
@@ -103,6 +104,24 @@ void collector_manager(uint8_t collector_id) {
       go_to_planet(game_data->ships[COLLECTOR_1 - 1],
                    game_data->planets[planet_id]);
     }
+
+    release_game_data_mutex();
+    os_delay(OS_DELAY);
+  }
+}
+
+void attacker_manager(uint8_t id) {
+  char command_buffer[BUFFER_SIZE] = {0};
+
+  while (1) {
+    aquire_game_data_mutex();
+
+    if (id == ATTACKER_1 || id == ATTACKER_2 || id == ATTACKER_3 ||
+        id == ATTACKER_4 || id == ATTACKER_5) {
+      generate_command(FIRE_CMD, id, 90, 0, command_buffer);
+      send_command(command_buffer);
+    }
+
     release_game_data_mutex();
     os_delay(OS_DELAY);
   }
