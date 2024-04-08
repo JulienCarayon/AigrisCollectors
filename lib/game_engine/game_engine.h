@@ -58,7 +58,6 @@ extern uint8_t nb_planets;
 extern T_game_data game_data[NUMBER_OF_GAME_DATA];
 
 // Main functions for ships
-void ship_manager(uint8_t id);
 void attacker_manager(uint8_t id);
 void explorer_manager(uint8_t id);
 void collector_manager(uint8_t id);
