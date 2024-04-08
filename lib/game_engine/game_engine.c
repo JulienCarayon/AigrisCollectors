@@ -178,36 +178,6 @@ void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed) {
       ship_speed));
 }
 
-// set_direction(GO_TO_PLANET, game_data.ship)
-void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
-                   T_base base, uint16_t ship_speed, char *command_buffer) {
-
-  T_point ship_pos = get_ship_position(ship);
-  T_point planet_pos = get_planet_position(planet);
-  T_point base_pos = get_base_position(base);
-
-  switch (mode) {
-  case GO_TO_PLANET:
-    generate_command(MOVE_CMD, ship.ship_ID,
-                     get_angle_between_two_points(ship_pos, planet_pos),
-                     ship_speed, command_buffer);
-    break;
-
-  case GO_TO_SHIP:
-    /* code */
-    break;
-
-  case GO_TO_BASE:
-    generate_command(MOVE_CMD, ship.ship_ID,
-                     get_angle_between_two_points(ship_pos, base_pos),
-                     ship_speed, command_buffer);
-    break;
-
-  default:
-    break;
-  }
-}
-
 void collect_planet(T_game_data *game_data, char *command_buffer) {
   T_point ship_point = {game_data->ships[8].pos_X, game_data->ships[8].pos_Y};
   T_point planet_point = {game_data->planets[0].pos_X,

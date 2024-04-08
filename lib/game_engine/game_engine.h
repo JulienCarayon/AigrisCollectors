@@ -77,8 +77,6 @@ char *generate_command_2(T_command_type command_type, uint8_t ship_id,
 void collect_planet(T_game_data *game_data, char *command_buffer);
 void go_to_planet(T_ship ship, T_planet planet);
 void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed);
-void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
-                   T_base base, uint16_t ship_speed, char *command_buffer);
 
 // Trigonometry functions
 uint16_t get_distance_between_two_points(T_point starting_point,
