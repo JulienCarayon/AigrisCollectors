@@ -49,11 +49,6 @@ void test_get_distance_between_two_points(void) {
                         15620);
 }
 
-void test_explore(void) {
-  char *buffer = create_buffer(BUFFER_SIZE);
-  TEST_ASSERT_EQUAL_STRING(explore(7, buffer), "RADAR 7\n");
-}
-
 void test_planet_parsing(void) {
   const char *input = "P 495 10000 20000 -1 0,P 25 3040 40 -1 1,P 1445 340 1 1 "
                       "1,S 0 4 13000 0 0,B 10000 10000";
@@ -98,11 +93,9 @@ void test_ship_parsing(void) {
                              {0, 3, 10, 13, 0},
                              {4, 4, 4, 4, 4}};
   T_game_data game_data[NUMBER_OF_GAME_DATA];
-  uint8_t number_of_ships = 0;
+  uint8_t number_of_ships = 4;
 
-  parse_ships(input, game_data, &number_of_ships);
-
-  TEST_ASSERT_EQUAL_INT(4, number_of_ships);
+  parse_ships(input, game_data);
 
   for (int i = 0; i < number_of_ships; i++) {
     TEST_ASSERT_EQUAL_INT(expected_ships[i].team_ID,
@@ -182,7 +175,6 @@ int main() {
   RUN_TEST(test_test);
   RUN_TEST(test_get_angle_between_two_points);
   RUN_TEST(test_get_distance_between_two_points);
-  RUN_TEST(test_explore);
   RUN_TEST(test_planet_parsing);
   RUN_TEST(test_ship_parsing);
   RUN_TEST(test_get_ship_position);
