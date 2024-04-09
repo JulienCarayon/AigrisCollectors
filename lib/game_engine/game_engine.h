@@ -5,6 +5,12 @@
 #define M_PI (3.14159265358979323846)
 #endif
 
+#define MAX_DISTANCE_ENEMY 500
+#define MAX_SHIPS_NUMBER 9 
+#define MY_TEAM_ID 0 
+#define FIRE_DISTANCE 5000 // Longueur de l'attaque en kilomètres
+#define BREAK_DISTANCE 200 // Distance à laquelle un vaisseau ennemi est détruit
+
 #include <constants.h>
 #include <math.h>
 #include <stdbool.h>
@@ -118,4 +124,7 @@ void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
 
 T_test get_nearest_planet_available(T_game_data *game_data);
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
+uint16_t get_distance_between_enemy_and_collectors(T_game_data *game_data, T_ship enemy_ship);
+
+void fire_on_enemy_ship(uint8_t attacker_id, uint8_t target_id, T_game_data *game_data, char *command_buffer);
 #endif // GAME_ENGINE_H
