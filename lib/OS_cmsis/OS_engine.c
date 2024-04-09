@@ -110,6 +110,9 @@ void send_command(char *command) {
     rx_command_received = false;
     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
     os_release_mutex(uart_mutex_id);
+  } else {
+    memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
+    os_release_mutex(uart_mutex_id);
   }
 
   osDelay(OS_DELAY);
