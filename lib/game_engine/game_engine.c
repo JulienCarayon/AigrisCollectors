@@ -4,24 +4,6 @@
 uint8_t nb_planets = 0;
 T_game_data game_data[NUMBER_OF_GAME_DATA];
 
-char *generate_command(T_command_type command_type, int ship_id, int angle,
-                       int speed, char *command_buffer) {
-  switch (command_type) {
-  case MOVE_CMD:
-    snprintf(command_buffer, BUFFER_SIZE, "MOVE %d %d %d\n", ship_id, angle,
-             speed);
-    break;
-  case FIRE_CMD:
-    snprintf(command_buffer, BUFFER_SIZE, "FIRE %d %d\n", ship_id, angle);
-    break;
-  case RADAR_CMD:
-    snprintf(command_buffer, BUFFER_SIZE, "RADAR %d\n", ship_id);
-    break;
-  }
-
-  return command_buffer;
-}
-
 uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed) {
   uint16_t speed = 0;
 
@@ -45,8 +27,8 @@ uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed) {
   return speed;
 }
 
-char *generate_command_2(T_command_type command_type, uint8_t ship_id,
-                         uint16_t angle, uint16_t speed) {
+char *generate_command(T_command_type command_type, uint8_t ship_id,
+                       uint16_t angle, uint16_t speed) {
   static char command_buffer[BUFFER_SIZE];
 
   switch (command_type) {
@@ -72,13 +54,10 @@ char *generate_command_2(T_command_type command_type, uint8_t ship_id,
 
 void explorer_manager(uint8_t explorer_id) {
   static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
-  // char command_buffer[BUFFER_SIZE] = {0};
 
   while (1) {
     aquire_game_data_mutex();
-    // generate_command(RADAR_CMD, EXPLORER_1, 0, 0, command_buffer);
-    // send_command_radar(command_buffer, answer_buffer);
-    send_command_radar(generate_command_2(RADAR_CMD, EXPLORER_1, 0, 0),
+    send_command_radar(generate_command(RADAR_CMD, EXPLORER_1, 0, 0),
                        answer_buffer);
 
     parse_planets(answer_buffer, game_data, &nb_planets);
@@ -87,7 +66,6 @@ void explorer_manager(uint8_t explorer_id) {
 
     release_game_data_mutex();
 
-    // memset(command_buffer, 0, sizeof(command_buffer));
     // memset(answer_buffer, 0, sizeof(answer_buffer));
     os_delay(OS_DELAY);
   }
@@ -113,16 +91,12 @@ void collector_manager(uint8_t collector_id) {
 }
 
 void attacker_manager(uint8_t id) {
-  // char command_buffer[BUFFER_SIZE] = {0};
-
   while (1) {
     aquire_game_data_mutex();
 
     if (id == ATTACKER_1 || id == ATTACKER_2 || id == ATTACKER_3 ||
         id == ATTACKER_4 || id == ATTACKER_5) {
-      // generate_command(FIRE_CMD, id, 90, 0, command_buffer);
-      // send_command(command_buffer);
-      send_command(generate_command_2(FIRE_CMD, id, 90, 0));
+      send_command(generate_command(FIRE_CMD, id, 90, 0));
     }
 
     release_game_data_mutex();
@@ -163,11 +137,19 @@ T_point get_base_position(T_base base) {
   return base_pos;
 }
 
+void go_to_point(T_ship ship, T_point point) {
+  T_point ship_pos = get_ship_position(ship);
+
+  send_command(generate_command(MOVE_CMD, ship.ship_ID,
+                                get_angle_between_two_points(ship_pos, point),
+                                ATTACKER_SPEED));
+}
+
 void go_to_planet(T_ship ship, T_planet planet) {
   T_point ship_pos = get_ship_position(ship);
   T_point planet_pos = get_planet_position(planet);
 
-  send_command(generate_command_2(
+  send_command(generate_command(
       MOVE_CMD, ship.ship_ID,
       get_angle_between_two_points(ship_pos, planet_pos), COLLECTOR_SPEED));
 }
@@ -176,7 +158,7 @@ void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed) {
   T_point ship_pos = get_ship_position(ship);
   T_point base_pos = get_base_position(base);
 
-  send_command(generate_command_2(
+  send_command(generate_command(
       MOVE_CMD, ship.ship_ID, get_angle_between_two_points(ship_pos, base_pos),
       ship_speed));
 }
@@ -292,6 +274,16 @@ void initialize_game_data(T_game_data *game_data) {
 
   game_data->base.pos_X = 0;
   game_data->base.pos_Y = 0;
+}
+
+void follow_ship(T_ship follower_ship, T_ship ship_to_follow) {
+  T_point follower_ship_pos = get_ship_position(follower_ship);
+  T_point ship_to_follow_pos = get_ship_position(ship_to_follow);
+
+  send_command(generate_command(
+      MOVE_CMD, follower_ship.ship_ID,
+      get_angle_between_two_points(follower_ship_pos, ship_to_follow_pos),
+      ATTACKER_SPEED));
 }
 
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {

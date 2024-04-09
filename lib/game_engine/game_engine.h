@@ -69,12 +69,12 @@ void parse_ships(const char *server_response, T_game_data *game_data);
 void parse_base(const char *server_response, T_game_data *game_data);
 
 // Command functions
-char *generate_command(T_command_type command_type, int ship_id, int angle,
-                       int speed, char *command_buffer);
-char *generate_command_2(T_command_type command_type, uint8_t ship_id,
-                         uint16_t angle, uint16_t speed);
+char *generate_command(T_command_type command_type, uint8_t ship_id,
+                       uint16_t angle, uint16_t speed);
 void go_to_planet(T_ship ship, T_planet planet);
 void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed);
+void go_to_point(T_ship ship, T_point point);
+void follow_ship(T_ship follower_ship, T_ship ship_to_follow);
 
 // Trigonometry functions
 uint16_t get_distance_between_two_points(T_point starting_point,
