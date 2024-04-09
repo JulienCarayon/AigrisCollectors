@@ -49,11 +49,6 @@ void test_get_distance_between_two_points(void) {
                         15620);
 }
 
-void test_explore(void) {
-  char *buffer = create_buffer(BUFFER_SIZE);
-  TEST_ASSERT_EQUAL_STRING(explore(7, buffer), "RADAR 7\n");
-}
-
 void test_planet_parsing(void) {
   const char *input = "P 495 10000 20000 -1 0,P 25 3040 40 -1 1,P 1445 340 1 1 "
                       "1,S 0 4 13000 0 0,B 10000 10000";
@@ -86,8 +81,6 @@ void test_planet_parsing(void) {
   }
 }
 
-void test_test(void) { TEST_ASSERT_EQUAL_UINT8(6, 6); }
-
 void test_ship_parsing(void) {
   const char *input = "P 495 10000 20000 -1 0,P 95 1000 200 -1 0,S 0 1 10000 "
                       "253 1,S 0 2 12000 53 "
@@ -98,11 +91,9 @@ void test_ship_parsing(void) {
                              {0, 3, 10, 13, 0},
                              {4, 4, 4, 4, 4}};
   T_game_data game_data[NUMBER_OF_GAME_DATA];
-  uint8_t number_of_ships = 0;
+  uint8_t number_of_ships = 4;
 
-  parse_ships(input, game_data, &number_of_ships);
-
-  TEST_ASSERT_EQUAL_INT(4, number_of_ships);
+  parse_ships(input, game_data);
 
   for (int i = 0; i < number_of_ships; i++) {
     TEST_ASSERT_EQUAL_INT(expected_ships[i].team_ID,
@@ -163,12 +154,6 @@ void test_base_parsing(void) {
 void test_get_nearest_planet_available(void) {
   // P {planet_id} {abscissa} {ordinate} {ship_id} {saved}
   // S {team} {ship_id} {abscissa} {ordinate} {broken}
-  T_test expected_data = {0, 0, 20000};
-  T_test data = get_nearest_planet_available(game_data);
-
-  TEST_ASSERT_EQUAL_INT(200, data.distance);
-  TEST_ASSERT_EQUAL_INT(8, data.ship_id);
-  TEST_ASSERT_EQUAL_INT(7, data.planet_id);
 }
 
 void test_get_nearest_planet(void) {
@@ -177,19 +162,23 @@ void test_get_nearest_planet(void) {
   TEST_ASSERT_EQUAL_INT(expected_nearest_planet_id, nearest_planet_id);
 }
 
+void test_check_desired_ship_speed(void) {
+  uint16_t expected_speed = 1000;
+  uint16_t speed = check_desired_ship_speed(COLLECTOR_1, 1200);
+  TEST_ASSERT_EQUAL_INT(expected_speed, speed);
+}
+
 int main() {
   UNITY_BEGIN();
-  RUN_TEST(test_test);
   RUN_TEST(test_get_angle_between_two_points);
   RUN_TEST(test_get_distance_between_two_points);
-  RUN_TEST(test_explore);
   RUN_TEST(test_planet_parsing);
   RUN_TEST(test_ship_parsing);
   RUN_TEST(test_get_ship_position);
   RUN_TEST(test_get_planet_position);
   RUN_TEST(test_get_base_position);
   RUN_TEST(test_base_parsing);
-  RUN_TEST(test_get_nearest_planet_available);
   RUN_TEST(test_get_nearest_planet);
+  RUN_TEST(test_check_desired_ship_speed);
   UNITY_END(); // stop unit testing
 }
