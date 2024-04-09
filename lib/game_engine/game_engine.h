@@ -12,23 +12,36 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
+typedef struct
+{
   uint16_t pos_X;
   uint16_t pos_Y;
 } T_point;
 
-typedef enum {
+typedef enum
+{
   UNKNOWN_SHIP,
   ATTACKERS_SHIP,
   EXPLORER_SHIP,
   COLLECTOR_SHIP
 } T_ship_type;
 
-typedef enum { GO_TO_PLANET, GO_TO_SHIP, GO_TO_BASE } T_mode_direction;
+typedef enum
+{
+  GO_TO_PLANET,
+  GO_TO_SHIP,
+  GO_TO_BASE
+} T_mode_direction;
 
-typedef enum { MOVE_CMD, FIRE_CMD, RADAR_CMD } T_command_type;
+typedef enum
+{
+  MOVE_CMD,
+  FIRE_CMD,
+  RADAR_CMD
+} T_command_type;
 
-typedef struct {
+typedef struct
+{
   uint16_t team_ID;
   uint16_t ship_ID;
   uint16_t pos_X;
@@ -36,26 +49,40 @@ typedef struct {
   uint16_t broken; // same size as an boolean
 } T_ship;
 
-typedef struct {
+typedef enum
+{
+  FREE,
+  COLLECTING_INCOMING,
+  COLLECTING,
+  COLLECTED,
+} T_planet_status; // Advanced status of the planet
+
+typedef struct
+{
   uint16_t planet_ID;
   uint16_t pos_X;
   uint16_t pos_Y;
   int16_t ship_ID;
   uint16_t planet_saved; // same size as an boolean
+  int8_t busy_ship_ID;
+  T_planet_status planet_status;
 } T_planet;
 
-typedef struct {
+typedef struct
+{
   uint16_t pos_X;
   uint16_t pos_Y;
 } T_base;
 
-typedef struct {
+typedef struct
+{
   T_planet planets[MAX_PLANETS_NUMBER];
   T_ship ships[SHIPS_NUMBER * NUMBER_OF_TEAM];
   T_base base;
 } T_game_data;
 
-typedef enum {
+typedef enum
+{
   COLLECTOR_SPEED = 1000,
   EXPLORER_SPEED = 2000,
   ATTACKER_SPEED = 3000
@@ -93,7 +120,10 @@ void free_buffer(char *buffer_ptr);
 
 void show_planet(T_planet *planet);
 void initialize_game_data(T_game_data *game_data);
-void collect_planet(T_game_data *game_data, char *command_buffer);
+void auto_collect_planet(uint8_t ship_id, T_game_data *game_data);
+void set_planet_collection_status(int8_t ship_ID, uint8_t planet_num, T_planet_status planet_status, T_game_data *game_data);
+void update_planet_collection_status(T_game_data *game_data);
+
 T_point get_ship_position(T_ship ship);
 T_point get_planet_position(T_planet planet);
 T_point get_base_position(T_base base);
@@ -101,6 +131,7 @@ void set_direction(T_mode_direction mode, T_ship ship, T_planet planet,
                    T_base base, uint16_t ship_speed, char *command_buffer);
 
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
+uint8_t get_nearest_planet_available(uint8_t ship_id, T_game_data *game_data);
 
 void go_to_planet(T_ship ship, T_planet planet);
 void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed);
