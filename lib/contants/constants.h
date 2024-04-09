@@ -12,8 +12,6 @@
 #define RX_COMMAND_BUFFER_SIZE 800 // TODO increase at 857 MIN
 
 // GAME INFORMATIONS
-#define MAX_SPEED_CHEAT 10000
-#define MAX_COLLECTOR_SPEED 1000
 
 #define ATTACKER_1 (uint8_t)1
 #define ATTACKER_2 (uint8_t)2
