@@ -113,15 +113,16 @@ void collector_manager(uint8_t collector_id) {
 }
 
 void attacker_manager(uint8_t id) {
-  char command_buffer[BUFFER_SIZE] = {0};
+  // char command_buffer[BUFFER_SIZE] = {0};
 
   while (1) {
     aquire_game_data_mutex();
 
     if (id == ATTACKER_1 || id == ATTACKER_2 || id == ATTACKER_3 ||
         id == ATTACKER_4 || id == ATTACKER_5) {
-      generate_command(FIRE_CMD, id, 90, 0, command_buffer);
-      send_command(command_buffer);
+      // generate_command(FIRE_CMD, id, 90, 0, command_buffer);
+      // send_command(command_buffer);
+      send_command(generate_command_2(FIRE_CMD, id, 90, 0));
     }
 
     release_game_data_mutex();
