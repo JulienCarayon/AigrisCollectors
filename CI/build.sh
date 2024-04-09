@@ -8,7 +8,6 @@ PROJECT_DIR="$SCRIPT_DIR/"
 OUTPUT_FILE="output.txt"
 OUTPUT_PDF="output.pdf"
 
-
 # Fonction pour afficher la barre de progression
 progress_bar() {
     echo "Progression: $1%"
@@ -32,11 +31,16 @@ fi
 echo "___gcc-messages______"
 gcc -std=c99 -pedantic main.c -o /tmp/misra-c | zenity --progress --pulsate --auto-close --width=300 --title="Compilation in progress" --text="Compiling MISRA-C code..."
 
-
+# Répertoire à examiner (par défaut, le répertoire "/src")
+#DIRECTORY_TO_EXAMINE="src"
+echo "$DIRECTORY_TO_EXAMINE"
 # Obtenir le répertoire source
-SRC_DIR="$(dirname "$PROJECT_DIR")/src"
+SRC_DIR="$(dirname "$PROJECT_DIR")/$DIRECTORY_TO_EXAMINE"
 
-echo "dans le répertoire src"
+echo "$DIRECTORY_TO_EXAMINE"
+echo "$SRC_DIR"
+
+echo "dans le répertoire $DIRECTORY_TO_EXAMINE"
 
 # Vérifier si le répertoire source existe
 if [ ! -d "$SRC_DIR" ]; then
@@ -47,10 +51,11 @@ fi
 # Se déplacer vers le répertoire src
 cd "$SRC_DIR" || exit 1
 
-echo "dans le répertoire src"
+echo "dans le répertoire $SRC_DIR"
 
 # Liste des fichiers dans le répertoire src/
 FILES=$(find "$SRC_DIR" -type f)
+echo "liste de fichiers $FILES"
 
 # Si aucun fichier n'est présent dans le répertoire, afficher un message d'avertissement
 if [ -z "$FILES" ]; then
@@ -68,7 +73,8 @@ add_to_output() {
 #> "$OUTPUT_FILE"
 
 
-# Si on est en mode test, tester uniquement le fichier main.c
+# Si on est en mode test, tester uniquement le fichier mentionné
+echo "Valeur test_mode : $TEST_MODE"
 if [ "$TEST_MODE" == "true" ]; then
     echo "test MODE"
     echo "Mode test activé. Testing seulement le fichier $1"
@@ -98,31 +104,50 @@ fi
 
 # Calculer le nombre total de fichiers
 TOTAL_FILES=$(ls -1 | wc -l)
-
+echo "ensemble des fichiers : $TOTAL_FILES"
 # Initialiser la progression
 CURRENT_PROGRESS=0
 INCREMENT=0
 
 # Loop through files
 for file in $FILES; do
-    add_to_output "___Running misra-c for file: $file"
+    echo "fichier : $file"
+
+    echo "___Running misra-c for file: $file"
     # Increment progress
     INCREMENT=$((100/TOTAL_FILES))
     CURRENT_PROGRESS=$((CURRENT_PROGRESS+INCREMENT))
     # Afficher la progression
     progress_bar "$CURRENT_PROGRESS"
+    > "$file_$OUTPUT_FILE"
     # Run misra-c
-    /tmp/misra-c < "$file" >> "$OUTPUT_FILE"
+    /tmp/misra-c < $file >> "$file_$OUTPUT_FILE"
+    
+    #Remplacer toutes les occurrences de "\n" par des sauts de ligne réels
+    sed -i 's/\\n/\'$'\n''/g' "$file_$OUTPUT_FILE"
+    
+    pandoc -f markdown "$file_$OUTPUT_FILE" -o "$file_$OUTPUT_PDF" 2>&1 | tee pandoc_error.log
+    #pandoc -f markdown -t utf8 "$file_$OUTPUT_FILE" -o "$file_$OUTPUT_PDF" 2>&1 | tee pandoc_error.log
+    
+    if [ ${PIPESTATUS[0]} -ne 0 ]; then
+        echo "Erreur lors de la conversion en PDF. Veuillez consulter le fichier pandoc_error.log pour plus de détails."
+        exit 1
+    else
+        # Supprimer le fichier texte s'il n'y a pas eu d'erreur lors de la conversion en PDF
+        rm "$file_$OUTPUT_FILE"
+    fi
+
+    echo "fichier : $file"
 done
 
 # run self
-echo "___Running misra-c for self"
-/tmp/misra-c >> "$OUTPUT_FILE"
+#echo "___Running misra-c for self"
+#/tmp/misra-c >> "$OUTPUT_FILE"
 
-echo "___end_______________"
+#echo "___end_______________"
 
 # Convertir le fichier texte en PDF
 #pandoc "$OUTPUT_FILE" -o "$OUTPUT_PDF"
-pandoc "$OUTPUT_FILE" --pdf-engine=xelatex -o "$OUTPUT_PDF"
+
 # Nettoyer les fichiers temporaires
-rm /tmp/misra-c
+#rm /tmp/misra-c
