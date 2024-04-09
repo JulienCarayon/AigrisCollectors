@@ -8,17 +8,22 @@ uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed)
 {
   uint16_t speed = 0;
 
-  if ((ship_id >= ATTACKER_1) && (ship_id <= ATTACKER_5)) {
+  if ((ship_id >= ATTACKER_1) && (ship_id <= ATTACKER_5))
+  {
     if (desired_speed > ATTACKER_SPEED)
       speed = ATTACKER_SPEED;
     else
       speed = desired_speed;
-  } else if (ship_id == EXPLORER_1 || ship_id == EXPLORER_2) {
+  }
+  else if (ship_id == EXPLORER_1 || ship_id == EXPLORER_2)
+  {
     if (desired_speed > EXPLORER_SPEED)
       speed = EXPLORER_SPEED;
     else
       speed = desired_speed;
-  } else if (ship_id == COLLECTOR_1 || ship_id == COLLECTOR_2) {
+  }
+  else if (ship_id == COLLECTOR_1 || ship_id == COLLECTOR_2)
+  {
     if (desired_speed > COLLECTOR_SPEED)
       speed = COLLECTOR_SPEED;
     else
@@ -29,7 +34,8 @@ uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed)
 }
 
 char *generate_command(T_command_type command_type, uint8_t ship_id,
-                       uint16_t angle, uint16_t speed) {
+                       uint16_t angle, uint16_t speed)
+{
   static char command_buffer[BUFFER_SIZE];
 
   switch (command_type)
@@ -56,7 +62,8 @@ char *generate_command(T_command_type command_type, uint8_t ship_id,
   return command_buffer;
 }
 
-void explorer_manager(uint8_t explorer_id) {
+void explorer_manager(uint8_t explorer_id)
+{
 
   static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
 
@@ -78,16 +85,21 @@ void explorer_manager(uint8_t explorer_id) {
   }
 }
 
-void collector_manager(uint8_t collector_id) {
-  while (1) {
+void collector_manager(uint8_t collector_id)
+{
+  while (1)
+  {
     aquire_game_data_mutex();
 
     uint8_t planet_id = get_nearest_planet(COLLECTOR_1 - 1, game_data);
 
-    if (game_data->planets[planet_id].ship_ID != -1) {
+    if (game_data->planets[planet_id].ship_ID != -1)
+    {
       go_to_base(game_data->ships[COLLECTOR_1 - 1], game_data->base,
                  COLLECTOR_SPEED);
-    } else {
+    }
+    else
+    {
       go_to_planet(game_data->ships[COLLECTOR_1 - 1],
                    game_data->planets[planet_id]);
     }
@@ -97,14 +109,16 @@ void collector_manager(uint8_t collector_id) {
   }
 }
 
-void attacker_manager(uint8_t id) {
-  while (1) {
+void attacker_manager(uint8_t id)
+{
+  while (1)
+  {
     aquire_game_data_mutex();
 
     if (id == ATTACKER_1 || id == ATTACKER_2 || id == ATTACKER_3 ||
-        id == ATTACKER_4 || id == ATTACKER_5) {
+        id == ATTACKER_4 || id == ATTACKER_5)
+    {
       send_command(generate_command(FIRE_CMD, id, 90, 0));
-
     }
 
     release_game_data_mutex();
@@ -132,7 +146,8 @@ uint16_t get_angle_between_two_points(T_point starting_point,
   return (uint16_t)angle_degree;
 }
 
-T_point get_ship_position(T_ship ship) {
+T_point get_ship_position(T_ship ship)
+{
   T_point ship_pos = {ship.pos_X, ship.pos_Y};
   return ship_pos;
 }
@@ -149,7 +164,8 @@ T_point get_base_position(T_base base)
   return base_pos;
 }
 
-void go_to_point(T_ship ship, T_point point) {
+void go_to_point(T_ship ship, T_point point)
+{
   T_point ship_pos = get_ship_position(ship);
 
   send_command(generate_command(MOVE_CMD, ship.ship_ID,
@@ -157,7 +173,8 @@ void go_to_point(T_ship ship, T_point point) {
                                 ATTACKER_SPEED));
 }
 
-void go_to_planet(T_ship ship, T_planet planet) {
+void go_to_planet(T_ship ship, T_planet planet)
+{
   T_point ship_pos = get_ship_position(ship);
   T_point planet_pos = get_planet_position(planet);
 
@@ -176,10 +193,11 @@ void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed)
       ship_speed));
 }
 
-void parse_game_data(char *answer_buffer, T_game_data *game_data) {
+void parse_game_data(char *answer_buffer, T_game_data *game_data)
+{
   // aquire_game_data_mutex();
   parse_planets(answer_buffer, game_data, &nb_planets);
-  parse_ships(answer_buffer, game_data, &nb_ships);
+  parse_ships(answer_buffer, game_data);
   parse_base(answer_buffer, game_data);
   update_planet_collection_status(game_data);
   // release_game_data_mutex();
@@ -214,15 +232,20 @@ void parse_planets(const char *server_response, T_game_data *game_data,
   }
 }
 
-void parse_ships(const char *server_response, T_game_data *game_data) {
+void parse_ships(const char *server_response, T_game_data *game_data)
+{
   uint8_t num_ships = 0;
   const char *str = server_response;
   const char *delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);
 
-  while (delimiter != NULL) {
-    if (*str == SERVER_RESPONSE_SHIP_DELIMITER) {
-      if (num_ships >= SHIPS_NUMBER * NUMBER_OF_TEAM) {
-        while (1) {
+  while (delimiter != NULL)
+  {
+    if (*str == SERVER_RESPONSE_SHIP_DELIMITER)
+    {
+      if (num_ships >= SHIPS_NUMBER * NUMBER_OF_TEAM)
+      {
+        while (1)
+        {
           ;
         }
       }
@@ -276,8 +299,10 @@ void show_planet(T_planet *planet)
   }
 }
 
-void initialize_game_data(T_game_data *game_data) {
-  for (int i = 0; i < MAX_PLANETS_NUMBER; i++) {
+void initialize_game_data(T_game_data *game_data)
+{
+  for (int i = 0; i < MAX_PLANETS_NUMBER; i++)
+  {
     game_data->planets[i].planet_ID = 0;
     game_data->planets[i].pos_X = 0;
     game_data->planets[i].pos_Y = 0;
@@ -287,7 +312,8 @@ void initialize_game_data(T_game_data *game_data) {
     game_data->planets[i].planet_status = FREE;
   }
 
-  for (int i = 0; i < SHIPS_NUMBER * NUMBER_OF_TEAM; i++) {
+  for (int i = 0; i < SHIPS_NUMBER * NUMBER_OF_TEAM; i++)
+  {
     game_data->ships[i].team_ID = 0;
     game_data->ships[i].ship_ID = 0;
     game_data->ships[i].pos_X = 0;
@@ -299,7 +325,8 @@ void initialize_game_data(T_game_data *game_data) {
   game_data->base.pos_Y = 0;
 }
 
-void follow_ship(T_ship follower_ship, T_ship ship_to_follow) {
+void follow_ship(T_ship follower_ship, T_ship ship_to_follow)
+{
   T_point follower_ship_pos = get_ship_position(follower_ship);
   T_point ship_to_follow_pos = get_ship_position(ship_to_follow);
 
