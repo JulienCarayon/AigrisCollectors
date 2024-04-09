@@ -177,6 +177,18 @@ void test_get_nearest_planet(void) {
   TEST_ASSERT_EQUAL_INT(expected_nearest_planet_id, nearest_planet_id);
 }
 
+void test_fire_on_enemy_ship(void) {
+  char command_buffer[BUFFER_SIZE];
+
+  uint8_t attacker_id = 1;
+  uint8_t target_id = 8;
+  fire_on_enemy_ship(attacker_id, target_id, game_data, command_buffer);
+  uint8_t is_broken = game_data->ships[target_id].broken;
+  TEST_ASSERT_TRUE(is_broken);
+
+  //TODO tester lorsque le vaisseau est hors de porté 
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_test);
@@ -191,5 +203,6 @@ int main() {
   RUN_TEST(test_base_parsing);
   RUN_TEST(test_get_nearest_planet_available);
   RUN_TEST(test_get_nearest_planet);
+  RUN_TEST(test_fire_on_enemy_ship);
   UNITY_END(); // stop unit testing
 }
