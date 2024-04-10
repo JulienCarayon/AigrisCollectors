@@ -404,7 +404,7 @@ bool can_ship_be_PLANET_STOLEN(uint8_t ship_id, T_game_data *game_data) {
   if (game_data->ships[ship_id].target_planet_ID != -1) {
     uint8_t target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
     if (game_data->planets[target_planet_id_copy].ship_ID != (ship_id + 1) &&
-        is_ship_broken(ship_id, game_data)) {
+        is_ship_broken(ship_id, game_data) == false) {
       return true;
     } else {
       return false;
