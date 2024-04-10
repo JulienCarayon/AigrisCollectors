@@ -167,10 +167,11 @@ void fire_on_enemy_ship(uint8_t attacker_id, uint8_t target_id, T_game_data *gam
 
         if (distance_to_enemy <= FIRE_DISTANCE) {
             snprintf(command_buffer, BUFFER_SIZE, "FIRE %d %d\n", attacker_id, angle_to_enemy);
-            // TODO demander à dorian Envoyer la commande de tir
+            // TODO demander à Dorian Envoyer la commande de tir
             // send_command(command_buffer);
 
-            uint8_t is_broken = game_data->ships[target_id - 1].broken;
+            //TODO check si -1 ou pas ?
+            uint8_t is_broken = game_data->ships[target_id].broken;
             if (is_broken) {
                 is_enemy_destroyed = 1;
                 break;
@@ -184,7 +185,6 @@ void fire_on_enemy_ship(uint8_t attacker_id, uint8_t target_id, T_game_data *gam
         }
     }
 }
-
 
 char *create_buffer(int buffer_size)
 {
