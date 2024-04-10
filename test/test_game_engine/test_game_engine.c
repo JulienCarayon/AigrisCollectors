@@ -380,6 +380,115 @@ void test_can_ship_be_GOING_TO_PLANET(void) {
       false, can_ship_be_GOING_TO_PLANET(COLLECTOR_2, 6, test_game_data));
 }
 
+void test_can_ship_be_COLLECTING(void) {
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0},
+        {2, 10000, 20000, -1, 0},
+        {3, 15000, 15000, -1, 0},
+        {4, 10000, 20000, COLLECTOR_1, 0},
+        {5, 10000, 10000, COLLECTOR_2, 0},
+        {6, 10000, 20000, -1, 0},
+        {7, 16500, 17500, -1, 0},
+        {8, 10000, 12000, -1, 0}},
+       {{0, ATTACKER_1, 0, 0, 0, READY, -1},
+        {0, ATTACKER_2, 0, 0, 0, READY, -1},
+        {0, ATTACKER_3, 0, 0, 1, READY, -1},
+        {0, ATTACKER_4, 0, 0, 0, READY, -1},
+        {0, ATTACKER_5, 0, 0, 0, READY, -1},
+        {0, EXPLORER_1, 0, 0, 0, READY, -1},
+        {0, EXPLORER_2, 0, 0, 0, READY, -1},
+        {0, COLLECTOR_1, 16000, 17000, 0, GOING_TO_PLANET, 3},
+        {0, COLLECTOR_2, 10000, 1000, 1, READY, -1}},
+       {10000, 0}}};
+
+  TEST_ASSERT_EQUAL_UINT8(true,
+                          can_ship_be_COLLECTING(COLLECTOR_1, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(false,
+                          can_ship_be_COLLECTING(COLLECTOR_2, test_game_data));
+}
+
+void test_can_ship_be_COLLECTED(void) {
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0},
+        {2, 10000, 20000, -1, 0},
+        {3, 15000, 15000, -1, 0},
+        {4, 10000, 20000, -1, 1},
+        {5, 10000, 10000, COLLECTOR_2, 0},
+        {6, 10000, 20000, -1, 0},
+        {7, 16500, 17500, -1, 0},
+        {8, 10000, 12000, -1, 0}},
+       {{0, ATTACKER_1, 0, 0, 0, READY, -1},
+        {0, ATTACKER_2, 0, 0, 0, READY, -1},
+        {0, ATTACKER_3, 0, 0, 1, READY, -1},
+        {0, ATTACKER_4, 0, 0, 0, READY, -1},
+        {0, ATTACKER_5, 0, 0, 0, READY, -1},
+        {0, EXPLORER_1, 0, 0, 0, READY, -1},
+        {0, EXPLORER_2, 0, 0, 0, READY, -1},
+        {0, COLLECTOR_1, 16000, 17000, 0, READY, 3},
+        {0, COLLECTOR_2, 10000, 1000, 1, READY, -1}},
+       {10000, 0}}};
+
+  TEST_ASSERT_EQUAL_UINT8(true,
+                          can_ship_be_COLLECTED(COLLECTOR_1, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(false,
+                          can_ship_be_COLLECTED(COLLECTOR_2, test_game_data));
+}
+
+void test_can_ship_be_COLLECTING_WRONG_PLANET(void) {
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0},
+        {2, 10000, 20000, COLLECTOR_1, 0},
+        {3, 15000, 15000, -1, 0},
+        {4, 10000, 20000, -1, 0},
+        {5, 10000, 10000, -1, 0},
+        {6, 10000, 20000, -1, 0},
+        {7, 16500, 17500, -1, 0},
+        {8, 10000, 12000, -1, 0}},
+       {{0, ATTACKER_1, 0, 0, 0, READY, -1},
+        {0, ATTACKER_2, 0, 0, 0, READY, -1},
+        {0, ATTACKER_3, 0, 0, 1, READY, -1},
+        {0, ATTACKER_4, 0, 0, 0, READY, -1},
+        {0, ATTACKER_5, 0, 0, 0, READY, -1},
+        {0, EXPLORER_1, 0, 0, 0, READY, -1},
+        {0, EXPLORER_2, 0, 0, 0, READY, -1},
+        {0, COLLECTOR_1, 16000, 17000, 0, READY, 4},
+        {0, COLLECTOR_2, 10000, 1000, 1, READY, -1}},
+       {10000, 0}}};
+
+  TEST_ASSERT_EQUAL_UINT8(
+      true, can_ship_be_COLLECTING_WRONG_PLANET(COLLECTOR_1, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(
+      false, can_ship_be_COLLECTING_WRONG_PLANET(COLLECTOR_2, test_game_data));
+}
+
+void test_can_ship_be_PLANET_STOLEN(void) {
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0},
+        {2, 10000, 20000, -1, 0},
+        {3, 15000, 15000, -1, 0},
+        {4, 10000, 20000, (COLLECTOR_2 + 1),
+         0}, //+1 required to match Vincent JSON
+        {5, 10000, 10000, -1, 0},
+        {6, 10000, 20000, -1, 0},
+        {7, 16500, 17500, -1, 0},
+        {8, 10000, 12000, -1, 0}},
+       {{0, ATTACKER_1, 0, 0, 0, READY, -1},
+        {0, ATTACKER_2, 0, 0, 0, READY, -1},
+        {0, ATTACKER_3, 0, 0, 1, READY, -1},
+        {0, ATTACKER_4, 0, 0, 0, READY, -1},
+        {0, ATTACKER_5, 0, 0, 0, READY, -1},
+        {0, EXPLORER_1, 0, 0, 0, READY, -1},
+        {0, EXPLORER_2, 0, 0, 0, READY, -1},
+        {0, COLLECTOR_1, 16000, 17000, 0, READY, 3},
+        {0, COLLECTOR_2, 10000, 1000, 1, READY, -1}},
+       {10000, 0}}};
+
+  TEST_ASSERT_EQUAL_UINT8(
+      true, can_ship_be_PLANET_STOLEN(COLLECTOR_1, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(
+      false, can_ship_be_PLANET_STOLEN(COLLECTOR_2, test_game_data));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_get_angle_between_two_points);
@@ -392,12 +501,16 @@ int main() {
   RUN_TEST(test_base_parsing);
   RUN_TEST(test_get_nearest_planet);
   RUN_TEST(test_check_desired_ship_speed);
+  RUN_TEST(test_get_ship_planet_ID);
   RUN_TEST(test_can_ship_be_READY);
+  RUN_TEST(test_can_ship_be_GOING_TO_PLANET);
   RUN_TEST(test_is_ship_broken);
+  RUN_TEST(test_can_ship_be_COLLECTING);
+  RUN_TEST(test_can_ship_be_COLLECTED);
+  RUN_TEST(test_can_ship_be_COLLECTING_WRONG_PLANET);
+  RUN_TEST(test_can_ship_be_PLANET_STOLEN);
   // RUN_TEST(test_set_planet_collection_status);
   // RUN_TEST(test_update_planet_collection_status);
   // RUN_TEST(test_get_nearest_planet_available);
-  RUN_TEST(test_get_ship_planet_ID);
-  RUN_TEST(test_can_ship_be_GOING_TO_PLANET);
   UNITY_END(); // stop unit testing
 }
