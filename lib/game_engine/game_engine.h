@@ -129,6 +129,7 @@ bool can_ship_be_COLLECTING(uint8_t ship_id, T_game_data *game_data);
 bool can_ship_be_COLLECTED(uint8_t ship_id, T_game_data *game_data);
 bool can_ship_be_COLLECTING_WRONG_PLANET(uint8_t ship_id,
                                          T_game_data *game_data);
+bool can_ship_be_PLANET_STOLEN(uint8_t ship_id, T_game_data *game_data);
 bool is_ship_broken(uint8_t ship_id, T_game_data *game_data);
 
 #endif // GAME_ENGINE_H
