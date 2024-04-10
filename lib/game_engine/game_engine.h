@@ -88,10 +88,10 @@ void parse_base(const char *server_response, T_game_data *game_data);
 // Command functions
 char *generate_command(T_command_type command_type, uint8_t ship_id,
                        uint16_t angle, uint16_t speed);
-void go_to_planet(T_ship ship, T_planet planet);
-void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed);
-void go_to_point(T_ship ship, T_point point);
-void follow_ship(T_ship follower_ship, T_ship ship_to_follow);
+void go_to_planet(uint8_t ship_id, T_planet planet);
+void go_to_base(uint8_t ship_id, T_base base, T_ships_speed ship_speed);
+void go_to_point(uint8_t ship_id, T_point point);
+void follow_ship(uint8_t follower_ship_id, T_ship ship_to_follow);
 
 // Trigonometry functions
 uint16_t get_distance_between_two_points(T_point starting_point,
@@ -111,8 +111,10 @@ int8_t get_ship_planet_ID(uint8_t ship_id, T_game_data *game_data);
 T_point get_ship_position(T_ship ship);
 T_point get_planet_position(T_planet planet);
 T_point get_base_position(T_base base);
-int8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
+uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed);
+
+bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data);
 
 // Initialiazing functions
 void initialize_game_data(T_game_data *game_data);
