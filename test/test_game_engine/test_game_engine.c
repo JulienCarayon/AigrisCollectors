@@ -323,6 +323,32 @@ void test_can_ship_be_READY(void) {
        {10000, 0}}};
 
   TEST_ASSERT_EQUAL_UINT8(true, can_ship_be_READY(COLLECTOR_1, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(false,
+                          can_ship_be_READY(COLLECTOR_2, test_game_data));
+}
+
+void test_is_ship_broken(void) {
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0},
+        {2, 10000, 20000, -1, 0},
+        {3, 15000, 15000, -1, 0},
+        {4, 10000, 20000, -1, 0},
+        {5, 10000, 10000, COLLECTOR_2, 0},
+        {6, 10000, 20000, -1, 0},
+        {7, 16500, 17500, -1, 0},
+        {8, 10000, 12000, -1, 0}},
+       {{0, ATTACKER_1, 0, 0, 0, READY, -1},
+        {0, ATTACKER_2, 0, 0, 0, READY, -1},
+        {0, ATTACKER_3, 0, 0, 0, READY, -1},
+        {0, ATTACKER_4, 0, 0, 0, READY, -1},
+        {0, ATTACKER_5, 0, 0, 0, READY, -1},
+        {0, EXPLORER_1, 0, 0, 0, READY, -1},
+        {0, EXPLORER_2, 0, 0, 0, READY, -1},
+        {0, COLLECTOR_1, 16000, 17000, 0, READY, -1},
+        {0, COLLECTOR_2, 10000, 1000, 1, READY, -1}},
+       {10000, 0}}};
+
+  TEST_ASSERT_EQUAL_UINT8(true, is_ship_broken(COLLECTOR_2, test_game_data));
 }
 
 int main() {
@@ -338,6 +364,7 @@ int main() {
   RUN_TEST(test_get_nearest_planet);
   RUN_TEST(test_check_desired_ship_speed);
   RUN_TEST(test_can_ship_be_READY);
+  RUN_TEST(test_is_ship_broken);
   // RUN_TEST(test_set_planet_collection_status);
   // RUN_TEST(test_update_planet_collection_status);
   // RUN_TEST(test_get_nearest_planet_available);
