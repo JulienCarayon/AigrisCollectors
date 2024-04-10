@@ -334,13 +334,13 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {}
 
 void update_ship_FSM(uint8_t ship_id) {
   if (game_data->ships[ship_id].target_planet_ID == -1 &&
-      game_data->ships[ship_id].broken == 0 &&
+      is_ship_broken(ship_id, game_data) == false &&
       get_ship_planet_ID(ship_id, game_data) == -1) {
   }
 }
 bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data) {
   if (game_data->ships[ship_id].target_planet_ID == -1 &&
-      game_data->ships[ship_id].broken == 0 &&
+      is_ship_broken(ship_id, game_data) == false &&
       get_ship_planet_ID(ship_id, game_data) == -1) {
     return true;
   } else {
@@ -350,7 +350,7 @@ bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data) {
 
 bool can_ship_be_GOING_TO_PLANET(uint8_t ship_id, int8_t desired_target_ID,
                                  T_game_data *game_data) {
-  if (desired_target_ID != -1 && game_data->ships[ship_id].broken == 0 &&
+  if (desired_target_ID != -1 && is_ship_broken(ship_id, game_data) == false &&
       get_ship_planet_ID(ship_id, game_data) == -1) {
     return true;
   } else {
@@ -359,30 +359,24 @@ bool can_ship_be_GOING_TO_PLANET(uint8_t ship_id, int8_t desired_target_ID,
 }
 
 bool can_ship_be_COLLECTING(uint8_t ship_id, T_game_data *game_data) {
-  int8_t target_planet_id_copy = -1;
-  if (game_data->ships[ship_id].target_planet_ID != -1) {
-    target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
-
-    if (game_data->ships[ship_id].broken == 0 &&
-        game_data->planets[target_planet_id_copy].ship_ID ==
-            game_data->ships[ship_id].target_planet_ID) {
-      return true;
-    } else {
-      return false;
-    }
+  if (game_data->ships[ship_id].target_planet_ID != -1 &&
+      get_ship_planet_ID(ship_id, game_data) ==
+          game_data->ships[ship_id].target_planet_ID &&
+      is_ship_broken(ship_id, game_data) == false) {
+    return true;
   } else {
     return false;
   }
 }
 
 bool can_ship_be_COLLECTED(uint8_t ship_id, T_game_data *game_data) {
-  int8_t target_planet_id_copy = -1;
-  if (game_data->ships[ship_id].target_planet_ID == -1) {
-    target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
+
+  if (game_data->ships[ship_id].target_planet_ID != -1) {
+    uint8_t target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
 
     if (game_data->planets[target_planet_id_copy].planet_saved == 1 &&
-        game_data->planets[target_planet_id_copy].ship_ID == -1 &&
-        game_data->ships[ship_id].broken == 0) {
+        get_ship_planet_ID(ship_id, game_data) == -1 &&
+        is_ship_broken(ship_id, game_data) == false) {
       return true;
     } else {
       return false;
@@ -394,18 +388,33 @@ bool can_ship_be_COLLECTED(uint8_t ship_id, T_game_data *game_data) {
 
 bool can_ship_be_COLLECTING_WRONG_PLANET(uint8_t ship_id,
                                          T_game_data *game_data) {
-  // int8_t target_planet_id_copy = -1;
-  // if (game_data->ships[ship_id].target_planet_ID != -1) {
-  //   target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
+  if (game_data->ships[ship_id].target_planet_ID != -1 &&
+      get_ship_planet_ID(ship_id, game_data) !=
+          game_data->ships[ship_id].target_planet_ID &&
+      get_ship_planet_ID(ship_id, game_data) != -1 &&
+      is_ship_broken(ship_id, game_data) == false) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
-  //   if (game_data->ships[ship_id].broken == 0 &&
-  //       game_data->planets[target_planet_id_copy].ship_ID ==
-  //           game_data->ships[ship_id].target_planet_ID) {
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // } else {
-  //   return false;
-  // }
+bool can_ship_be_PLANET_STOLEN(uint8_t ship_id, T_game_data *game_data) {
+
+  if (game_data->ships[ship_id].target_planet_ID != -1) {
+    uint8_t target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
+    if (game_data->planets[target_planet_id_copy].ship_ID != (ship_id + 1) &&
+        is_ship_broken(ship_id, game_data)) {
+      return true;
+    } else {
+      return false;
+    }
+
+  } else {
+    return false;
+  }
+}
+
+bool is_ship_broken(uint8_t ship_id, T_game_data *game_data) {
+  return game_data->ships[ship_id].broken == 1;
 }

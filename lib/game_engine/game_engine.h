@@ -120,4 +120,13 @@ void initialize_game_data(T_game_data *game_data);
 // Debug functions
 void show_planet(T_planet *planet);
 
+bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data);
+bool can_ship_be_GOING_TO_PLANET(uint8_t ship_id, int8_t desired_target_ID,
+                                 T_game_data *game_data);
+bool can_ship_be_COLLECTING(uint8_t ship_id, T_game_data *game_data);
+bool can_ship_be_COLLECTED(uint8_t ship_id, T_game_data *game_data);
+bool can_ship_be_COLLECTING_WRONG_PLANET(uint8_t ship_id,
+                                         T_game_data *game_data);
+bool is_ship_broken(uint8_t ship_id, T_game_data *game_data);
+
 #endif // GAME_ENGINE_H
