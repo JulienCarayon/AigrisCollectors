@@ -147,9 +147,10 @@ void go_to_point(uint8_t ship_id, T_point point) {
                                 ATTACKER_SPEED));
 }
 
-void go_to_planet(uint8_t ship_id, T_planet planet) {
+void go_to_planet(uint8_t ship_id, uint8_t planet_id) {
   T_ship ship = game_data->ships[ship_id];
   T_point ship_pos = get_ship_position(ship);
+  T_planet planet = game_data->planets[planet_id];
   T_point planet_pos = get_planet_position(planet);
 
   if (ship_id == COLLECTOR_1) {
@@ -329,13 +330,102 @@ int8_t get_ship_planet_ID(uint8_t ship_id, T_game_data *game_data) {
   return -1;
 }
 
-void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {}
+void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
+  int8_t desired_target_planet_id = -1;
+  if (game_data->ships[ship_id].FSM == READY) {
+    desired_target_planet_id = get_nearest_planet(ship_id, game_data);
 
-void update_ship_FSM(uint8_t ship_id) {
-  if (game_data->ships[ship_id].target_planet_ID == -1 &&
-      is_ship_broken(ship_id, game_data) == false &&
-      get_ship_planet_ID(ship_id, game_data) == -1) {
+    if (can_ship_be_GOING_TO_PLANET(ship_id, desired_target_planet_id,
+                                    game_data)) {
+      set_ship_FSM(ship_id, GOING_TO_PLANET, game_data);
+    }
   }
+
+  else if (get_ship_FSM(ship_id, game_data) == GOING_TO_PLANET) {
+
+    if (can_ship_be_COLLECTING(ship_id, game_data)) {
+      set_ship_FSM(ship_id, COLLECTING, game_data);
+    }
+
+    else if (can_ship_be_COLLECTING_WRONG_PLANET(ship_id, game_data)) {
+      set_ship_FSM(ship_id, COLLECTING_WRONG_PLANET, game_data);
+    }
+
+    else if (can_ship_be_PLANET_STOLEN(ship_id, game_data)) {
+      set_ship_FSM(ship_id, PLANET_STOLEN, game_data);
+    } else {
+      set_ship_target_planet_ID(ship_id, desired_target_planet_id, game_data);
+      go_to_planet(ship_id, desired_target_planet_id);
+    }
+  }
+
+  else if (get_ship_FSM(ship_id, game_data) == COLLECTING) {
+    go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
+    if (can_ship_be_COLLECTED(ship_id, game_data)) {
+      set_ship_target_planet_ID(ship_id, -1, game_data);
+      set_ship_FSM(ship_id, READY, game_data);
+    }
+  }
+
+  else if (get_ship_FSM(ship_id, game_data) == COLLECTING_WRONG_PLANET) {
+
+    set_ship_target_planet_ID(ship_id, get_ship_planet_ID(ship_id, game_data),
+                              game_data);
+    if (can_ship_be_COLLECTED(ship_id, game_data)) {
+      set_ship_FSM(ship_id, COLLECTED, game_data);
+    }
+
+    else if (can_ship_be_COLLECTING(ship_id, game_data)) {
+      set_ship_FSM(ship_id, COLLECTING, game_data);
+    } else {
+      go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
+    }
+  }
+
+  else if (get_ship_FSM(ship_id, game_data) == PLANET_STOLEN) {
+    set_ship_target_planet_ID(ship_id, -1, game_data);
+    if (can_ship_be_READY(ship_id, game_data)) {
+      set_ship_FSM(ship_id, READY, game_data);
+    } else {
+      while (1) {
+        puts("FSM : CANNOT TRANSITION TO READY STATE\n");
+        os_delay(1000);
+      }
+    }
+  }
+
+  else if (get_ship_FSM(ship_id, game_data) == PLANET_STOLEN) {
+    if (can_ship_be_READY(ship_id, game_data)) {
+      set_ship_FSM(ship_id, READY, game_data);
+    } else {
+      go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
+    }
+  }
+
+  else if (is_ship_broken(ship_id, game_data)) {
+    set_ship_target_planet_ID(ship_id, -1, game_data);
+    set_ship_FSM(ship_id, READY, game_data);
+  } else {
+    set_ship_FSM(ship_id, UNKNWOWN, game_data);
+    while (1) {
+      putsMutex("FSM : UNKNWN STATE \n");
+      os_delay(1000);
+    }
+  }
+}
+
+void set_ship_FSM(uint8_t ship_id, T_ship_FSM FSM_state,
+                  T_game_data *game_data) {
+  game_data->ships[ship_id].FSM = FSM_state;
+}
+
+T_ship_FSM get_ship_FSM(const uint8_t ship_id, const T_game_data *game_data) {
+  return game_data->ships[ship_id].FSM;
+}
+
+void set_ship_target_planet_ID(uint8_t ship_id, int8_t target_planet_id,
+                               T_game_data *game_data) {
+  game_data->ships[ship_id].target_planet_ID = target_planet_id;
 }
 
 bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data) {
@@ -404,7 +494,7 @@ bool can_ship_be_PLANET_STOLEN(uint8_t ship_id, T_game_data *game_data) {
   if (game_data->ships[ship_id].target_planet_ID != -1) {
     uint8_t target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
     if (game_data->planets[target_planet_id_copy].ship_ID != (ship_id + 1) &&
-        is_ship_broken(ship_id, game_data)) {
+        is_ship_broken(ship_id, game_data) == false) {
       return true;
     } else {
       return false;

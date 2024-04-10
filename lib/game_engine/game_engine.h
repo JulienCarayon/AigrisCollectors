@@ -88,7 +88,7 @@ void parse_base(const char *server_response, T_game_data *game_data);
 // Command functions
 char *generate_command(T_command_type command_type, uint8_t ship_id,
                        uint16_t angle, uint16_t speed);
-void go_to_planet(uint8_t ship_id, T_planet planet);
+void go_to_planet(uint8_t ship_id, uint8_t planet_id);
 void go_to_base(uint8_t ship_id, T_base base, T_ships_speed ship_speed);
 void go_to_point(uint8_t ship_id, T_point point);
 void follow_ship(uint8_t follower_ship_id, T_ship ship_to_follow);
@@ -122,6 +122,13 @@ void initialize_game_data(T_game_data *game_data);
 // Debug functions
 void show_planet(T_planet *planet);
 
+// FSM Functions
+T_ship_FSM get_ship_FSM(const uint8_t ship_id, const T_game_data *game_data);
+void set_ship_FSM(uint8_t ship_id, T_ship_FSM FSM_state,
+                  T_game_data *game_data);
+void set_ship_target_planet_ID(uint8_t ship_id, int8_t target_planet_id,
+                               T_game_data *game_data);
+
 bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data);
 bool can_ship_be_GOING_TO_PLANET(uint8_t ship_id, int8_t desired_target_ID,
                                  T_game_data *game_data);
@@ -129,6 +136,7 @@ bool can_ship_be_COLLECTING(uint8_t ship_id, T_game_data *game_data);
 bool can_ship_be_COLLECTED(uint8_t ship_id, T_game_data *game_data);
 bool can_ship_be_COLLECTING_WRONG_PLANET(uint8_t ship_id,
                                          T_game_data *game_data);
+bool can_ship_be_PLANET_STOLEN(uint8_t ship_id, T_game_data *game_data);
 bool is_ship_broken(uint8_t ship_id, T_game_data *game_data);
 
 #endif // GAME_ENGINE_H
