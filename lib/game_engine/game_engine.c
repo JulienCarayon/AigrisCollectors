@@ -363,8 +363,7 @@ bool can_ship_be_COLLECTING(uint8_t ship_id, T_game_data *game_data) {
   if (game_data->ships[ship_id].target_planet_ID != -1) {
     target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
 
-    if (game_data->ships[ship_id].target_planet_ID != -1 &&
-        game_data->ships[ship_id].broken == 0 &&
+    if (game_data->ships[ship_id].broken == 0 &&
         game_data->planets[target_planet_id_copy].ship_ID ==
             game_data->ships[ship_id].target_planet_ID) {
       return true;
@@ -381,8 +380,7 @@ bool can_ship_be_COLLECTED(uint8_t ship_id, T_game_data *game_data) {
   if (game_data->ships[ship_id].target_planet_ID == -1) {
     target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
 
-    if (game_data->ships[ship_id].target_planet_ID != -1 &&
-        game_data->ships[ship_id].broken == 0 &&
+    if (game_data->ships[ship_id].broken == 0 &&
         game_data->planets[target_planet_id_copy].ship_ID == -1 &&
         game_data->planets[target_planet_id_copy].planet_saved == 1) {
       return true;
