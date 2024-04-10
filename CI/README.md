@@ -1,5 +1,25 @@
-# MISRA-C
+# Script MISRA-C
 
+Pour l'utilisation du scirpt ce positionner dans le repertoire du projet : `AigrisCollectors/`
+
+Définir le répertoire à analyser :
+`export DIRECTORY_TO_EXAMINE=src`
+
+Définir si on est en mode test :
+`export TEST_MODE=true`
+
+Run le script
+`./CI/build.sh main.c`
+
+Pour activer le mode test, vous pouvez définir la variable d'environnement TEST_MODE à "true" avant d'exécuter le script. Vous pouvez le faire de la manière suivante dans votre terminal :
+
+export TEST_MODE=true
+
+Le désactiver en réinitialisant la variable d'environnement TEST_MODE à une valeur vide ou en la supprimant :
+
+unset TEST_MODE
+
+##  MISRA-C 2004
 Vérification la conformité des programmes écrits en C avec certaines des règles de la norme de développement logiciel [MISRA-C:2004](http://en.wikipedia.org/wiki/MISRA_C).
 
 [FR]Les vérifications des règles suivantes sont mises en œuvre :
