@@ -339,7 +339,7 @@ void test_is_ship_broken(void) {
         {8, 10000, 12000, -1, 0}},
        {{0, ATTACKER_1, 0, 0, 0, READY, -1},
         {0, ATTACKER_2, 0, 0, 0, READY, -1},
-        {0, ATTACKER_3, 0, 0, 0, READY, -1},
+        {0, ATTACKER_3, 0, 0, 1, READY, -1},
         {0, ATTACKER_4, 0, 0, 0, READY, -1},
         {0, ATTACKER_5, 0, 0, 0, READY, -1},
         {0, EXPLORER_1, 0, 0, 0, READY, -1},
@@ -348,7 +348,36 @@ void test_is_ship_broken(void) {
         {0, COLLECTOR_2, 10000, 1000, 1, READY, -1}},
        {10000, 0}}};
 
+  TEST_ASSERT_EQUAL_UINT8(true, is_ship_broken(ATTACKER_3, test_game_data));
   TEST_ASSERT_EQUAL_UINT8(true, is_ship_broken(COLLECTOR_2, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(false, is_ship_broken(ATTACKER_5, test_game_data));
+}
+
+void test_can_ship_be_GOING_TO_PLANET(void) {
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0},
+        {2, 10000, 20000, -1, 0},
+        {3, 15000, 15000, -1, 0},
+        {4, 10000, 20000, -1, 0},
+        {5, 10000, 10000, COLLECTOR_2, 0},
+        {6, 10000, 20000, -1, 0},
+        {7, 16500, 17500, -1, 0},
+        {8, 10000, 12000, -1, 0}},
+       {{0, ATTACKER_1, 0, 0, 0, READY, -1},
+        {0, ATTACKER_2, 0, 0, 0, READY, -1},
+        {0, ATTACKER_3, 0, 0, 1, READY, -1},
+        {0, ATTACKER_4, 0, 0, 0, READY, -1},
+        {0, ATTACKER_5, 0, 0, 0, READY, -1},
+        {0, EXPLORER_1, 0, 0, 0, READY, -1},
+        {0, EXPLORER_2, 0, 0, 0, READY, -1},
+        {0, COLLECTOR_1, 16000, 17000, 0, COLLECTING, -1},
+        {0, COLLECTOR_2, 10000, 1000, 1, READY, -1}},
+       {10000, 0}}};
+
+  TEST_ASSERT_EQUAL_UINT8(
+      1, can_ship_be_GOING_TO_PLANET(COLLECTOR_1, 2, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(
+      true, can_ship_be_GOING_TO_PLANET(COLLECTOR_2, -1, test_game_data));
 }
 
 int main() {
@@ -369,5 +398,6 @@ int main() {
   // RUN_TEST(test_update_planet_collection_status);
   // RUN_TEST(test_get_nearest_planet_available);
   RUN_TEST(test_get_ship_planet_ID);
+  RUN_TEST(test_can_ship_be_GOING_TO_PLANET);
   UNITY_END(); // stop unit testing
 }
