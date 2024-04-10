@@ -370,14 +370,14 @@ void test_can_ship_be_GOING_TO_PLANET(void) {
         {0, ATTACKER_5, 0, 0, 0, READY, -1},
         {0, EXPLORER_1, 0, 0, 0, READY, -1},
         {0, EXPLORER_2, 0, 0, 0, READY, -1},
-        {0, COLLECTOR_1, 16000, 17000, 0, COLLECTING, -1},
+        {0, COLLECTOR_1, 16000, 17000, 0, READY, -1},
         {0, COLLECTOR_2, 10000, 1000, 1, READY, -1}},
        {10000, 0}}};
 
   TEST_ASSERT_EQUAL_UINT8(
-      1, can_ship_be_GOING_TO_PLANET(COLLECTOR_1, 2, test_game_data));
+      true, can_ship_be_GOING_TO_PLANET(COLLECTOR_1, 2, test_game_data));
   TEST_ASSERT_EQUAL_UINT8(
-      true, can_ship_be_GOING_TO_PLANET(COLLECTOR_2, -1, test_game_data));
+      false, can_ship_be_GOING_TO_PLANET(COLLECTOR_2, 6, test_game_data));
 }
 
 int main() {
