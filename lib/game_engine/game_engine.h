@@ -27,20 +27,28 @@ typedef struct {
   uint16_t pos_Y;
 } T_point;
 
+typedef enum {
+  // OK
+  READY,
+  GOING_TO_PLANET,
+  COLLECTING,
+  COLLECTED,
+  // ERRORS STATE
+  COLLECTING_WRONG_PLANET,
+  PLANET_STOLEN,
+  BROKEN,
+  UNKNWOWN,
+} T_ship_FSM; // Advanced status of the planet
+
 typedef struct {
   uint16_t team_ID;
   uint16_t ship_ID;
   uint16_t pos_X;
   uint16_t pos_Y;
   uint16_t broken;
+  T_ship_FSM FSM;
+  int8_t target_planet_ID;
 } T_ship;
-
-typedef enum {
-  FREE,
-  COLLECTING_INCOMING,
-  COLLECTING,
-  COLLECTED,
-} T_planet_status; // Advanced status of the planet
 
 typedef struct {
   uint16_t planet_ID;
@@ -48,8 +56,8 @@ typedef struct {
   uint16_t pos_Y;
   int16_t ship_ID;
   uint16_t planet_saved;
-  int8_t busy_ship_ID;
-  T_planet_status planet_status;
+  // int8_t busy_ship_ID;
+  // T_planet_status planet_status;
 } T_planet;
 
 typedef struct {
@@ -94,16 +102,16 @@ uint16_t get_angle_between_two_points(T_point starting_point,
 void show_planet(T_planet *planet);
 void initialize_game_data(T_game_data *game_data);
 void auto_collect_planet(uint8_t ship_id, T_game_data *game_data);
-void set_planet_collection_status(int8_t ship_ID, uint8_t planet_num,
-                                  T_planet_status planet_status,
-                                  T_game_data *game_data);
-void update_planet_collection_status(T_game_data *game_data);
+// void set_planet_collection_status(int8_t ship_ID, uint8_t planet_num,
+//                                   T_planet_status planet_status,
+//                                   T_game_data *game_data);
+// void update_planet_collection_status(T_game_data *game_data);
 
+int8_t get_ship_planet_ID(uint8_t ship_id, T_game_data *game_data);
 T_point get_ship_position(T_ship ship);
 T_point get_planet_position(T_planet planet);
 T_point get_base_position(T_base base);
-uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
-uint8_t get_nearest_planet_available(uint8_t ship_id, T_game_data *game_data);
+int8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed);
 
 // Initialiazing functions

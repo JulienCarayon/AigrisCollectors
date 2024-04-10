@@ -174,7 +174,6 @@ void parse_game_data(char *answer_buffer, T_game_data *game_data) {
   parse_planets(answer_buffer, game_data, &nb_planets);
   parse_ships(answer_buffer, game_data);
   parse_base(answer_buffer, game_data);
-  update_planet_collection_status(game_data);
   // release_game_data_mutex();
 }
 
@@ -201,8 +200,6 @@ void parse_planets(const char *server_response, T_game_data *game_data,
     str = delimiter + 1;
     delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);
   }
-
-  update_planet_collection_status(game_data);
 }
 
 void parse_ships(const char *server_response, T_game_data *game_data) {
@@ -269,8 +266,6 @@ void initialize_game_data(T_game_data *game_data) {
     game_data->planets[i].pos_Y = 0;
     game_data->planets[i].ship_ID = -1;
     game_data->planets[i].planet_saved = 0;
-    game_data->planets[i].busy_ship_ID = -1;
-    game_data->planets[i].planet_status = FREE;
   }
 
   for (int i = 0; i < SHIPS_NUMBER * NUMBER_OF_TEAM; i++) {
@@ -279,12 +274,12 @@ void initialize_game_data(T_game_data *game_data) {
     game_data->ships[i].pos_X = 0;
     game_data->ships[i].pos_Y = 0;
     game_data->ships[i].broken = 0;
+    game_data->ships[i].FSM = READY;
+    game_data->ships[i].target_planet_ID = -1;
   }
 
   game_data->base.pos_X = 0;
   game_data->base.pos_Y = 0;
-
-  update_planet_collection_status(game_data);
 }
 
 void follow_ship(T_ship follower_ship, T_ship ship_to_follow) {
@@ -297,7 +292,7 @@ void follow_ship(T_ship follower_ship, T_ship ship_to_follow) {
       ATTACKER_SPEED));
 }
 
-uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
+int8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
   uint16_t distance = 0;
   uint16_t distance_min = MAX_DISTANCE_BETWEEN_POINT;
   uint8_t planet_id_to_collect = 0;
@@ -310,7 +305,8 @@ uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
           get_ship_position(game_data->ships[ship_id]),
           get_planet_position(game_data->planets[planet_num]));
 
-      // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
+      // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n",
+      // distance,
       //        ship_id, planet_num);
       if (distance < distance_min) {
         // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n",
@@ -325,98 +321,75 @@ uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
   return planet_id_to_collect;
 }
 
-uint8_t get_nearest_planet_available(uint8_t ship_id, T_game_data *game_data) {
-  uint16_t distance = 0;
-  uint16_t distance_min = MAX_DISTANCE_BETWEEN_POINT;
-  uint8_t planet_id_to_collect = 0;
-
+int8_t get_ship_planet_ID(uint8_t ship_id, T_game_data *game_data) {
   for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER; planet_num++) {
-
-    if (game_data->planets[planet_num].planet_status == FREE &&
-        game_data->planets[planet_num].planet_ID != 0) {
-
-      distance = get_distance_between_two_points(
-          get_ship_position(game_data->ships[ship_id - 1]),
-          get_planet_position(game_data->planets[planet_num]));
-
-      // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
-      //        ship_id, planet_num);
-      if (distance < distance_min) {
-        // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n",
-        // distance,
-        //        ship_num, planet_num);
-        distance_min = distance;
-        planet_id_to_collect = planet_num;
-      }
+    if (game_data->planets[planet_num].ship_ID == ship_id) {
+      return planet_num;
     }
   }
-  return planet_id_to_collect;
+  return -1;
 }
 
-void update_planet_collection_status(T_game_data *game_data) {
-  for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER; planet_num++) {
-    if (game_data->planets[planet_num].planet_saved ==
-        1) // Manages a planet that was collected
-    {
-      set_planet_collection_status(
-          game_data->planets[planet_num].ship_ID, planet_num, COLLECTED,
-          game_data); // -1 means no planet is currently on the planet
-    }
+void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {}
 
-    else if (game_data->planets[planet_num].ship_ID !=
-             -1) // Manages a planet being collected
-    {
-      set_planet_collection_status(game_data->planets[planet_num].ship_ID,
-                                   planet_num, COLLECTING, game_data);
-    } else if (game_data->planets[planet_num].busy_ship_ID != -1 ||
-               game_data->planets[planet_num].planet_status !=
-                   FREE) // Manages a busy planet with a destroyed ship
-    {
-      int8_t actual_busy_ship = game_data->planets[planet_num].busy_ship_ID;
-      if (game_data->ships[actual_busy_ship - 1].broken == 1) {
-        set_planet_collection_status(-1, planet_num, FREE, game_data);
-      }
-    }
+void update_ship_FSM(uint8_t ship_id) {
+  if (game_data->ships[ship_id].target_planet_ID == -1 &&
+      game_data->ships[ship_id].broken == 0 &&
+      get_ship_planet_ID(ship_id, game_data) == -1) {
+  }
+}
+bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data) {
+  if (game_data->ships[ship_id].target_planet_ID == -1 &&
+      game_data->ships[ship_id].broken == 0 &&
+      get_ship_planet_ID(ship_id, game_data) == -1) {
+    return true;
+  } else {
+    return false;
   }
 }
 
-void set_planet_collection_status(int8_t ship_ID, uint8_t planet_num,
-                                  T_planet_status planet_status,
-                                  T_game_data *game_data) {
-  game_data->planets[planet_num].busy_ship_ID = ship_ID;
-  game_data->planets[planet_num].planet_status = planet_status;
+bool can_ship_be_GOING_TO_PLANET(uint8_t ship_id, int8_t desired_target_ID,
+                                 T_game_data *game_data) {
+  if (desired_target_ID != -1 && game_data->ships[ship_id].broken == 0 &&
+      get_ship_planet_ID(ship_id, game_data) == -1) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
-void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
-  update_planet_collection_status(game_data);
-  uint8_t planet_id = 0;
-  bool flag = false;
+bool can_ship_be_COLLECTING(uint8_t ship_id, T_game_data *game_data) {
+  int8_t target_planet_id_copy = -1;
+  if (game_data->ships[ship_id].target_planet_ID != -1) {
+    target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
 
-  for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER; planet_num++) {
-    if (game_data->planets[planet_num].busy_ship_ID == ship_id) {
-      planet_id = planet_num;
+    if (game_data->ships[ship_id].target_planet_ID != -1 &&
+        game_data->ships[ship_id].broken == 0 &&
+        game_data->planets[target_planet_id_copy].ship_ID ==
+            game_data->ships[ship_id].target_planet_ID) {
+      return true;
     } else {
-      flag = true;
+      return false;
     }
+  } else {
+    return false;
   }
-  if (flag)
-    planet_id = get_nearest_planet_available(ship_id, game_data);
+}
 
-  // if (game_data->planets[planet_id].planet_status == FREE ||
-  //     game_data->planets[planet_id].planet_status == COLLECTING_INCOMING)
-  if (game_data->planets[planet_id].planet_status == FREE) {
-    go_to_planet(game_data->ships[ship_id - 1], game_data->planets[planet_id]);
-    set_planet_collection_status(ship_id, planet_id, COLLECTING_INCOMING,
-                                 game_data);
-  } else if (game_data->planets[planet_id].planet_status ==
-                 COLLECTING_INCOMING &&
-             game_data->planets[planet_id].busy_ship_ID == ship_id) {
-    go_to_planet(game_data->ships[ship_id - 1], game_data->planets[planet_id]);
-  } else if (game_data->planets[planet_id].planet_status == COLLECTING ||
-             game_data->ships[ship_id - 1].broken == 1) {
-    go_to_base(game_data->ships[ship_id - 1], game_data->base, COLLECTOR_SPEED);
+bool can_ship_be_COLLECTED(uint8_t ship_id, T_game_data *game_data) {
+  int8_t target_planet_id_copy = -1;
+  if (game_data->ships[ship_id].target_planet_ID == -1) {
+    target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
+
+    if (game_data->ships[ship_id].target_planet_ID != -1 &&
+        game_data->ships[ship_id].broken == 0 &&
+        game_data->planets[target_planet_id_copy].ship_ID == -1 &&
+        game_data->planets[target_planet_id_copy].planet_saved == 1) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
   }
-  // else {
-  //   putsMutex("ici");
-  // }
 }
