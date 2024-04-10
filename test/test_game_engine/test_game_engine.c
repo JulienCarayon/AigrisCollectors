@@ -51,7 +51,8 @@ void test_get_distance_between_two_points(void)
                         15620);
 }
 
-void test_planet_parsing(void) {
+void test_planet_parsing(void)
+{
   const char *input = "P 495 10000 20000 -1 0,P 25 3040 40 -1 1,P 1445 340 1 1 "
                       "1,S 0 4 13000 0 0,B 10000 10000";
 
@@ -84,7 +85,8 @@ void test_planet_parsing(void) {
   }
 }
 
-void test_ship_parsing(void) {
+void test_ship_parsing(void)
+{
   const char *input = "P 495 10000 20000 -1 0,P 95 1000 200 -1 0,S 0 1 10000 "
                       "253 1,S 0 2 12000 53 "
                       "0,S 0 3 10 13 0,S 4 4 4 4 4,B 11111 11111";
@@ -184,61 +186,133 @@ void test_set_planet_collection_status(void)
 
 void test_update_planet_collection_status(void)
 {
-  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {{{{1, 10000, 20000, -1, 0, -1, FREE},
-                                                       {2, 10000, 20000, -1, 0, -1, FREE},
-                                                       {3, 10000, 20000, -1, 0, -1, FREE},
-                                                       {4, 10000, 20000, COLLECTOR_1, 0, -1, FREE},                         // Case where ship grabbed a planet, but planet status & busy_ship_ID aren't updated yet
-                                                       {5, 10000, 20000, -1, 0, COLLECTOR_2, COLLECTING},                   // Case where ship is destroyed while collecting a planet
-                                                       {6, 10000, 20000, -1, 0, COLLECTOR_2, COLLECTING_INCOMING},          // Case where ship is destroyed while going to collect a planet
-                                                       {7, 10000, 20000, COLLECTOR_1, 1, COLLECTOR_1, COLLECTING_INCOMING}, // Case where collector 1 collected a planet but planet status isn't updated yet
-                                                       {8, 10000, 12000, -1, 0, -1, FREE}},
-                                                      {{0, ATTACKER_1, 0, 0, 0},
-                                                       {0, ATTACKER_2, 0, 0, 0},
-                                                       {0, ATTACKER_3, 0, 0, 0},
-                                                       {0, ATTACKER_4, 0, 0, 0},
-                                                       {0, ATTACKER_5, 0, 0, 0},
-                                                       {0, EXPLORER_1, 0, 0, 0},
-                                                       {0, EXPLORER_2, 0, 0, 0},
-                                                       {0, COLLECTOR_1, 10000, 10000, 0},
-                                                       {0, COLLECTOR_2, 10000, 1000, 1}},
-                                                      {10000, 0}}};
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 20000, -1, 0, -1, FREE},
+        {2, 10000, 20000, -1, 0, -1, FREE},
+        {3, 10000, 20000, -1, 0, -1, FREE},
+        {4, 10000, 20000, COLLECTOR_1, 0, -1,
+         FREE}, // Case where ship grabbed a planet, but planet status &
+                // busy_ship_ID aren't updated yet
+        {5, 10000, 20000, -1, 0, COLLECTOR_2,
+         COLLECTING}, // Case where ship is destroyed while collecting a planet
+        {6, 10000, 20000, -1, 0, COLLECTOR_2,
+         COLLECTING_INCOMING}, // Case where ship is destroyed while going to
+                               // collect a planet
+        {7, 10000, 20000, COLLECTOR_1, 1, COLLECTOR_1,
+         COLLECTING_INCOMING}, // Case where collector 1 collected a planet but
+                               // planet status isn't updated yet
+        {8, 10000, 12000, -1, 0, -1, FREE}},
+       {{0, ATTACKER_1, 0, 0, 0},
+        {0, ATTACKER_2, 0, 0, 0},
+        {0, ATTACKER_3, 0, 0, 0},
+        {0, ATTACKER_4, 0, 0, 0},
+        {0, ATTACKER_5, 0, 0, 0},
+        {0, EXPLORER_1, 0, 0, 0},
+        {0, EXPLORER_2, 0, 0, 0},
+        {0, COLLECTOR_1, 10000, 10000, 0},
+        {0, COLLECTOR_2, 10000, 1000, 1}},
+       {10000, 0}}};
   update_planet_collection_status(test_game_data);
-  TEST_ASSERT_EQUAL_INT(COLLECTOR_1, test_game_data->planets[3].busy_ship_ID); // PLANET 4
-  TEST_ASSERT_EQUAL_INT(COLLECTING, test_game_data->planets[3].planet_status); // PLANET 4
+  TEST_ASSERT_EQUAL_INT(COLLECTOR_1,
+                        test_game_data->planets[3].busy_ship_ID); // PLANET 4
+  TEST_ASSERT_EQUAL_INT(COLLECTING,
+                        test_game_data->planets[3].planet_status); // PLANET 4
 
-  TEST_ASSERT_EQUAL_INT(FREE, test_game_data->planets[4].planet_status); // PLANET 5
-  TEST_ASSERT_EQUAL_INT(-1, test_game_data->planets[4].busy_ship_ID);    // PLANET 5
+  TEST_ASSERT_EQUAL_INT(FREE,
+                        test_game_data->planets[4].planet_status); // PLANET 5
+  TEST_ASSERT_EQUAL_INT(-1,
+                        test_game_data->planets[4].busy_ship_ID); // PLANET 5
 
-  TEST_ASSERT_EQUAL_INT(FREE, test_game_data->planets[5].planet_status); // PLANET 6
-  TEST_ASSERT_EQUAL_INT(-1, test_game_data->planets[5].busy_ship_ID);    // PLANET 6
+  TEST_ASSERT_EQUAL_INT(FREE,
+                        test_game_data->planets[5].planet_status); // PLANET 6
+  TEST_ASSERT_EQUAL_INT(-1,
+                        test_game_data->planets[5].busy_ship_ID); // PLANET 6
 
-  TEST_ASSERT_EQUAL_INT(COLLECTED, test_game_data->planets[6].planet_status);                         // PLANET 7
-  TEST_ASSERT_EQUAL_INT(test_game_data->planets[6].ship_ID, test_game_data->planets[6].busy_ship_ID); // PLANET 7
+  TEST_ASSERT_EQUAL_INT(COLLECTED,
+                        test_game_data->planets[6].planet_status); // PLANET 7
+  TEST_ASSERT_EQUAL_INT(test_game_data->planets[6].ship_ID,
+                        test_game_data->planets[6].busy_ship_ID); // PLANET 7
 }
 
 void test_get_nearest_planet_available(void)
 {
-  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {{{{1, 10000, 10000, -1, 0, -1, FREE},
-                                                       {2, 10000, 20000, -1, 0, -1, FREE},
-                                                       {3, 15000, 15000, -1, 0, -1, FREE},
-                                                       {4, 10000, 20000, COLLECTOR_1, 0, -1, FREE},                         // Case where ship grabbed a planet, but planet status & busy_ship_ID aren't updated yet
-                                                       {5, 10000, 10000, -1, 0, COLLECTOR_2, COLLECTING},                   // Case where ship is destroyed while collecting a planet
-                                                       {6, 10000, 20000, -1, 0, COLLECTOR_2, COLLECTING_INCOMING},          // Case where ship is destroyed while going to collect a planet
-                                                       {7, 16500, 17500, COLLECTOR_1, 1, COLLECTOR_1, COLLECTING_INCOMING}, // Case where collector 1 collected a planet but planet status isn't updated yet
-                                                       {8, 10000, 12000, -1, 0, -1, FREE}},
-                                                      {{0, ATTACKER_1, 0, 0, 0},
-                                                       {0, ATTACKER_2, 0, 0, 0},
-                                                       {0, ATTACKER_3, 0, 0, 0},
-                                                       {0, ATTACKER_4, 0, 0, 0},
-                                                       {0, ATTACKER_5, 0, 0, 0},
-                                                       {0, EXPLORER_1, 0, 0, 0},
-                                                       {0, EXPLORER_2, 0, 0, 0},
-                                                       {0, COLLECTOR_1, 16000, 17000, 0},
-                                                       {0, COLLECTOR_2, 10000, 1000, 1}},
-                                                      {10000, 0}}};
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0, -1, FREE},
+        {2, 10000, 10000, -1, 0, -1, FREE},
+        {3, 15000, 15000, -1, 0, -1, FREE},
+        {4, 10000, 10000, -1, 0, -1, FREE},
+        {5, 10000, 10000, -1, 0, -1, FREE},
+        {6, 10000, 20000, -1, 0, -1, FREE},
+        {7, 16500, 17500, -1, 0, -1, FREE},
+        {8, 10000, 10000, -1, 0, -1, FREE}},
+       {{0, ATTACKER_1, 0, 0, 0},
+        {0, ATTACKER_2, 0, 0, 0},
+        {0, ATTACKER_3, 0, 0, 0},
+        {0, ATTACKER_4, 0, 0, 0},
+        {0, ATTACKER_5, 0, 0, 0},
+        {0, EXPLORER_1, 0, 0, 0},
+        {0, EXPLORER_2, 0, 0, 0},
+        {0, COLLECTOR_1, 16000, 17000, 0},
+        {0, COLLECTOR_2, 10000, 1000, 1}},
+       {10000, 0}}};
 
   update_planet_collection_status(test_game_data);
-  TEST_ASSERT_EQUAL_INT(2, get_nearest_planet_available(COLLECTOR_1, test_game_data)); // PLANET 3 EVEN IF PLANET 7 IS NEARER BUT BUSY
+  TEST_ASSERT_EQUAL_INT(
+      6, get_nearest_planet_available(COLLECTOR_1, test_game_data));
+}
+
+void test_planet_collecting_get_nearest_planet_available(void)
+{
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0, -1, FREE},
+        {2, 10000, 10000, -1, 0, -1, FREE},
+        {3, 15000, 15000, -1, 0, -1, FREE}, // NEAREST PLANET OF THE COLLECTOR_1
+        {4, 10000, 10000, -1, 0, -1, FREE},
+        {5, 10000, 10000, -1, 0, -1, FREE},
+        {6, 10000, 10000, -1, 0, -1, FREE},
+        {7, 16500, 17500, COLLECTOR_2, 0, COLLECTOR_2, COLLECTING},
+        {8, 10000, 10000, -1, 0, -1, FREE}},
+       {{0, ATTACKER_1, 0, 0, 0},
+        {0, ATTACKER_2, 0, 0, 0},
+        {0, ATTACKER_3, 0, 0, 0},
+        {0, ATTACKER_4, 0, 0, 0},
+        {0, ATTACKER_5, 0, 0, 0},
+        {0, EXPLORER_1, 0, 0, 0},
+        {0, EXPLORER_2, 0, 0, 0},
+        {0, COLLECTOR_1, 16000, 17000, 0},
+        {0, COLLECTOR_2, 16400, 17400, 0}}, // HAS TAKEN THE PLANET[6] AND IS BUSY
+       {10000, 0}}};
+
+  update_planet_collection_status(test_game_data);
+  TEST_ASSERT_EQUAL_INT(
+      2, get_nearest_planet_available(COLLECTOR_1, test_game_data));
+}
+
+void test_planet_collecting_incoming_get_nearest_planet_available(void)
+{
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0, -1, FREE},
+        {2, 10000, 10000, -1, 0, -1, FREE},
+        {3, 15000, 15000, -1, 0, -1, FREE}, // NEAREST PLANET OF THE COLLECTOR_1
+        {4, 10000, 10000, -1, 0, -1, FREE},
+        {5, 10000, 10000, -1, 0, -1, FREE},
+        {6, 10000, 10000, -1, 0, -1, FREE},
+        {7, 16500, 17500, -1, 0, COLLECTOR_2, COLLECTING_INCOMING}, // BUSY BY THE COLLECTOR_1
+        {8, 10000, 10000, -1, 0, -1, FREE}},
+       {{0, ATTACKER_1, 0, 0, 0},
+        {0, ATTACKER_2, 0, 0, 0},
+        {0, ATTACKER_3, 0, 0, 0},
+        {0, ATTACKER_4, 0, 0, 0},
+        {0, ATTACKER_5, 0, 0, 0},
+        {0, EXPLORER_1, 0, 0, 0},
+        {0, EXPLORER_2, 0, 0, 0},
+        {0, COLLECTOR_1, 16000, 17000, 0},
+        {0, COLLECTOR_2, 16400, 17400, 0}}, // IS GOING TO PLANET[6] TAKEN THE PLANET[6] AND IS BUSY
+       {10000, 0}}};
+
+  update_planet_collection_status(test_game_data);
+  TEST_ASSERT_EQUAL_INT(
+      2, get_nearest_planet_available(COLLECTOR_1, test_game_data));
 }
 
 int main()
@@ -256,6 +330,10 @@ int main()
   RUN_TEST(test_check_desired_ship_speed);
   RUN_TEST(test_set_planet_collection_status);
   RUN_TEST(test_update_planet_collection_status);
+
   RUN_TEST(test_get_nearest_planet_available);
+  RUN_TEST(test_planet_collecting_get_nearest_planet_available);
+  RUN_TEST(test_planet_collecting_incoming_get_nearest_planet_available);
+
   UNITY_END(); // stop unit testing
 }
