@@ -111,7 +111,7 @@ int8_t get_ship_planet_ID(uint8_t ship_id, T_game_data *game_data);
 T_point get_ship_position(T_ship ship);
 T_point get_planet_position(T_planet planet);
 T_point get_base_position(T_base base);
-int8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
+uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed);
 
 // Initialiazing functions

@@ -292,7 +292,7 @@ void follow_ship(T_ship follower_ship, T_ship ship_to_follow) {
       ATTACKER_SPEED));
 }
 
-int8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
+uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
   uint16_t distance = 0;
   uint16_t distance_min = MAX_DISTANCE_BETWEEN_POINT;
   uint8_t planet_id_to_collect = 0;
@@ -305,13 +305,7 @@ int8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
           get_ship_position(game_data->ships[ship_id]),
           get_planet_position(game_data->planets[planet_num]));
 
-      // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n",
-      // distance,
-      //        ship_id, planet_num);
       if (distance < distance_min) {
-        // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n",
-        // distance,
-        //        ship_num, planet_num);
         distance_min = distance;
         planet_id_to_collect = planet_num;
       }
