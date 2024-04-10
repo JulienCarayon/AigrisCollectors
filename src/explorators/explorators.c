@@ -1,31 +1,18 @@
 #include "explorators.h"
+#include <OS_engine.h>
 
 const osThreadAttr_t exploratorsTask_attributes = {
     .name = "exploratorsTask",
     .priority = (osPriority_t)osPriorityNormal,
-    .stack_size = TASKS_SIZES,
+    .stack_size = TASKS_SIZES_EXPLORER,
 };
 
-void StartExploratorTask_1(void *argument)
-{
-    // putsMutex("Explorer Task 1 started\n");
-    while (1)
-    {
-        if(is_comptetion_started == true){
-            testShip(6);
-        }
-        osDelay(OS_DELAY);
-    }
+void StartExploratorTask_1(void *argument) {
+  wait_start();
+  explorer_manager(6);
 }
 
-void StartExploratorTask_2(void *argument)
-{
-    // putsMutex("Explorer Task 2 started\n");
-    while (1)
-    {
-        if(is_comptetion_started == true){
-            testShip(7);
-        }
-        osDelay(OS_DELAY);
-    }
+void StartExploratorTask_2(void *argument) {
+  wait_start();
+  explorer_manager(7);
 }

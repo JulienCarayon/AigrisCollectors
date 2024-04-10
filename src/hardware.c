@@ -1,5 +1,7 @@
 #include "main.h"
 #include "stm32f4xx_hal_uart.h"
+#include <OS_engine.h>
+#include <string.h>
 
 UART_HandleTypeDef huart2;
 
@@ -9,11 +11,15 @@ static void MX_USART2_UART_Init(void);
 void Error_Handler(void);
 #define UART_RECEIVE_TIMEOUT (100) // ms
 
+#define TIMEOUT_COUNT 100000
+
 void hardware_init(void) {
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  // HAL_NVIC_SetPriority(USART2_IRQn, 5, 0); // Adjust priority
+  // HAL_NVIC_EnableIRQ(USART2_IRQn);
 }
 
 /* https://en.wikipedia.org/wiki/Linear_congruential_generator glibc */
@@ -31,16 +37,16 @@ int rand(void) {
 }
 
 int puts(const char *text) {
-    // Calculate the length of the string
-    uint16_t len = 0;
-    const char *ptr = text;
-    while (*ptr++ != '\0') {
-        len++;
-    }
-    // Transmit the string
-    int status = (HAL_UART_Transmit(&huart2, (uint8_t*)text, len, HAL_MAX_DELAY));
-    return status;
-
+  // Calculate the length of the string
+  uint16_t len = 0;
+  const char *ptr = text;
+  while (*ptr++ != '\0') {
+    len++;
+  }
+  // Transmit the string
+  int status =
+      (HAL_UART_Transmit(&huart2, (uint8_t *)text, len, HAL_MAX_DELAY));
+  return status;
 }
 
 static char uart_read_char() {
@@ -54,21 +60,38 @@ static char uart_read_char() {
   return result;
 }
 
+void clear_uart_buffer() {
+  __HAL_UART_FLUSH_DRREGISTER(&huart2); // Flush the data register
+  __HAL_UART_CLEAR_FLAG(&huart2,
+                        UART_FLAG_RXNE); // Clear flag RXNE (Receiver not empty)
+}
+
 char *gets(char *str) {
   char *original_str = str;
   char c = -1;
-  while (c != '\n') {
-    c = uart_read_char();
-    *str++ = c;
+  uint32_t timeout_counter = 0;
+  while (true) {
+    if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE)) {
+      c = uart_read_char();
+      if (c == '\n')
+        break;
+      *str++ = c;
+      timeout_counter = 0;
+    } else {
+      timeout_counter++;
+      if (timeout_counter >= TIMEOUT_COUNT)
+        break;
+    }
   }
-  *(str - 1) = 0;
+  *str = 0; // Null terminate the string
   return original_str;
 }
 
 char *itoa(int value, char *str, int base) {
   if (base != 10 || value < 0) {
-    while (1)
-      ;
+    while (1) {
+      puts("base != 10 || value < 0");
+    }
   }
   if (value == 0) {
     str[0] = '0';
@@ -145,8 +168,47 @@ static void MX_USART2_UART_Init(void) {
     Error_Handler();
   }
   /* USER CODE BEGIN USART2_Init 2 */
-
+  __HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);
   /* USER CODE END USART2_Init 2 */
+}
+
+void USART2_IRQHandler(void) {
+  /*
+  static char buffer[RX_COMMAND_BUFFER_SIZE] = {0};
+  static uint32_t buffer_index = 0;
+
+    if (__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE))
+    {
+      char c;
+      HAL_UART_Receive(&huart2, (uint8_t *)&c, 1, 0);
+
+      buffer[buffer_index++] = c;
+
+      if (strstr(buffer, "\n") != NULL)
+      {
+        if (strstr(buffer, "START") != NULL)
+        {
+          is_comptetion_started = true;
+        }
+        else
+        {
+          memcpy(rx_command_buffer, buffer, sizeof(buffer));
+          rx_command_received = true;
+        }
+
+        buffer_index = 0;                  // Reset buffer index for the next
+    command memset(buffer, 0, sizeof(buffer)); // Clear the buffer
+      }
+
+      if (buffer_index >= sizeof(buffer)) // Prevent buffer overflow
+      {
+        buffer_index = 0;
+        memset(buffer, 0, sizeof(bufferexpected_nearest_planet_id));
+      }
+    }
+    puts(rx_command_buffer);
+    HAL_UART_IRQHandler(&huart2);
+    */
 }
 
 static void MX_GPIO_Init(void) {

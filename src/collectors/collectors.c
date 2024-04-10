@@ -1,4 +1,5 @@
 #include "collectors.h"
+#include <OS_engine.h>
 
 const osThreadAttr_t collectorsTask_attributes = {
     .name = "collectorsTask",
@@ -6,26 +7,12 @@ const osThreadAttr_t collectorsTask_attributes = {
     .stack_size = TASKS_SIZES,
 };
 
-void StartCollectorTask_1(void *argument)
-{
-    // putsMutex("Collector Task 1 started\n");
-    while (1)
-    {
-        if(is_comptetion_started == true){
-            testShip(8);
-        }
-        osDelay(OS_DELAY);
-    }
+void StartCollectorTask_1(void *argument) {
+  wait_start();
+  collector_manager(8);
 }
 
-void StartCollectorTask_2(void *argument)
-{
-    // putsMutex("Collector Task 2 started\n");
-    while (1)
-    {
-        if(is_comptetion_started == true){
-            testShip(9);
-        }
-        osDelay(OS_DELAY);
-    }
+void StartCollectorTask_2(void *argument) {
+  wait_start();
+  collector_manager(9);
 }
