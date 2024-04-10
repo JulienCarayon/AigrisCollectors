@@ -59,3 +59,9 @@ dkms.conf
 
 # VisualStudio
 .vscode
+
+# PDF
+.pdf
+
+# Log 
+.log
