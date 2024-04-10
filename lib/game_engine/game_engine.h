@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 typedef enum { GO_TO_PLANET, GO_TO_SHIP, GO_TO_BASE } T_mode_direction;
 
 typedef enum { MOVE_CMD, FIRE_CMD, RADAR_CMD } T_command_type;
@@ -36,16 +35,14 @@ typedef struct {
   uint16_t broken;
 } T_ship;
 
-typedef enum
-{
+typedef enum {
   FREE,
   COLLECTING_INCOMING,
   COLLECTING,
   COLLECTED,
 } T_planet_status; // Advanced status of the planet
 
-typedef struct
-{
+typedef struct {
   uint16_t planet_ID;
   uint16_t pos_X;
   uint16_t pos_Y;
@@ -55,14 +52,12 @@ typedef struct
   T_planet_status planet_status;
 } T_planet;
 
-typedef struct
-{
+typedef struct {
   uint16_t pos_X;
   uint16_t pos_Y;
 } T_base;
 
-typedef struct
-{
+typedef struct {
   T_planet planets[MAX_PLANETS_NUMBER];
   T_ship ships[SHIPS_NUMBER * NUMBER_OF_TEAM];
   T_base base;
@@ -99,7 +94,9 @@ uint16_t get_angle_between_two_points(T_point starting_point,
 void show_planet(T_planet *planet);
 void initialize_game_data(T_game_data *game_data);
 void auto_collect_planet(uint8_t ship_id, T_game_data *game_data);
-void set_planet_collection_status(int8_t ship_ID, uint8_t planet_num, T_planet_status planet_status, T_game_data *game_data);
+void set_planet_collection_status(int8_t ship_ID, uint8_t planet_num,
+                                  T_planet_status planet_status,
+                                  T_game_data *game_data);
 void update_planet_collection_status(T_game_data *game_data);
 
 T_point get_ship_position(T_ship ship);
