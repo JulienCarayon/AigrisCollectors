@@ -434,9 +434,17 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
     }
   }
 
+  else if (get_ship_FSM(ship_id, game_data) == BROKEN) {
+    if (can_ship_be_READY(ship_id, game_data)) {
+      set_ship_FSM(ship_id, READY, game_data);
+    } else {
+      go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
+    }
+  }
+
   else if (is_ship_broken(ship_id, game_data)) {
     set_ship_target_planet_ID(ship_id, -1, game_data);
-    set_ship_FSM(ship_id, READY, game_data);
+    set_ship_FSM(ship_id, BROKEN, game_data);
   } else {
     set_ship_FSM(ship_id, UNKNWOWN, game_data);
     while (1) {
