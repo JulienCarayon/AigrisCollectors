@@ -216,7 +216,7 @@ void test_can_ship_be_READY(void) {
                           can_ship_be_READY(COLLECTOR_2, test_game_data));
 }
 
-void test_is_ship_broken(void) {
+void test_can_ship_be_BROKEN(void) {
   T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
       {{{1, 10000, 10000, -1, 0},
         {2, 10000, 20000, -1, 0},
@@ -237,9 +237,11 @@ void test_is_ship_broken(void) {
         {0, COLLECTOR_2, 10000, 1000, 1, READY, -1}},
        {10000, 0}}};
 
-  TEST_ASSERT_EQUAL_UINT8(true, is_ship_broken(ATTACKER_3, test_game_data));
-  TEST_ASSERT_EQUAL_UINT8(true, is_ship_broken(COLLECTOR_2, test_game_data));
-  TEST_ASSERT_EQUAL_UINT8(false, is_ship_broken(ATTACKER_5, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(true, can_ship_be_BROKEN(ATTACKER_3, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(true,
+                          can_ship_be_BROKEN(COLLECTOR_2, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(false,
+                          can_ship_be_BROKEN(ATTACKER_5, test_game_data));
 }
 
 void test_can_ship_be_GOING_TO_PLANET(void) {
@@ -457,7 +459,8 @@ void test_polar_to_cartesian_coordinates(void) {
         {0, COLLECTOR_2, 10000, 1000, 1, GOING_TO_PLANET, -1, 60}},
        {10000, 0}}};
 
-  TEST_ASSERT_EQUAL_UINT16(15, get_angle(COLLECTOR_1, 315, test_game_data));
+  TEST_ASSERT_EQUAL_UINT16(
+      15, get_angle_for_follower_ship(COLLECTOR_1, 315, test_game_data));
 }
 
 int main() {
@@ -475,7 +478,7 @@ int main() {
   RUN_TEST(test_get_ship_planet_ID);
   RUN_TEST(test_can_ship_be_READY);
   RUN_TEST(test_can_ship_be_GOING_TO_PLANET);
-  RUN_TEST(test_is_ship_broken);
+  RUN_TEST(test_can_ship_be_BROKEN);
   RUN_TEST(test_can_ship_be_COLLECTING);
   RUN_TEST(test_can_ship_be_COLLECTED);
   RUN_TEST(test_can_ship_be_COLLECTING_WRONG_PLANET);

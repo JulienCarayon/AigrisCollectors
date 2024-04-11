@@ -135,7 +135,7 @@ T_point get_planet_position(T_planet planet);
 T_point get_base_position(T_base base);
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed);
-T_ship_type get_ship_type(uint8_t ship_id);
+// T_ship_type get_ship_type(uint8_t ship_id);
 
 bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data);
 
@@ -160,6 +160,6 @@ bool can_ship_be_COLLECTED(uint8_t ship_id, T_game_data *game_data);
 bool can_ship_be_COLLECTING_WRONG_PLANET(uint8_t ship_id,
                                          T_game_data *game_data);
 bool can_ship_be_PLANET_STOLEN(uint8_t ship_id, T_game_data *game_data);
-bool is_ship_broken(uint8_t ship_id, T_game_data *game_data);
+bool can_ship_be_BROKEN(uint8_t ship_id, T_game_data *game_data);
 
 #endif // GAME_ENGINE_H
