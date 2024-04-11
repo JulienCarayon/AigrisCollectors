@@ -56,6 +56,7 @@ void StartMainTask(void *argument) {
 
       if (strstr(rx_command_buffer, "START") != NULL) {
         is_comptetion_started = true;
+        initialize_game_data(game_data);
       }
     }
     osDelay(1);

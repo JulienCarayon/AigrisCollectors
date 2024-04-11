@@ -93,7 +93,7 @@ void attacker_manager(uint8_t attacker_id) {
     aquire_game_data_mutex();
 
     if (attacker_id == ATTACKER_1) {
-      follow_ship(attacker_id, game_data->ships[COLLECTOR_1]);
+      // follow_ship(attacker_id, game_data->ships[COLLECTOR_1]);
     }
 
     if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
@@ -143,10 +143,13 @@ T_point get_base_position(T_base base) {
 void go_to_point(uint8_t ship_id, T_point point) {
   T_ship ship = game_data->ships[ship_id];
   T_point ship_pos = get_ship_position(ship);
-
-  send_command(generate_command(MOVE_CMD, ship_id,
-                                get_angle_between_two_points(ship_pos, point),
-                                ATTACKER_SPEED));
+  if (2 < abs(get_angle_between_two_points(ship_pos, point) -
+              game_data->ships[ship_id].angle)) {
+    game_data->ships[ship_id].angle =
+        get_angle_between_two_points(ship_pos, ship_pos);
+    send_command(generate_command(
+        MOVE_CMD, ship_id, game_data->ships[ship_id].angle, ATTACKER_SPEED));
+  }
 }
 
 void go_to_planet(uint8_t ship_id, uint8_t planet_id) {
@@ -155,29 +158,35 @@ void go_to_planet(uint8_t ship_id, uint8_t planet_id) {
   T_planet planet = game_data->planets[planet_id];
   T_point planet_pos = get_planet_position(planet);
 
-  send_command(generate_command(
-      MOVE_CMD, ship_id, get_angle_between_two_points(ship_pos, planet_pos),
-      COLLECTOR_SPEED));
-
-  // if (ship_id == COLLECTOR_1) {
-  //   send_command(generate_command(
-  //       MOVE_CMD, ship_id, get_angle_between_two_points(ship_pos,
-  //       planet_pos), 400));
-  // } else if (ship_id == COLLECTOR_2) {
-  //   send_command(generate_command(
-  //       MOVE_CMD, ship_id, get_angle_between_two_points(ship_pos,
-  //       planet_pos), COLLECTOR_SPEED));
-  // }
+  if (2 < abs(get_angle_between_two_points(ship_pos, planet_pos) -
+              game_data->ships[ship_id].angle)) {
+    game_data->ships[ship_id].angle =
+        get_angle_between_two_points(ship_pos, planet_pos);
+    // char buffer[20] = {'\0'};
+    // snprintf(buffer, sizeof(buffer), "ANGLE : %d : %d : %d\n",
+    //          abs(get_angle_between_two_points(ship_pos, planet_pos) -
+    //              game_data->ships[ship_id].angle),
+    //          game_data->ships[ship_id].angle);
+    // putsMutex(buffer);
+    // putsMutex("\n");
+    game_data->ships[ship_id].angle =
+        get_angle_between_two_points(ship_pos, planet_pos);
+    send_command(generate_command(
+        MOVE_CMD, ship_id, game_data->ships[ship_id].angle, COLLECTOR_SPEED));
+  }
 }
 
 void go_to_base(uint8_t ship_id, T_base base, T_ships_speed ship_speed) {
   T_ship ship = game_data->ships[ship_id];
   T_point ship_pos = get_ship_position(ship);
   T_point base_pos = get_base_position(base);
-
-  send_command(generate_command(
-      MOVE_CMD, ship_id, get_angle_between_two_points(ship_pos, base_pos),
-      ship_speed));
+  if (2 < abs(get_angle_between_two_points(ship_pos, base_pos) -
+              game_data->ships[ship_id].angle)) {
+    game_data->ships[ship_id].angle =
+        get_angle_between_two_points(ship_pos, base_pos);
+    send_command(generate_command(MOVE_CMD, ship_id,
+                                  game_data->ships[ship_id].angle, ship_speed));
+  }
 }
 
 void parse_game_data(char *answer_buffer, T_game_data *game_data) {
@@ -287,6 +296,7 @@ void initialize_game_data(T_game_data *game_data) {
     game_data->ships[i].broken = 0;
     game_data->ships[i].FSM = READY;
     game_data->ships[i].target_planet_ID = -1;
+    game_data->ships[i].angle = 0;
   }
 
   game_data->base.pos_X = 0;
