@@ -3,7 +3,9 @@ name: AigrisCollectors CI
 on:
   push:
   pull_request:
-
+env:
+  DIRECTORY_TO_EXAMINE: lib
+  TEST_MODE: true
 jobs:
   run_build:
     runs-on: ubuntu-latest
