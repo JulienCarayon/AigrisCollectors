@@ -91,8 +91,11 @@ char *generate_command(T_command_type command_type, uint8_t ship_id,
 void go_to_planet(uint8_t ship_id, uint8_t planet_id);
 void go_to_base(uint8_t ship_id, T_base base, T_ships_speed ship_speed);
 void go_to_point(uint8_t ship_id, T_point point);
-void follow_ship(uint8_t follower_ship_id, T_ship ship_to_follow,
+
+// follow ship functions
+void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow,
                  uint16_t follower_ship_speed);
+void explorer_following_collector(uint8_t explorer_id, uint8_t collector_id);
 
 // Trigonometry functions
 uint16_t get_distance_between_two_points(T_point starting_point,

@@ -66,6 +66,7 @@ void explorer_manager(uint8_t explorer_id) {
     parse_ships(answer_buffer, game_data);
     parse_base(answer_buffer, game_data);
 
+    explorer_following_collector(explorer_id, COLLECTOR_1);
     release_game_data_mutex();
 
     // memset(answer_buffer, 0, sizeof(answer_buffer));
@@ -93,7 +94,7 @@ void attacker_manager(uint8_t attacker_id) {
     aquire_game_data_mutex();
 
     if (attacker_id == ATTACKER_1) {
-      follow_ship(attacker_id, game_data->ships[COLLECTOR_1], COLLECTOR_SPEED);
+      follow_ship(attacker_id, COLLECTOR_1, COLLECTOR_SPEED);
     }
 
     if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
@@ -293,19 +294,24 @@ void initialize_game_data(T_game_data *game_data) {
   game_data->base.pos_Y = 0;
 }
 
-void follow_ship(uint8_t follower_ship_id, T_ship ship_to_follow,
+void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow_id,
                  uint16_t follower_ship_speed) {
   T_ship follower_ship = game_data->ships[follower_ship_id];
   T_point follower_ship_pos = get_ship_position(follower_ship);
+  T_ship ship_to_follow = game_data->ships[ship_to_follow_id];
   T_point ship_to_follow_pos = get_ship_position(ship_to_follow);
 
-  ship_to_follow_pos.pos_X = ship_to_follow_pos.pos_X + SHIP_FOLLOWER_OFFSET;
-  ship_to_follow_pos.pos_Y = ship_to_follow_pos.pos_Y + SHIP_FOLLOWER_OFFSET;
+  ship_to_follow_pos.pos_X = ship_to_follow_pos.pos_X + SHIP_FOLLOWER_OFFSET_X;
+  ship_to_follow_pos.pos_Y = ship_to_follow_pos.pos_Y + SHIP_FOLLOWER_OFFSET_Y;
 
   send_command(generate_command(
       MOVE_CMD, follower_ship_id,
       get_angle_between_two_points(follower_ship_pos, ship_to_follow_pos),
       follower_ship_speed));
+}
+
+void explorer_following_collector(uint8_t explorer_id, uint8_t collector_id) {
+  follow_ship(explorer_id, collector_id, COLLECTOR_SPEED);
 }
 
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
