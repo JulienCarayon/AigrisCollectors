@@ -66,12 +66,19 @@ void explorer_manager(uint8_t explorer_id) {
     parse_ships(answer_buffer, game_data);
     parse_base(answer_buffer, game_data);
 
-    if (explorer_id == EXPLORER_1)
-      follow_ship(explorer_id, COLLECTOR_1, EXPLORER_SPEED, BOTTOM_RIGHT);
-    else if (explorer_id == EXPLORER_2)
-      follow_ship(explorer_id, COLLECTOR_2, EXPLORER_SPEED, BOTTOM_RIGHT);
-    release_game_data_mutex();
+    if (explorer_id == EXPLORER_1) {
+      if (can_ship_be_BROKEN(explorer_id, game_data)) {
+        go_to_base(explorer_id, game_data->base, EXPLORER_SPEED);
+      } else {
+        follow_ship(explorer_id, COLLECTOR_1, EXPLORER_SPEED, BOTTOM_RIGHT);
+      }
 
+    } else if (explorer_id == EXPLORER_2)
+      if (can_ship_be_BROKEN(explorer_id, game_data)) {
+        go_to_base(explorer_id, game_data->base, EXPLORER_SPEED);
+      } else {
+        follow_ship(explorer_id, COLLECTOR_2, EXPLORER_SPEED, BOTTOM_RIGHT);
+      }
     // memset(answer_buffer, 0, sizeof(answer_buffer));
     os_delay(OS_DELAY);
   }
@@ -93,15 +100,35 @@ void attacker_manager(uint8_t attacker_id) {
     aquire_game_data_mutex();
 
     if (attacker_id == ATTACKER_1) {
-      follow_ship(attacker_id, COLLECTOR_1, ATTACKER_SPEED, TOP_LEFT);
+      if (can_ship_be_BROKEN(attacker_id, game_data)) {
+        go_to_base(attacker_id, game_data->base, ATTACKER_SPEED);
+      } else {
+        follow_ship(attacker_id, COLLECTOR_1, ATTACKER_SPEED, TOP_LEFT);
+      }
     } else if (attacker_id == ATTACKER_2) {
-      follow_ship(attacker_id, COLLECTOR_1, ATTACKER_SPEED, TOP_RIGHT);
+      if (can_ship_be_BROKEN(attacker_id, game_data)) {
+        go_to_base(attacker_id, game_data->base, ATTACKER_SPEED);
+      } else {
+        follow_ship(attacker_id, COLLECTOR_1, ATTACKER_SPEED, TOP_RIGHT);
+      }
     } else if (attacker_id == ATTACKER_3) {
-      follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, TOP_LEFT);
+      if (can_ship_be_BROKEN(attacker_id, game_data)) {
+        go_to_base(attacker_id, game_data->base, ATTACKER_SPEED);
+      } else {
+        follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, TOP_LEFT);
+      }
     } else if (attacker_id == ATTACKER_4) {
-      follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, TOP_RIGHT);
+      if (can_ship_be_BROKEN(attacker_id, game_data)) {
+        go_to_base(attacker_id, game_data->base, ATTACKER_SPEED);
+      } else {
+        follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, TOP_RIGHT);
+      }
     } else if (attacker_id == ATTACKER_5) {
-      // follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, BOTTOM_LEFT);
+      if (can_ship_be_BROKEN(attacker_id, game_data)) {
+        go_to_base(attacker_id, game_data->base, ATTACKER_SPEED);
+      } else {
+        follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, BOTTOM_LEFT);
+      }
     }
 
     if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
