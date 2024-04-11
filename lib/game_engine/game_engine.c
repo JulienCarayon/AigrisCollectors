@@ -67,9 +67,9 @@ void explorer_manager(uint8_t explorer_id) {
     parse_base(answer_buffer, game_data);
 
     if (explorer_id == EXPLORER_1)
-      explorer_following_collector(explorer_id, COLLECTOR_1);
+      ship_following_collector(explorer_id, COLLECTOR_1);
     else if (explorer_id == EXPLORER_2)
-      explorer_following_collector(explorer_id, COLLECTOR_2);
+      ship_following_collector(explorer_id, COLLECTOR_2);
     release_game_data_mutex();
 
     // memset(answer_buffer, 0, sizeof(answer_buffer));
@@ -97,7 +97,7 @@ void attacker_manager(uint8_t attacker_id) {
     aquire_game_data_mutex();
 
     if (attacker_id == ATTACKER_1) {
-      follow_ship(attacker_id, COLLECTOR_1, COLLECTOR_SPEED);
+      ship_following_collector(attacker_id, COLLECTOR_1);
     }
 
     if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
@@ -313,8 +313,8 @@ void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow_id,
       follower_ship_speed));
 }
 
-void explorer_following_collector(uint8_t explorer_id, uint8_t collector_id) {
-  follow_ship(explorer_id, collector_id, COLLECTOR_SPEED);
+void ship_following_collector(uint8_t ship_id, uint8_t collector_id) {
+  follow_ship(ship_id, collector_id, COLLECTOR_SPEED);
 }
 
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
@@ -386,8 +386,6 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
   else if (get_ship_FSM(ship_id, game_data) == GOING_TO_PLANET) {
 
     if (can_ship_be_COLLECTING(ship_id, game_data)) {
-
-      // putsMutex("NOT HERE");
       set_ship_FSM(ship_id, COLLECTING, game_data);
     }
 
@@ -404,7 +402,6 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
   }
 
   else if (get_ship_FSM(ship_id, game_data) == COLLECTING) {
-    // putsMutex("FSM : COLLECTING\n");
     go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
     if (can_ship_be_COLLECTED(ship_id, game_data)) {
       set_ship_target_planet_ID(ship_id, -1, game_data);
