@@ -298,10 +298,13 @@ void follow_ship(uint8_t follower_ship_id, T_ship ship_to_follow) {
   T_point follower_ship_pos = get_ship_position(follower_ship);
   T_point ship_to_follow_pos = get_ship_position(ship_to_follow);
 
+  ship_to_follow_pos.pos_X = ship_to_follow_pos.pos_X + SHIP_FOLLOWER_OFFSET;
+  ship_to_follow_pos.pos_Y = ship_to_follow_pos.pos_Y + SHIP_FOLLOWER_OFFSET;
+
   send_command(generate_command(
       MOVE_CMD, follower_ship_id,
       get_angle_between_two_points(follower_ship_pos, ship_to_follow_pos),
-      ATTACKER_SPEED));
+      COLLECTOR_SPEED));
 }
 
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
