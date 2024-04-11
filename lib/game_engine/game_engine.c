@@ -76,8 +76,10 @@ void explorer_manager(uint8_t explorer_id) {
 void collector_manager(uint8_t collector_id) {
   while (1) {
     aquire_game_data_mutex();
-    if (collector_id == COLLECTOR_1)
-      auto_collect_planet(COLLECTOR_1, game_data);
+    // if (collector_id == COLLECTOR_1)
+    //   auto_collect_planet(COLLECTOR_1, game_data);
+    //  if (collector_id == COLLECTOR_1)
+    auto_collect_planet(collector_id, game_data);
     // os_delay(OS_DELAY + 20);
     // auto_collect_planet(COLLECTOR_2, game_data);
 
@@ -310,14 +312,28 @@ uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
   for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER; planet_num++) {
     if (game_data->planets[planet_num].planet_saved != 1 &&
         game_data->planets[planet_num].planet_ID != 0) {
+      if (ship_id == COLLECTOR_1) {
+        if (game_data->ships[COLLECTOR_2].target_planet_ID != planet_num) {
+          distance = get_distance_between_two_points(
+              get_ship_position(game_data->ships[ship_id]),
+              get_planet_position(game_data->planets[planet_num]));
 
-      distance = get_distance_between_two_points(
-          get_ship_position(game_data->ships[ship_id]),
-          get_planet_position(game_data->planets[planet_num]));
+          if (distance < distance_min) {
+            distance_min = distance;
+            planet_id_to_collect = planet_num;
+          }
+        }
+      } else {
+        if (game_data->ships[COLLECTOR_1].target_planet_ID != planet_num) {
+          distance = get_distance_between_two_points(
+              get_ship_position(game_data->ships[ship_id]),
+              get_planet_position(game_data->planets[planet_num]));
 
-      if (distance < distance_min) {
-        distance_min = distance;
-        planet_id_to_collect = planet_num;
+          if (distance < distance_min) {
+            distance_min = distance;
+            planet_id_to_collect = planet_num;
+          }
+        }
       }
     }
   }
@@ -335,7 +351,15 @@ int8_t get_ship_planet_ID(uint8_t ship_id, T_game_data *game_data) {
 }
 
 void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
-  static int8_t desired_target_planet_id = -1;
+  static int8_t collector_1_desired_target_planet_id;
+  static int8_t collector_2_desired_target_planet_id;
+  int8_t desired_target_planet_id;
+  if (ship_id == COLLECTOR_1) {
+    desired_target_planet_id = collector_1_desired_target_planet_id;
+  } else {
+    desired_target_planet_id = collector_2_desired_target_planet_id;
+  }
+
   if (get_ship_FSM(ship_id, game_data) == READY) {
     desired_target_planet_id = get_nearest_planet(ship_id, game_data);
 
@@ -396,8 +420,8 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
       set_ship_FSM(ship_id, READY, game_data);
     } else {
       while (1) {
-        putsMutex("FSM : CANNOT TRANSITION TO READY STATE\n");
-        os_delay(1000);
+        // putsMutex("FSM : CANNOT TRANSITION TO READY STATE\n");
+        // os_delay(1000);
       }
     }
   }
@@ -416,9 +440,14 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
   } else {
     set_ship_FSM(ship_id, UNKNWOWN, game_data);
     while (1) {
-      putsMutex("FSM : UNKNWN STATE \n");
-      os_delay(1000);
+      // putsMutex("FSM : UNKNOWN STATE \n");
+      // os_delay(1000);
     }
+  }
+  if (ship_id == COLLECTOR_1) {
+    collector_1_desired_target_planet_id = desired_target_planet_id;
+  } else {
+    collector_2_desired_target_planet_id = desired_target_planet_id;
   }
 }
 
