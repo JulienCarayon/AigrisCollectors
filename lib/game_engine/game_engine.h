@@ -5,6 +5,12 @@
 #define M_PI (3.14159265358979323846)
 #endif
 
+#define MAX_DISTANCE_ENEMY 500
+#define MAX_SHIPS_NUMBER 9 
+#define MY_TEAM_ID 0 
+#define FIRE_DISTANCE 5000 // Longueur de l'attaque en kilomètres
+#define BREAK_DISTANCE 200 // Distance à laquelle un vaisseau ennemi est détruit
+
 #include <constants.h>
 #include <math.h>
 #include <stdbool.h>
