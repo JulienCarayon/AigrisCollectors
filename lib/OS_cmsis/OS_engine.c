@@ -66,36 +66,6 @@ void aquire_game_data_mutex(void) {
 
 void release_game_data_mutex(void) { os_release_mutex(game_data_mutex_id); }
 
-// void send_command(char *command, char *response_buffer)
-// {
-//   os_acquire_mutex(uart_mutex_id, osWaitForever);
-//   puts(command);
-
-//   gets(rx_command_buffer);
-
-//   if (strstr(rx_command_buffer, "OK") != NULL)
-//   {
-//     rx_command_received = false;
-//     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-//     os_release_mutex(uart_mutex_id);
-//   }
-//   else if (strstr(rx_command_buffer, "KO") != NULL)
-//   {
-//     rx_command_received = false;
-//     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-//     os_release_mutex(uart_mutex_id);
-//   }
-//   else
-//   {
-//     rx_command_received = false;
-//     strncpy(response_buffer, rx_command_buffer, sizeof(rx_command_buffer) -
-//     1); response_buffer[sizeof(rx_command_buffer) - 1] = '\0';
-//     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-//     os_release_mutex(uart_mutex_id);
-//   }
-//   osDelay(OS_DELAY); // TODO Why ?
-// }
-
 void send_command(char *command) {
   os_acquire_mutex(uart_mutex_id, osWaitForever);
   puts(command);
