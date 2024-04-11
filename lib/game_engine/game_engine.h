@@ -48,6 +48,7 @@ typedef struct {
   uint16_t broken;
   T_ship_FSM FSM;
   int8_t target_planet_ID;
+  uint16_t angle;
 } T_ship;
 
 typedef struct {
@@ -56,8 +57,6 @@ typedef struct {
   uint16_t pos_Y;
   int16_t ship_ID;
   uint16_t planet_saved;
-  // int8_t busy_ship_ID;
-  // T_planet_status planet_status;
 } T_planet;
 
 typedef struct {
