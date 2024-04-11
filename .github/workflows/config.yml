@@ -4,15 +4,24 @@ on:
   push:
   pull_request:
 
+env:
+  DIRECTORY_TO_EXAMINE: lib
+
 jobs:
   run_build:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install cppcheck
+        run: sudo apt install cppcheck -y
+      - name: Install Python 3.9
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa -y
+          sudo apt update
+          sudo apt install -y python3.9
+
       - uses: actions/checkout@v3
-  
+
       - name: Run build script
         run: |
-          cd CI
-          sh build.sh
-
+          ./CI/build.sh

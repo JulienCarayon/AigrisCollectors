@@ -5,6 +5,8 @@
 
 // OS CONFIGURATION
 #define OS_DELAY 1
+#define OS_DELAY_FIRE 1000
+#define NB_SHIPS 8
 #define BUFFER_SIZE 30
 #define MAIN_TASK_SIZE 128
 #define TASKS_SIZES_COLLECTOR 1500
@@ -25,6 +27,9 @@
 
 #define COLLECTOR_1 (uint8_t)7
 #define COLLECTOR_2 (uint8_t)8
+
+#define COLLECTOR_ENEMY_1 (uint8_t)16
+#define COLLECTOR_ENEMY_2 (uint8_t)17
 
 #define MAX_PLANETS_NUMBER 8
 #define SHIPS_NUMBER 9
