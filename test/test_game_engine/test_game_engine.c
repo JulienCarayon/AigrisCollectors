@@ -457,7 +457,7 @@ void test_polar_to_cartesian_coordinates(void) {
         {0, COLLECTOR_2, 10000, 1000, 1, GOING_TO_PLANET, -1, 60}},
        {10000, 0}}};
 
-  TEST_ASSERT_EQUAL_UINT16(15, get_angle(COLLECTOR_1, 315, test_game_data));
+  TEST_ASSERT_EQUAL_UINT16(15, get_angle_for_follower_ship(COLLECTOR_1, 315, test_game_data));
 }
 
 void test_fire_on_enemy_ship(void) {
@@ -520,6 +520,6 @@ int main() {
   RUN_TEST(test_set_ship_FSM);
   RUN_TEST(test_get_ship_FSM);
   RUN_TEST(test_polar_to_cartesian_coordinates);
-  // RUN_TEST(test_fire_on_enemy_ship); TEST IN PROCESS
+  RUN_TEST(test_fire_on_enemy_ship);
   UNITY_END(); // stop unit testing
 }
