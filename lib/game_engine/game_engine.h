@@ -17,6 +17,17 @@ typedef enum { GO_TO_PLANET, GO_TO_SHIP, GO_TO_BASE } T_mode_direction;
 typedef enum { MOVE_CMD, FIRE_CMD, RADAR_CMD } T_command_type;
 
 typedef enum {
+  TOP = 0,
+  TOP_RIGHT = 315,
+  RIGHT = 270,
+  BOTTOM_RIGHT = 225,
+  BOTTOM = 180,
+  BOTTOM_LEFT = 135,
+  LEFT = 90,
+  TOP_LEFT = 45
+} T_follower_ship_direction;
+
+typedef enum {
   COLLECTOR_SPEED = 1000,
   EXPLORER_SPEED = 2000,
   ATTACKER_SPEED = 3000
@@ -92,13 +103,11 @@ void go_to_base(uint8_t ship_id, T_base base, T_ships_speed ship_speed);
 void go_to_point(uint8_t ship_id, T_point point);
 
 // follow ship functions
-// void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow,
-//                  uint16_t follower_ship_speed);
 void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow_id,
-                 uint16_t follower_ship_speed, uint16_t angle);
-// void ship_following_collector(uint8_t ship_id, uint8_t collector_id);
+                 uint16_t follower_ship_speed,
+                 T_follower_ship_direction relative_position);
 void ship_following_collector(uint8_t ship_id, uint8_t collector_id,
-                              uint16_t angle);
+                              T_follower_ship_direction relative_position);
 T_point polar_to_cartesian_coordinates(uint8_t ship_id, uint16_t distance,
                                        uint16_t angle, T_game_data *game_data);
 
