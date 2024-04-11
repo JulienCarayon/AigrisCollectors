@@ -259,28 +259,10 @@ void test_get_ship_planet_ID(void) {
         {2, 10000, 20000, -1, 0},
         {3, 15000, 15000, -1, 0},
         {4, 10000, 20000, -1, 0},
-        {5, 10000, 10000, COLLECTOR_1, 0},
-        {
-            6,
-            10000,
-            20000,
-            -1,
-            0,
-        },
-        {
-            7,
-            16500,
-            17500,
-            -1,
-            0,
-        },
-        {
-            8,
-            10000,
-            12000,
-            -1,
-            0,
-        }},
+        {5, 10000, 10000, COLLECTOR_1 + 1, 0},
+        {6, 10000, 20000, -1, 0},
+        {7, 16500, 17500, -1, 0},
+        {8, 10000, 12000, -1, 0}},
        {{0, ATTACKER_1, 0, 0, 0},
         {0, ATTACKER_2, 0, 0, 0},
         {0, ATTACKER_3, 0, 0, 0},
@@ -292,13 +274,8 @@ void test_get_ship_planet_ID(void) {
         {0, COLLECTOR_2, 10000, 1000, 1}},
        {10000, 0}}};
 
-  int8_t expected_result_true = 4;
-  int8_t expected_result_false = -1;
-  int8_t result_true = get_ship_planet_ID(COLLECTOR_1, test_game_data);
-  int8_t result_false = get_ship_planet_ID(COLLECTOR_2, test_game_data);
-
-  TEST_ASSERT_EQUAL_INT(expected_result_true, result_true);
-  TEST_ASSERT_EQUAL_INT(expected_result_false, result_false);
+  TEST_ASSERT_EQUAL_INT(4, get_ship_planet_ID(COLLECTOR_1, test_game_data));
+  TEST_ASSERT_EQUAL_INT(-1, get_ship_planet_ID(COLLECTOR_2, test_game_data));
 }
 
 void test_can_ship_be_READY(void) {
@@ -509,8 +486,5 @@ int main() {
   RUN_TEST(test_can_ship_be_COLLECTED);
   RUN_TEST(test_can_ship_be_COLLECTING_WRONG_PLANET);
   RUN_TEST(test_can_ship_be_PLANET_STOLEN);
-  // RUN_TEST(test_set_planet_collection_status);
-  // RUN_TEST(test_update_planet_collection_status);
-  // RUN_TEST(test_get_nearest_planet_available);
   UNITY_END(); // stop unit testing
 }
