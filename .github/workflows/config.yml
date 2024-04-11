@@ -1,21 +1,24 @@
-- name: Install xmllint
-  run: sudo apt -y install pandoc
+name: AigrisCollectors CI
 
-- name: AigrisCollectors CI
-  on:
-    push:
-    pull_request:
-  env:
-    DIRECTORY_TO_EXAMINE: lib
-    TEST_MODE: false
-  jobs:
-    run_build:
-      runs-on: ubuntu-latest
+on:
+  push:
+  pull_request:
 
-      steps:
-        - uses: actions/checkout@v3
-  
-        - name: Run build script
-          run: |
-            cd CI
-            sh build.sh
+env:
+  DIRECTORY_TO_EXAMINE: lib
+  TEST_MODE: false
+
+jobs:
+  run_build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install pandoc
+        run: sudo apt -y install pandoc
+
+      - uses: actions/checkout@v3
+
+      - name: Run build script
+        run: |
+          cd CI
+          sh build.sh
