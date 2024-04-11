@@ -66,6 +66,10 @@ void explorer_manager(uint8_t explorer_id) {
     parse_ships(answer_buffer, game_data);
     parse_base(answer_buffer, game_data);
 
+    if (explorer_id == EXPLORER_1)
+      ship_following_collector(explorer_id, COLLECTOR_1);
+    else if (explorer_id == EXPLORER_2)
+      ship_following_collector(explorer_id, COLLECTOR_2);
     release_game_data_mutex();
 
     // memset(answer_buffer, 0, sizeof(answer_buffer));
@@ -93,7 +97,7 @@ void attacker_manager(uint8_t attacker_id) {
     aquire_game_data_mutex();
 
     if (attacker_id == ATTACKER_1) {
-      // follow_ship(attacker_id, game_data->ships[COLLECTOR_1]);
+      ship_following_collector(attacker_id, COLLECTOR_1);
     }
 
     if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
@@ -303,15 +307,24 @@ void initialize_game_data(T_game_data *game_data) {
   game_data->base.pos_Y = 0;
 }
 
-void follow_ship(uint8_t follower_ship_id, T_ship ship_to_follow) {
+void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow_id,
+                 uint16_t follower_ship_speed) {
   T_ship follower_ship = game_data->ships[follower_ship_id];
   T_point follower_ship_pos = get_ship_position(follower_ship);
+  T_ship ship_to_follow = game_data->ships[ship_to_follow_id];
   T_point ship_to_follow_pos = get_ship_position(ship_to_follow);
+
+  ship_to_follow_pos.pos_X = ship_to_follow_pos.pos_X + SHIP_FOLLOWER_OFFSET_X;
+  ship_to_follow_pos.pos_Y = ship_to_follow_pos.pos_Y + SHIP_FOLLOWER_OFFSET_Y;
 
   send_command(generate_command(
       MOVE_CMD, follower_ship_id,
       get_angle_between_two_points(follower_ship_pos, ship_to_follow_pos),
-      ATTACKER_SPEED));
+      follower_ship_speed));
+}
+
+void ship_following_collector(uint8_t ship_id, uint8_t collector_id) {
+  follow_ship(ship_id, collector_id, COLLECTOR_SPEED);
 }
 
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
@@ -383,8 +396,6 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
   else if (get_ship_FSM(ship_id, game_data) == GOING_TO_PLANET) {
 
     if (can_ship_be_COLLECTING(ship_id, game_data)) {
-
-      // putsMutex("NOT HERE");
       set_ship_FSM(ship_id, COLLECTING, game_data);
     }
 
@@ -401,7 +412,6 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
   }
 
   else if (get_ship_FSM(ship_id, game_data) == COLLECTING) {
-    // putsMutex("FSM : COLLECTING\n");
     go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
     if (can_ship_be_COLLECTED(ship_id, game_data)) {
       set_ship_target_planet_ID(ship_id, -1, game_data);
@@ -430,8 +440,8 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
       set_ship_FSM(ship_id, READY, game_data);
     } else {
       while (1) {
-        // putsMutex("FSM : CANNOT TRANSITION TO READY STATE\n");
-        // os_delay(1000);
+        os_puts_mutex("FSM : CANNOT TRANSITION TO READY STATE\n");
+        os_delay(1000);
       }
     }
   }
@@ -458,8 +468,8 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
   } else {
     set_ship_FSM(ship_id, UNKNWOWN, game_data);
     while (1) {
-      // putsMutex("FSM : UNKNOWN STATE \n");
-      // os_delay(1000);
+      os_puts_mutex("FSM : UNKNOWN STATE \n");
+      os_delay(1000);
     }
   }
   if (ship_id == COLLECTOR_1) {
