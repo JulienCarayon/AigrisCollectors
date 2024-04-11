@@ -480,10 +480,19 @@ void test_fire_on_enemy_ship(void) {
           {0, EXPLORER_2, 0, 0, 0, READY, -1},
           {0, COLLECTOR_1, 16000, 17000, 0, READY, 3},
           {0, COLLECTOR_2, 10000, 1000, 1, READY, -1},
+          {0, ATTACKER_ENEMY_1, 5000, 5000, 0, READY, -1},
+          {0, ATTACKER_ENEMY_2, 1000, 1000, 0, READY, -1},
+          {0, ATTACKER_ENEMY_3, 0, 0, 1, READY, -1},
+          {0, ATTACKER_ENEMY_4, 0, 0, 0, READY, -1},
+          {0, ATTACKER_ENEMY_5, 0, 0, 0, READY, -1},
+          {0, EXPLORER_ENEMY_1, 0, 0, 0, READY, -1},
+          {0, EXPLORER_ENEMY_2, 16000, 16000, 1, READY, -1},
           {1, COLLECTOR_ENEMY_1, 5100, 5100, 0, READY, -1},
           {1, COLLECTOR_ENEMY_2, 16000, 5000, 0, READY, -1}},
          {10000, 0}}};
   // Cas où le vaisseau ennemi est dans la portée
+  result = fire_on_enemy_ship(ATTACKER_1, COLLECTOR_ENEMY_1, test_game_data);
+  test_game_data->ships[COLLECTOR_ENEMY_1].broken=1;
   result = fire_on_enemy_ship(ATTACKER_1, COLLECTOR_ENEMY_1, test_game_data);
   TEST_ASSERT_EQUAL_INT(DESTROYED, result);
 
@@ -491,10 +500,9 @@ void test_fire_on_enemy_ship(void) {
   result = fire_on_enemy_ship(ATTACKER_2, COLLECTOR_ENEMY_2, test_game_data);
   TEST_ASSERT_EQUAL_INT(OUT_OF_RANGE, result);
 
-  // Cas où le vaisseau ennemi est manqué
-  /*
-  result = fire_on_enemy_ship(ATTACKER_ID, ENEMY_SHIP_ID, game_data);
-  TEST_ASSERT_EQUAL_INT(MISSED, result);*/
+  // Cas où le vaisseau ennemi est déjà détruit et hors de porté
+  result = fire_on_enemy_ship(ATTACKER_1, EXPLORER_ENEMY_2, test_game_data);
+  TEST_ASSERT_EQUAL_INT(MISSED, result);
 }
 
 int main() {
