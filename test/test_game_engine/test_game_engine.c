@@ -216,7 +216,7 @@ void test_can_ship_be_READY(void) {
                           can_ship_be_READY(COLLECTOR_2, test_game_data));
 }
 
-void test_is_ship_broken(void) {
+void test_can_ship_be_BROKEN(void) {
   T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
       {{{1, 10000, 10000, -1, 0},
         {2, 10000, 20000, -1, 0},
@@ -237,9 +237,11 @@ void test_is_ship_broken(void) {
         {0, COLLECTOR_2, 10000, 1000, 1, READY, -1}},
        {10000, 0}}};
 
-  TEST_ASSERT_EQUAL_UINT8(true, is_ship_broken(ATTACKER_3, test_game_data));
-  TEST_ASSERT_EQUAL_UINT8(true, is_ship_broken(COLLECTOR_2, test_game_data));
-  TEST_ASSERT_EQUAL_UINT8(false, is_ship_broken(ATTACKER_5, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(true, can_ship_be_BROKEN(ATTACKER_3, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(true,
+                          can_ship_be_BROKEN(COLLECTOR_2, test_game_data));
+  TEST_ASSERT_EQUAL_UINT8(false,
+                          can_ship_be_BROKEN(ATTACKER_5, test_game_data));
 }
 
 void test_can_ship_be_GOING_TO_PLANET(void) {
@@ -461,6 +463,51 @@ void test_polar_to_cartesian_coordinates(void) {
       15, get_angle_for_follower_ship(COLLECTOR_1, 315, test_game_data));
 }
 
+void test_fire_on_enemy_ship(void) {
+  uint8_t result;
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0},
+        {2, 10000, 20000, -1, 0},
+        {3, 15000, 15000, -1, 0},
+        {4, 10000, 20000, (COLLECTOR_2 + 1), 0},
+        {5, 10000, 10000, -1, 0},
+        {6, 10000, 20000, -1, 0},
+        {7, 16500, 17500, -1, 0},
+        {8, 10000, 12000, -1, 0}},
+       {{0, ATTACKER_1, 5000, 5000, 0, READY, -1},
+        {0, ATTACKER_2, 1000, 1000, 0, READY, -1},
+        {0, ATTACKER_3, 0, 0, 1, READY, -1},
+        {0, ATTACKER_4, 0, 0, 0, READY, -1},
+        {0, ATTACKER_5, 0, 0, 0, READY, -1},
+        {0, EXPLORER_1, 0, 0, 0, READY, -1},
+        {0, EXPLORER_2, 0, 0, 0, READY, -1},
+        {0, COLLECTOR_1, 16000, 17000, 0, READY, 3},
+        {0, COLLECTOR_2, 10000, 1000, 1, READY, -1},
+        {0, ATTACKER_ENEMY_1, 5000, 5000, 0, READY, -1},
+        {0, ATTACKER_ENEMY_2, 1000, 1000, 0, READY, -1},
+        {0, ATTACKER_ENEMY_3, 0, 0, 1, READY, -1},
+        {0, ATTACKER_ENEMY_4, 0, 0, 0, READY, -1},
+        {0, ATTACKER_ENEMY_5, 0, 0, 0, READY, -1},
+        {0, EXPLORER_ENEMY_1, 0, 0, 0, READY, -1},
+        {0, EXPLORER_ENEMY_2, 16000, 16000, 1, READY, -1},
+        {1, COLLECTOR_ENEMY_1, 5100, 5100, 0, READY, -1},
+        {1, COLLECTOR_ENEMY_2, 16000, 5000, 0, READY, -1}},
+       {10000, 0}}};
+  // Cas où le vaisseau ennemi est dans la portée
+  result = fire_on_enemy_ship(ATTACKER_1, COLLECTOR_ENEMY_1, test_game_data);
+  test_game_data->ships[COLLECTOR_ENEMY_1].broken = 1;
+  result = fire_on_enemy_ship(ATTACKER_1, COLLECTOR_ENEMY_1, test_game_data);
+  TEST_ASSERT_EQUAL_INT(DESTROYED, result);
+
+  // Cas où le vaisseau ennemi est hors de portée
+  result = fire_on_enemy_ship(ATTACKER_2, COLLECTOR_ENEMY_2, test_game_data);
+  TEST_ASSERT_EQUAL_INT(OUT_OF_RANGE, result);
+
+  // Cas où le vaisseau ennemi est déjà détruit et hors de porté
+  result = fire_on_enemy_ship(ATTACKER_1, EXPLORER_ENEMY_2, test_game_data);
+  TEST_ASSERT_EQUAL_INT(MISSED, result);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_get_angle_between_two_points);
@@ -476,7 +523,7 @@ int main() {
   RUN_TEST(test_get_ship_planet_ID);
   RUN_TEST(test_can_ship_be_READY);
   RUN_TEST(test_can_ship_be_GOING_TO_PLANET);
-  RUN_TEST(test_is_ship_broken);
+  RUN_TEST(test_can_ship_be_BROKEN);
   RUN_TEST(test_can_ship_be_COLLECTING);
   RUN_TEST(test_can_ship_be_COLLECTED);
   RUN_TEST(test_can_ship_be_COLLECTING_WRONG_PLANET);
@@ -484,5 +531,6 @@ int main() {
   RUN_TEST(test_set_ship_FSM);
   RUN_TEST(test_get_ship_FSM);
   RUN_TEST(test_polar_to_cartesian_coordinates);
+  RUN_TEST(test_fire_on_enemy_ship);
   UNITY_END(); // stop unit testing
 }

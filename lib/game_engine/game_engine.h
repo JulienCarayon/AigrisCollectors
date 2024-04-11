@@ -8,6 +8,7 @@
 #include <constants.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,7 +34,7 @@ typedef enum {
   ATTACKER_SPEED = 3000
 } T_ships_speed;
 
-typedef enum { UNKNWOWN_SHIP, COLLECTOR, EXPLORER, ATTACKER } T_ship_type;
+typedef enum { UNKNOWN_SHIP, COLLECTOR, EXPLORER, ATTACKER } T_ship_type;
 
 typedef struct {
   uint16_t pos_X;
@@ -50,7 +51,7 @@ typedef enum {
   COLLECTING_WRONG_PLANET,
   PLANET_STOLEN,
   BROKEN,
-  UNKNWOWN,
+  UNKNOWN,
 } T_ship_FSM; // Advanced status of the planet
 
 typedef enum { DESTROYED, OUT_OF_RANGE, MISSED } T_fire_result;
@@ -137,7 +138,7 @@ T_point get_planet_position(T_planet planet);
 T_point get_base_position(T_base base);
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed);
-T_ship_type get_ship_type(uint8_t ship_id);
+// T_ship_type get_ship_type(uint8_t ship_id);
 
 bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data);
 
@@ -167,6 +168,6 @@ bool can_ship_be_COLLECTED(uint8_t ship_id, T_game_data *game_data);
 bool can_ship_be_COLLECTING_WRONG_PLANET(uint8_t ship_id,
                                          T_game_data *game_data);
 bool can_ship_be_PLANET_STOLEN(uint8_t ship_id, T_game_data *game_data);
-bool is_ship_broken(uint8_t ship_id, T_game_data *game_data);
+bool can_ship_be_BROKEN(uint8_t ship_id, T_game_data *game_data);
 
 #endif // GAME_ENGINE_H

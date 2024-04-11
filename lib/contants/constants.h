@@ -5,6 +5,8 @@
 
 // OS CONFIGURATION
 #define OS_DELAY 1
+#define OS_DELAY_FIRE 1000
+#define NB_SHIPS 8
 #define BUFFER_SIZE 30
 #define MAIN_TASK_SIZE 128
 #define TASKS_SIZES_COLLECTOR 1500
@@ -25,6 +27,18 @@
 
 #define COLLECTOR_1 (uint8_t)7
 #define COLLECTOR_2 (uint8_t)8
+
+#define ATTACKER_ENEMY_1 (uint8_t)9
+#define ATTACKER_ENEMY_2 (uint8_t)10
+#define ATTACKER_ENEMY_3 (uint8_t)11
+#define ATTACKER_ENEMY_4 (uint8_t)12
+#define ATTACKER_ENEMY_5 (uint8_t)13
+
+#define EXPLORER_ENEMY_1 (uint8_t)14
+#define EXPLORER_ENEMY_2 (uint8_t)15
+
+#define COLLECTOR_ENEMY_1 (uint8_t)16
+#define COLLECTOR_ENEMY_2 (uint8_t)17
 
 #define MAX_PLANETS_NUMBER 8
 #define SHIPS_NUMBER 9
@@ -49,7 +63,10 @@
 
 #define PLACE_HOLDER_FOLLOWING_MAX_SPEED 4000
 
-#define FIRE_DISTANCE 200
-#define OS_DELAY_FIRE 1000
+#define MAX_DISTANCE_ENEMY 500
+#define MAX_SHIPS_NUMBER 9
+#define MY_TEAM_ID 0
+#define FIRE_DISTANCE 5000 // Longueur de l'attaque en kilomètres
+#define BREAK_DISTANCE 200 // Distance à laquelle un vaisseau ennemi est détruit
 
 #endif // CONSTANTS_H
