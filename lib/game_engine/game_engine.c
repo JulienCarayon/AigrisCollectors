@@ -67,9 +67,9 @@ void explorer_manager(uint8_t explorer_id) {
     parse_base(answer_buffer, game_data);
 
     if (explorer_id == EXPLORER_1)
-      ship_following_collector(explorer_id, COLLECTOR_1);
+      ship_following_collector(explorer_id, COLLECTOR_1, LEFT);
     else if (explorer_id == EXPLORER_2)
-      ship_following_collector(explorer_id, COLLECTOR_2);
+      ship_following_collector(explorer_id, COLLECTOR_1, RIGHT);
     release_game_data_mutex();
 
     // memset(answer_buffer, 0, sizeof(answer_buffer));
@@ -80,12 +80,8 @@ void explorer_manager(uint8_t explorer_id) {
 void collector_manager(uint8_t collector_id) {
   while (1) {
     aquire_game_data_mutex();
-    // if (collector_id == COLLECTOR_1)
-    //   auto_collect_planet(COLLECTOR_1, game_data);
-    //  if (collector_id == COLLECTOR_1)
+
     auto_collect_planet(collector_id, game_data);
-    // os_delay(OS_DELAY + 20);
-    // auto_collect_planet(COLLECTOR_2, game_data);
 
     release_game_data_mutex();
     os_delay(OS_DELAY);
@@ -97,7 +93,15 @@ void attacker_manager(uint8_t attacker_id) {
     aquire_game_data_mutex();
 
     if (attacker_id == ATTACKER_1) {
-      ship_following_collector(attacker_id, COLLECTOR_1);
+      ship_following_collector(attacker_id, COLLECTOR_1, TOP_LEFT);
+    } else if (attacker_id == ATTACKER_2) {
+      ship_following_collector(attacker_id, COLLECTOR_1, TOP_RIGHT);
+    } else if (attacker_id == ATTACKER_3) {
+      ship_following_collector(attacker_id, COLLECTOR_1, BOTTOM_RIGHT);
+    } else if (attacker_id == ATTACKER_4) {
+      ship_following_collector(attacker_id, COLLECTOR_1, BOTTOM);
+    } else if (attacker_id == ATTACKER_5) {
+      ship_following_collector(attacker_id, COLLECTOR_1, BOTTOM_LEFT);
     }
 
     if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
@@ -147,8 +151,9 @@ T_point get_base_position(T_base base) {
 void go_to_point(uint8_t ship_id, T_point point) {
   T_ship ship = game_data->ships[ship_id];
   T_point ship_pos = get_ship_position(ship);
-  if (2 < abs(get_angle_between_two_points(ship_pos, point) -
-              game_data->ships[ship_id].angle)) {
+  if (MOVE_CMD_ANGLE_THRESHOLD <
+      abs(get_angle_between_two_points(ship_pos, point) -
+          game_data->ships[ship_id].angle)) {
     game_data->ships[ship_id].angle =
         get_angle_between_two_points(ship_pos, ship_pos);
     send_command(generate_command(
@@ -162,17 +167,11 @@ void go_to_planet(uint8_t ship_id, uint8_t planet_id) {
   T_planet planet = game_data->planets[planet_id];
   T_point planet_pos = get_planet_position(planet);
 
-  if (2 < abs(get_angle_between_two_points(ship_pos, planet_pos) -
-              game_data->ships[ship_id].angle)) {
+  if (MOVE_CMD_ANGLE_THRESHOLD <
+      abs(get_angle_between_two_points(ship_pos, planet_pos) -
+          game_data->ships[ship_id].angle)) {
     game_data->ships[ship_id].angle =
         get_angle_between_two_points(ship_pos, planet_pos);
-    // char buffer[20] = {'\0'};
-    // snprintf(buffer, sizeof(buffer), "ANGLE : %d : %d : %d\n",
-    //          abs(get_angle_between_two_points(ship_pos, planet_pos) -
-    //              game_data->ships[ship_id].angle),
-    //          game_data->ships[ship_id].angle);
-    // putsMutex(buffer);
-    // putsMutex("\n");
     game_data->ships[ship_id].angle =
         get_angle_between_two_points(ship_pos, planet_pos);
     send_command(generate_command(
@@ -184,8 +183,9 @@ void go_to_base(uint8_t ship_id, T_base base, T_ships_speed ship_speed) {
   T_ship ship = game_data->ships[ship_id];
   T_point ship_pos = get_ship_position(ship);
   T_point base_pos = get_base_position(base);
-  if (2 < abs(get_angle_between_two_points(ship_pos, base_pos) -
-              game_data->ships[ship_id].angle)) {
+  if (MOVE_CMD_ANGLE_THRESHOLD <
+      abs(get_angle_between_two_points(ship_pos, base_pos) -
+          game_data->ships[ship_id].angle)) {
     game_data->ships[ship_id].angle =
         get_angle_between_two_points(ship_pos, base_pos);
     send_command(generate_command(MOVE_CMD, ship_id,
@@ -308,23 +308,72 @@ void initialize_game_data(T_game_data *game_data) {
 }
 
 void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow_id,
-                 uint16_t follower_ship_speed) {
+                 uint16_t follower_ship_speed,
+                 T_follower_ship_direction relative_position) {
   T_ship follower_ship = game_data->ships[follower_ship_id];
   T_point follower_ship_pos = get_ship_position(follower_ship);
-  T_ship ship_to_follow = game_data->ships[ship_to_follow_id];
-  T_point ship_to_follow_pos = get_ship_position(ship_to_follow);
 
-  ship_to_follow_pos.pos_X = ship_to_follow_pos.pos_X + SHIP_FOLLOWER_OFFSET_X;
-  ship_to_follow_pos.pos_Y = ship_to_follow_pos.pos_Y + SHIP_FOLLOWER_OFFSET_Y;
+  T_ship ship_to_follow = game_data->ships[ship_to_follow_id];
+
+  T_point go_to_pos = polar_to_cartesian_coordinates(
+      ship_to_follow_id, DISTANCE_FOLLOWER_SHIP, relative_position, game_data);
+
+  uint16_t distance =
+      get_distance_between_two_points(follower_ship_pos, go_to_pos);
+
+  if (distance < FOLLOW_SHIP_SPEED_DISTANCE_THRESHOLD) {
+    follower_ship_speed = check_desired_ship_speed(
+        ship_to_follow_id, PLACE_HOLDER_FOLLOWING_MAX_SPEED);
+  } else {
+    follower_ship_speed =
+        check_desired_ship_speed(follower_ship_id,
+                                 PLACE_HOLDER_FOLLOWING_MAX_SPEED) -
+        250;
+  }
 
   send_command(generate_command(
       MOVE_CMD, follower_ship_id,
-      get_angle_between_two_points(follower_ship_pos, ship_to_follow_pos),
+      get_angle_between_two_points(follower_ship_pos, go_to_pos),
       follower_ship_speed));
 }
 
-void ship_following_collector(uint8_t ship_id, uint8_t collector_id) {
-  follow_ship(ship_id, collector_id, COLLECTOR_SPEED);
+T_ship_type get_ship_type(uint8_t ship_id) {
+  if (ship_id >= 0 && ship_id <= 4)
+    return ATTACKER;
+  else if (ship_id == 5 || ship_id == 6)
+    return EXPLORER;
+  else if (ship_id == 7 || ship_id == 8)
+    return COLLECTOR;
+}
+
+void ship_following_collector(uint8_t ship_id, uint8_t collector_id,
+                              T_follower_ship_direction relative_position) {
+  // TODO manage speed with get distance between two points
+
+  follow_ship(ship_id, collector_id, 1500, relative_position);
+}
+
+uint16_t degres_to_radian(uint16_t degres) { return degres * M_PI / 180.0; }
+
+T_point polar_to_cartesian_coordinates(uint8_t ship_id_to_follow,
+                                       uint16_t distance, uint16_t angle,
+                                       T_game_data *game_data) {
+  T_point cartesian_point;
+
+  uint16_t angle_rad = degres_to_radian(
+      get_angle_for_follower_ship(ship_id_to_follow, angle, game_data));
+
+  cartesian_point.pos_X =
+      game_data->ships[ship_id_to_follow].pos_X + (distance * cos(angle_rad));
+  cartesian_point.pos_Y =
+      game_data->ships[ship_id_to_follow].pos_Y + (distance * sin(angle_rad));
+
+  return cartesian_point;
+}
+
+uint16_t get_angle_for_follower_ship(uint8_t ship_id, uint16_t angle,
+                                     T_game_data *game_data) {
+  return ((angle + game_data->ships[ship_id].angle) % 360);
 }
 
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {

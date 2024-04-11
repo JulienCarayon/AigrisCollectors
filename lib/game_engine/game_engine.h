@@ -17,10 +17,23 @@ typedef enum { GO_TO_PLANET, GO_TO_SHIP, GO_TO_BASE } T_mode_direction;
 typedef enum { MOVE_CMD, FIRE_CMD, RADAR_CMD } T_command_type;
 
 typedef enum {
+  TOP = 0,
+  TOP_RIGHT = 315,
+  RIGHT = 270,
+  BOTTOM_RIGHT = 225,
+  BOTTOM = 180,
+  BOTTOM_LEFT = 135,
+  LEFT = 90,
+  TOP_LEFT = 45
+} T_follower_ship_direction;
+
+typedef enum {
   COLLECTOR_SPEED = 1000,
   EXPLORER_SPEED = 2000,
   ATTACKER_SPEED = 3000
 } T_ships_speed;
+
+typedef enum { COLLECTOR, EXPLORER, ATTACKER } T_ship_type;
 
 typedef struct {
   uint16_t pos_X;
@@ -92,15 +105,21 @@ void go_to_base(uint8_t ship_id, T_base base, T_ships_speed ship_speed);
 void go_to_point(uint8_t ship_id, T_point point);
 
 // follow ship functions
-void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow,
-                 uint16_t follower_ship_speed);
-void ship_following_collector(uint8_t ship_id, uint8_t collector_id);
+void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow_id,
+                 uint16_t follower_ship_speed,
+                 T_follower_ship_direction relative_position);
+void ship_following_collector(uint8_t ship_id, uint8_t collector_id,
+                              T_follower_ship_direction relative_position);
+T_point polar_to_cartesian_coordinates(uint8_t ship_id, uint16_t distance,
+                                       uint16_t angle, T_game_data *game_data);
 
 // Trigonometry functions
 uint16_t get_distance_between_two_points(T_point starting_point,
                                          T_point ending_point);
 uint16_t get_angle_between_two_points(T_point starting_point,
                                       T_point ending_point);
+uint16_t get_angle_for_follower_ship(uint8_t ship_id, uint16_t angle,
+                                     T_game_data *game_data);
 
 void show_planet(T_planet *planet);
 void initialize_game_data(T_game_data *game_data);
@@ -116,6 +135,7 @@ T_point get_planet_position(T_planet planet);
 T_point get_base_position(T_base base);
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed);
+T_ship_type get_ship_type(uint8_t ship_id);
 
 bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data);
 
