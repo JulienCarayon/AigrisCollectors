@@ -141,5 +141,5 @@ void getUsedStackSpace(os_thread_id thread_id) {
 
   char buff_size[40] = {0};
   sprintf(buff_size, "Used stack space : %ld\n", used_stack_size);
-  putsMutex(buff_size);
+  os_puts_mutex(buff_size);
 }
