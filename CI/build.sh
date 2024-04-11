@@ -78,7 +78,8 @@ if [ "$TEST_MODE" == "true" ]; then
     /tmp/misra-c < $1 >> "$1_$OUTPUT_FILE"
     echo "___end_______________"
 
-    sed -i 's/\\n/\'$'\n''/g' "$1_$OUTPUT_FILE"
+    # sed -i 's/\\n/\'$'\n''/g' "$1_$OUTPUT_FILE"
+    sed -i "s/\\n/\\$'\\n'/g" "$OUTPUT_FILE"
 
     # TODO :Filtrer les sauts de ligne et afficher les commentaires "//"
     # sed -i -E 's/\\n/\'$'\n''/g; s/\/\/.*$//; s/\/\*.*\*\///' "$1_$OUTPUT_FILE"
@@ -114,8 +115,9 @@ for file in $FILES; do
     /tmp/misra-c < "$file" >> "$OUTPUT_FILE"
     
     #Remplacement de "\n" --> saut de ligne
-    sed -i 's/\\n/\'$'\n''/g' "$OUTPUT_FILE"
-    
+    # sed -i 's/\\n/\'$'\n''/g' "$OUTPUT_FILE"
+    sed -i "s/\\n/\\$'\\n'/g" "$OUTPUT_FILE"
+
     OUTPUT_PDF="${file}_output.pdf"  
     #pandoc -f markdown "$OUTPUT_FILE" -o "$OUTPUT_PDF" 2>&1 | tee pandoc_error.log
     pandoc -f markdown "$OUTPUT_FILE" --variable geometry:"a3paper,landscape" -o "$OUTPUT_PDF" 2>&1 | tee pandoc_error.log
