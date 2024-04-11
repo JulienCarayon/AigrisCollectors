@@ -14,7 +14,9 @@ jobs:
     steps:
       - name: Install cppcheck
         run: sudo apt install cppcheck -y
-
+      - name: Install Python 3.9
+        run: sudo apt install python3.9 -y
+        
       - uses: actions/checkout@v3
 
       - name: Run build script
