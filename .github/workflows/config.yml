@@ -13,8 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install pandoc
-        run: sudo apt -y install pandoc
+      - name: Install pandoc and pdflatex
+        run: |
+          sudo apt update
+          sudo apt -y install pandoc texlive-latex-base
 
       - uses: actions/checkout@v3
 
