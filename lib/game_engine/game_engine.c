@@ -97,7 +97,7 @@ void attacker_manager(uint8_t attacker_id) {
     aquire_game_data_mutex();
 
     if (attacker_id == ATTACKER_1) {
-      ship_following_collector(attacker_id, COLLECTOR_1);
+      // ship_following_collector(attacker_id, COLLECTOR_1);
     }
 
     if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
@@ -311,20 +311,48 @@ void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow_id,
                  uint16_t follower_ship_speed) {
   T_ship follower_ship = game_data->ships[follower_ship_id];
   T_point follower_ship_pos = get_ship_position(follower_ship);
-  T_ship ship_to_follow = game_data->ships[ship_to_follow_id];
-  T_point ship_to_follow_pos = get_ship_position(ship_to_follow);
+  // T_ship ship_to_follow = game_data->ships[ship_to_follow_id];
+  // T_point ship_to_follow_pos = get_ship_position(ship_to_follow);
 
-  ship_to_follow_pos.pos_X = ship_to_follow_pos.pos_X + SHIP_FOLLOWER_OFFSET_X;
-  ship_to_follow_pos.pos_Y = ship_to_follow_pos.pos_Y + SHIP_FOLLOWER_OFFSET_Y;
+  // ship_to_follow_pos.pos_X = ship_to_follow_pos.pos_X +
+  // SHIP_FOLLOWER_OFFSET_X; ship_to_follow_pos.pos_Y = ship_to_follow_pos.pos_Y
+  // + SHIP_FOLLOWER_OFFSET_Y;
+
+  T_point go_to_pos =
+      polar_to_cartesian_coordinates(ship_to_follow_id, 2000, 315, game_data);
 
   send_command(generate_command(
       MOVE_CMD, follower_ship_id,
-      get_angle_between_two_points(follower_ship_pos, ship_to_follow_pos),
+      get_angle_between_two_points(follower_ship_pos, go_to_pos),
       follower_ship_speed));
 }
 
 void ship_following_collector(uint8_t ship_id, uint8_t collector_id) {
   follow_ship(ship_id, collector_id, COLLECTOR_SPEED);
+}
+
+uint16_t degres_to_radian(uint16_t degres) { return degres * M_PI / 180.0; }
+
+T_point polar_to_cartesian_coordinates(uint8_t ship_id_to_follow,
+                                       uint16_t distance, uint16_t angle,
+                                       T_game_data *game_data) {
+
+  T_point cartesian_point;
+
+  // Convert angle from degrees to radians
+  uint16_t angle_rad = get_angle(ship_id_to_follow, angle, game_data);
+  angle_rad = degres_to_radian(angle_rad);
+  // Calculate x and y coordinates
+  cartesian_point.pos_X =
+      game_data->ships[ship_id_to_follow].pos_X + (distance * cos(angle_rad));
+  cartesian_point.pos_Y =
+      game_data->ships[ship_id_to_follow].pos_Y + (distance * sin(angle_rad));
+
+  return cartesian_point;
+}
+
+uint16_t get_angle(uint8_t ship_id, uint16_t angle, T_game_data *game_data) {
+  return ((angle) + game_data->ships[ship_id].angle) % 360;
 }
 
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {

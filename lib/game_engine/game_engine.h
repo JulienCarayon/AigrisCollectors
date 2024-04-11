@@ -95,12 +95,15 @@ void go_to_point(uint8_t ship_id, T_point point);
 void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow,
                  uint16_t follower_ship_speed);
 void ship_following_collector(uint8_t ship_id, uint8_t collector_id);
+T_point polar_to_cartesian_coordinates(uint8_t ship_id, uint16_t distance,
+                                       uint16_t angle, T_game_data *game_data);
 
 // Trigonometry functions
 uint16_t get_distance_between_two_points(T_point starting_point,
                                          T_point ending_point);
 uint16_t get_angle_between_two_points(T_point starting_point,
                                       T_point ending_point);
+uint16_t get_angle(uint8_t ship_id, uint16_t angle, T_game_data *game_data);
 
 void show_planet(T_planet *planet);
 void initialize_game_data(T_game_data *game_data);
