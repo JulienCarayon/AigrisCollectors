@@ -33,7 +33,7 @@ typedef enum {
   ATTACKER_SPEED = 3000
 } T_ships_speed;
 
-typedef enum { COLLECTOR, EXPLORER, ATTACKER } T_ship_type;
+typedef enum { UNKNWOWN_SHIP, COLLECTOR, EXPLORER, ATTACKER } T_ship_type;
 
 typedef struct {
   uint16_t pos_X;
@@ -52,6 +52,8 @@ typedef enum {
   BROKEN,
   UNKNWOWN,
 } T_ship_FSM; // Advanced status of the planet
+
+typedef enum { DESTROYED, OUT_OF_RANGE, MISSED } T_fire_result;
 
 typedef struct {
   uint16_t team_ID;
@@ -144,6 +146,11 @@ void initialize_game_data(T_game_data *game_data);
 
 // Debug functions
 void show_planet(T_planet *planet);
+
+// Fire functions
+T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id,
+                                 T_game_data *game_data);
+;
 
 // FSM Functions
 T_ship_FSM get_ship_FSM(const uint8_t ship_id, const T_game_data *game_data);

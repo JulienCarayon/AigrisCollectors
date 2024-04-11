@@ -67,9 +67,9 @@ void explorer_manager(uint8_t explorer_id) {
     parse_base(answer_buffer, game_data);
 
     if (explorer_id == EXPLORER_1)
-      ship_following_collector(explorer_id, COLLECTOR_1, LEFT);
+      follow_ship(explorer_id, COLLECTOR_1, EXPLORER_SPEED, BOTTOM_RIGHT);
     else if (explorer_id == EXPLORER_2)
-      ship_following_collector(explorer_id, COLLECTOR_1, RIGHT);
+      follow_ship(explorer_id, COLLECTOR_2, EXPLORER_SPEED, BOTTOM_RIGHT);
     release_game_data_mutex();
 
     // memset(answer_buffer, 0, sizeof(answer_buffer));
@@ -93,15 +93,15 @@ void attacker_manager(uint8_t attacker_id) {
     aquire_game_data_mutex();
 
     if (attacker_id == ATTACKER_1) {
-      ship_following_collector(attacker_id, COLLECTOR_1, TOP_LEFT);
+      follow_ship(attacker_id, COLLECTOR_1, ATTACKER_SPEED, TOP_LEFT);
     } else if (attacker_id == ATTACKER_2) {
-      ship_following_collector(attacker_id, COLLECTOR_1, TOP_RIGHT);
+      follow_ship(attacker_id, COLLECTOR_1, ATTACKER_SPEED, TOP_RIGHT);
     } else if (attacker_id == ATTACKER_3) {
-      ship_following_collector(attacker_id, COLLECTOR_1, BOTTOM_RIGHT);
+      follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, TOP_LEFT);
     } else if (attacker_id == ATTACKER_4) {
-      ship_following_collector(attacker_id, COLLECTOR_1, BOTTOM);
+      follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, TOP_RIGHT);
     } else if (attacker_id == ATTACKER_5) {
-      ship_following_collector(attacker_id, COLLECTOR_1, BOTTOM_LEFT);
+      // follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, BOTTOM_LEFT);
     }
 
     if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
@@ -313,7 +313,7 @@ void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow_id,
   T_ship follower_ship = game_data->ships[follower_ship_id];
   T_point follower_ship_pos = get_ship_position(follower_ship);
 
-  T_ship ship_to_follow = game_data->ships[ship_to_follow_id];
+  // T_ship ship_to_follow = game_data->ships[ship_to_follow_id];
 
   T_point go_to_pos = polar_to_cartesian_coordinates(
       ship_to_follow_id, DISTANCE_FOLLOWER_SHIP, relative_position, game_data);
@@ -344,6 +344,7 @@ T_ship_type get_ship_type(uint8_t ship_id) {
     return EXPLORER;
   else if (ship_id == 7 || ship_id == 8)
     return COLLECTOR;
+  return UNKNWOWN;
 }
 
 void ship_following_collector(uint8_t ship_id, uint8_t collector_id,
@@ -509,12 +510,17 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
     } else {
       go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
     }
+    if (is_ship_broken(ship_id, game_data) == false) {
+      set_ship_FSM(ship_id, READY, game_data);
+    }
   }
 
   else if (is_ship_broken(ship_id, game_data)) {
     set_ship_target_planet_ID(ship_id, -1, game_data);
     set_ship_FSM(ship_id, BROKEN, game_data);
-  } else {
+  }
+
+  else {
     set_ship_FSM(ship_id, UNKNWOWN, game_data);
     while (1) {
       os_puts_mutex("FSM : UNKNOWN STATE \n");
@@ -622,4 +628,35 @@ bool can_ship_be_PLANET_STOLEN(uint8_t ship_id, T_game_data *game_data) {
 
 bool is_ship_broken(uint8_t ship_id, T_game_data *game_data) {
   return game_data->ships[ship_id].broken == 1;
+}
+
+T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id,
+                                 T_game_data *game_data) {
+
+  while (!game_data->ships[enemy_ship_id].broken) {
+    uint16_t angle = get_angle_between_two_points(
+        get_ship_position(game_data->ships[attacker_id]),
+        get_ship_position(game_data->ships[enemy_ship_id]));
+
+    uint16_t distance = get_distance_between_two_points(
+        get_ship_position(game_data->ships[attacker_id]),
+        get_ship_position(game_data->ships[enemy_ship_id]));
+
+    if (distance <= FIRE_DISTANCE) {
+      send_command(generate_command(FIRE_CMD, attacker_id, angle, 0));
+      os_delay(OS_DELAY);
+
+      if (game_data->ships[enemy_ship_id].broken) {
+        // Fire_Result=1;
+        return DESTROYED;
+      }
+    } else {
+      // Fire_Result=2;
+      return OUT_OF_RANGE;
+    }
+
+    os_delay(OS_DELAY_FIRE);
+  }
+  // Fire_Result=3;
+  return MISSED;
 }
