@@ -93,7 +93,7 @@ void attacker_manager(uint8_t attacker_id) {
     aquire_game_data_mutex();
 
     if (attacker_id == ATTACKER_1) {
-      follow_ship(attacker_id, game_data->ships[COLLECTOR_1]);
+      follow_ship(attacker_id, game_data->ships[COLLECTOR_1], COLLECTOR_SPEED);
     }
 
     if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
@@ -293,7 +293,8 @@ void initialize_game_data(T_game_data *game_data) {
   game_data->base.pos_Y = 0;
 }
 
-void follow_ship(uint8_t follower_ship_id, T_ship ship_to_follow) {
+void follow_ship(uint8_t follower_ship_id, T_ship ship_to_follow,
+                 uint16_t follower_ship_speed) {
   T_ship follower_ship = game_data->ships[follower_ship_id];
   T_point follower_ship_pos = get_ship_position(follower_ship);
   T_point ship_to_follow_pos = get_ship_position(ship_to_follow);
@@ -304,7 +305,7 @@ void follow_ship(uint8_t follower_ship_id, T_ship ship_to_follow) {
   send_command(generate_command(
       MOVE_CMD, follower_ship_id,
       get_angle_between_two_points(follower_ship_pos, ship_to_follow_pos),
-      COLLECTOR_SPEED));
+      follower_ship_speed));
 }
 
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
