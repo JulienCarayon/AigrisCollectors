@@ -15,8 +15,11 @@ jobs:
       - name: Install cppcheck
         run: sudo apt install cppcheck -y
       - name: Install Python 3.9
-        run: sudo apt install python3.9 -y
-        
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa -y
+          sudo apt update
+          sudo apt install -y python3.9
+
       - uses: actions/checkout@v3
 
       - name: Run build script
