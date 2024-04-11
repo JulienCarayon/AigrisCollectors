@@ -31,7 +31,7 @@ for file in $files; do
     INCREMENT=$((100/TOTAL_FILES))
     CURRENT_PROGRESS=$((CURRENT_PROGRESS+INCREMENT))
     progress_bar "$CURRENT_PROGRESS"
-    OUTPUT_FILE="${file}_output.txt"
+    OUTPUT_FILE="${file}_MISRA.txt"
     OUTPUT_DUMP="${file}.dump"
     OUTPUT_CTU="${file}.ctu-info"
     > "$OUTPUT_FILE"

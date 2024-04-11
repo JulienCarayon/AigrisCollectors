@@ -94,6 +94,14 @@ typedef struct
   T_base base;
 } T_game_data;
 
+typedef enum
+{
+  NODE,
+  DESTROYED,
+  OUT_OF_RANGE,
+  MISSED
+} T_fire_result;
+
 extern uint8_t nb_planets;
 extern T_game_data game_data[NUMBER_OF_GAME_DATA];
 
