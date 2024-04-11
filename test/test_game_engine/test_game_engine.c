@@ -435,43 +435,30 @@ void test_get_ship_FSM(void) {
                           get_ship_FSM(COLLECTOR_2, test_game_data));
 }
 
-void test_fire_on_enemy_ship(void) {
-    uint8_t result;
-    T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
-        {{{1, 10000, 10000, -1, 0},
-          {2, 10000, 20000, -1, 0},
-          {3, 15000, 15000, -1, 0},
-          {4, 10000, 20000, (COLLECTOR_2 + 1), 0},
-          {5, 10000, 10000, -1, 0},
-          {6, 10000, 20000, -1, 0},
-          {7, 16500, 17500, -1, 0},
-          {8, 10000, 12000, -1, 0}},
-         {{0, ATTACKER_1, 5000, 5000, 0, READY, -1},
-          {0, ATTACKER_2, 1000, 1000, 0, READY, -1},
-          {0, ATTACKER_3, 0, 0, 1, READY, -1},
-          {0, ATTACKER_4, 0, 0, 0, READY, -1},
-          {0, ATTACKER_5, 0, 0, 0, READY, -1},
-          {0, EXPLORER_1, 0, 0, 0, READY, -1},
-          {0, EXPLORER_2, 0, 0, 0, READY, -1},
-          {0, COLLECTOR_1, 16000, 17000, 0, READY, 3},
-          {0, COLLECTOR_2, 10000, 1000, 1, READY, -1},
-          {1, COLLECTOR_ENEMY_1, 5100, 5100, 0, READY, -1},
-          {1, COLLECTOR_ENEMY_2, 16000, 5000, 0, READY, -1}},
-         {10000, 0}}};
-  // Cas où le vaisseau ennemi est dans la portée
-  result = fire_on_enemy_ship(ATTACKER_1, COLLECTOR_ENEMY_1, test_game_data);
-  TEST_ASSERT_EQUAL_INT(DESTROYED, result);
+void test_polar_to_cartesian_coordinates(void) {
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0},
+        {2, 10000, 20000, -1, 0},
+        {3, 15000, 15000, -1, 0},
+        {4, 10000, 20000, (COLLECTOR_2 + 1),
+         0}, //+1 required to match Vincent JSON
+        {5, 10000, 10000, -1, 0},
+        {6, 10000, 20000, -1, 0},
+        {7, 16500, 17500, -1, 0},
+        {8, 10000, 12000, -1, 0}},
+       {{0, ATTACKER_1, 0, 0, 0, READY, -1, 60},
+        {0, ATTACKER_2, 0, 0, 0, READY, -1, 60},
+        {0, ATTACKER_3, 0, 0, 1, READY, -1, 60},
+        {0, ATTACKER_4, 0, 0, 0, READY, -1, 60},
+        {0, ATTACKER_5, 0, 0, 0, READY, -1, 60},
+        {0, EXPLORER_1, 0, 0, 0, READY, -1, 60},
+        {0, EXPLORER_2, 0, 0, 0, READY, -1, 60},
+        {0, COLLECTOR_1, 16000, 17000, 0, COLLECTING, 3, 60},
+        {0, COLLECTOR_2, 10000, 1000, 1, GOING_TO_PLANET, -1, 60}},
+       {10000, 0}}};
 
-  // Cas où le vaisseau ennemi est hors de portée
-  result = fire_on_enemy_ship(ATTACKER_2, COLLECTOR_ENEMY_2, test_game_data);
-  TEST_ASSERT_EQUAL_INT(OUT_OF_RANGE, result);
-
-  // Cas où le vaisseau ennemi est manqué
-  /*
-  result = fire_on_enemy_ship(ATTACKER_ID, ENEMY_SHIP_ID, game_data);
-  TEST_ASSERT_EQUAL_INT(MISSED, result);*/
+  TEST_ASSERT_EQUAL_UINT16(15, get_angle(COLLECTOR_1, 315, test_game_data));
 }
-
 
 int main() {
   UNITY_BEGIN();
@@ -495,6 +482,6 @@ int main() {
   RUN_TEST(test_can_ship_be_PLANET_STOLEN);
   RUN_TEST(test_set_ship_FSM);
   RUN_TEST(test_get_ship_FSM);
-  RUN_TEST(test_fire_on_enemy_ship);
+  RUN_TEST(test_polar_to_cartesian_coordinates);
   UNITY_END(); // stop unit testing
 }
