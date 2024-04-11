@@ -6,17 +6,14 @@ on:
 
 env:
   DIRECTORY_TO_EXAMINE: lib
-  TEST_MODE: false
 
 jobs:
   run_build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install pandoc and pdflatex
-        run: |
-          sudo apt update
-          sudo apt -y install pandoc texlive-latex-base texlive-latex-extra
+      - name: Install cppcheck
+        run: sudo apt install cppcheck -y
 
       - uses: actions/checkout@v3
 
