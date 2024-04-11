@@ -4,26 +4,20 @@
 uint8_t nb_planets = 0;
 T_game_data game_data[NUMBER_OF_GAME_DATA];
 
-uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed)
-{
+uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed) {
   uint16_t speed = 0;
 
-  if ((ship_id >= ATTACKER_1) && (ship_id <= ATTACKER_5))
-  {
+  if ((ship_id >= ATTACKER_1) && (ship_id <= ATTACKER_5)) {
     if (desired_speed > ATTACKER_SPEED)
       speed = ATTACKER_SPEED;
     else
       speed = desired_speed;
-  }
-  else if (ship_id == EXPLORER_1 || ship_id == EXPLORER_2)
-  {
+  } else if (ship_id == EXPLORER_1 || ship_id == EXPLORER_2) {
     if (desired_speed > EXPLORER_SPEED)
       speed = EXPLORER_SPEED;
     else
       speed = desired_speed;
-  }
-  else if (ship_id == COLLECTOR_1 || ship_id == COLLECTOR_2)
-  {
+  } else if (ship_id == COLLECTOR_1 || ship_id == COLLECTOR_2) {
     if (desired_speed > COLLECTOR_SPEED)
       speed = COLLECTOR_SPEED;
     else
@@ -34,27 +28,23 @@ uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed)
 }
 
 char *generate_command(T_command_type command_type, uint8_t ship_id,
-                       uint16_t angle, uint16_t speed)
-{
+                       uint16_t angle, uint16_t speed) {
   static char command_buffer[BUFFER_SIZE];
 
-  switch (command_type)
-  {
+  switch (command_type) {
   case MOVE_CMD:
     speed = check_desired_ship_speed(ship_id, speed);
-    snprintf(command_buffer, BUFFER_SIZE, "MOVE %d %d %d\n", ship_id, angle,
+    snprintf(command_buffer, BUFFER_SIZE, "MOVE %d %d %d\n", ship_id + 1, angle,
              speed);
     break;
   case FIRE_CMD:
-    if (ship_id >= ATTACKER_1 && ship_id <= ATTACKER_5)
-    {
-      snprintf(command_buffer, BUFFER_SIZE, "FIRE %d %d\n", ship_id, angle);
+    if (ship_id >= ATTACKER_1 && ship_id <= ATTACKER_5) {
+      snprintf(command_buffer, BUFFER_SIZE, "FIRE %d %d\n", ship_id + 1, angle);
     }
     break;
   case RADAR_CMD:
-    if (ship_id == EXPLORER_1 || ship_id == EXPLORER_2)
-    {
-      snprintf(command_buffer, BUFFER_SIZE, "RADAR %d\n", ship_id);
+    if (ship_id == EXPLORER_1 || ship_id == EXPLORER_2) {
+      snprintf(command_buffer, BUFFER_SIZE, "RADAR %d\n", ship_id + 1);
     }
     break;
   }
@@ -62,13 +52,11 @@ char *generate_command(T_command_type command_type, uint8_t ship_id,
   return command_buffer;
 }
 
-void explorer_manager(uint8_t explorer_id)
-{
+void explorer_manager(uint8_t explorer_id) {
 
   static char answer_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
 
-  while (1)
-  {
+  while (1) {
     aquire_game_data_mutex();
 
     send_command_radar(generate_command(RADAR_CMD, EXPLORER_1, 0, 0),
@@ -85,40 +73,33 @@ void explorer_manager(uint8_t explorer_id)
   }
 }
 
-void collector_manager(uint8_t collector_id)
-{
-  while (1)
-  {
+void collector_manager(uint8_t collector_id) {
+  while (1) {
     aquire_game_data_mutex();
-
-    uint8_t planet_id = get_nearest_planet(COLLECTOR_1 - 1, game_data);
-
-    if (game_data->planets[planet_id].ship_ID != -1)
-    {
-      go_to_base(game_data->ships[COLLECTOR_1 - 1], game_data->base,
-                 COLLECTOR_SPEED);
-    }
-    else
-    {
-      go_to_planet(game_data->ships[COLLECTOR_1 - 1],
-                   game_data->planets[planet_id]);
-    }
+    // if (collector_id == COLLECTOR_1)
+    //   auto_collect_planet(COLLECTOR_1, game_data);
+    //  if (collector_id == COLLECTOR_1)
+    auto_collect_planet(collector_id, game_data);
+    // os_delay(OS_DELAY + 20);
+    // auto_collect_planet(COLLECTOR_2, game_data);
 
     release_game_data_mutex();
     os_delay(OS_DELAY);
   }
 }
 
-void attacker_manager(uint8_t id)
-{
-  while (1)
-  {
+void attacker_manager(uint8_t attacker_id) {
+  while (1) {
     aquire_game_data_mutex();
 
-    if (id == ATTACKER_1 || id == ATTACKER_2 || id == ATTACKER_3 ||
-        id == ATTACKER_4 || id == ATTACKER_5)
-    {
-      send_command(generate_command(FIRE_CMD, id, 90, 0));
+    if (attacker_id == ATTACKER_1) {
+      follow_ship(attacker_id, game_data->ships[COLLECTOR_1]);
+    }
+
+    if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
+        attacker_id == ATTACKER_3 || attacker_id == ATTACKER_4 ||
+        attacker_id == ATTACKER_5) {
+      send_command(generate_command(FIRE_CMD, attacker_id, 90, 0));
     }
 
     release_game_data_mutex();
@@ -127,15 +108,13 @@ void attacker_manager(uint8_t id)
 }
 
 uint16_t get_distance_between_two_points(T_point starting_point,
-                                         T_point ending_point)
-{
+                                         T_point ending_point) {
   return sqrt(pow(ending_point.pos_X - starting_point.pos_X, 2) +
               pow(ending_point.pos_Y - starting_point.pos_Y, 2));
 }
 
 uint16_t get_angle_between_two_points(T_point starting_point,
-                                      T_point ending_point)
-{
+                                      T_point ending_point) {
   double angle_radian = atan2(ending_point.pos_Y - starting_point.pos_Y,
                               ending_point.pos_X - starting_point.pos_X);
   int16_t angle_degree = (int16_t)(angle_radian * (180.0 / M_PI));
@@ -146,76 +125,78 @@ uint16_t get_angle_between_two_points(T_point starting_point,
   return (uint16_t)angle_degree;
 }
 
-T_point get_ship_position(T_ship ship)
-{
+T_point get_ship_position(T_ship ship) {
   T_point ship_pos = {ship.pos_X, ship.pos_Y};
   return ship_pos;
 }
 
-T_point get_planet_position(T_planet planet)
-{
+T_point get_planet_position(T_planet planet) {
   T_point planet_pos = {planet.pos_X, planet.pos_Y};
   return planet_pos;
 }
 
-T_point get_base_position(T_base base)
-{
+T_point get_base_position(T_base base) {
   T_point base_pos = {base.pos_X, base.pos_Y};
   return base_pos;
 }
 
-void go_to_point(T_ship ship, T_point point)
-{
+void go_to_point(uint8_t ship_id, T_point point) {
+  T_ship ship = game_data->ships[ship_id];
   T_point ship_pos = get_ship_position(ship);
 
-  send_command(generate_command(MOVE_CMD, ship.ship_ID,
+  send_command(generate_command(MOVE_CMD, ship_id,
                                 get_angle_between_two_points(ship_pos, point),
                                 ATTACKER_SPEED));
 }
 
-void go_to_planet(T_ship ship, T_planet planet)
-{
+void go_to_planet(uint8_t ship_id, uint8_t planet_id) {
+  T_ship ship = game_data->ships[ship_id];
   T_point ship_pos = get_ship_position(ship);
+  T_planet planet = game_data->planets[planet_id];
   T_point planet_pos = get_planet_position(planet);
 
   send_command(generate_command(
-      MOVE_CMD, ship.ship_ID,
-      get_angle_between_two_points(ship_pos, planet_pos), COLLECTOR_SPEED));
+      MOVE_CMD, ship_id, get_angle_between_two_points(ship_pos, planet_pos),
+      COLLECTOR_SPEED));
+
+  // if (ship_id == COLLECTOR_1) {
+  //   send_command(generate_command(
+  //       MOVE_CMD, ship_id, get_angle_between_two_points(ship_pos,
+  //       planet_pos), 400));
+  // } else if (ship_id == COLLECTOR_2) {
+  //   send_command(generate_command(
+  //       MOVE_CMD, ship_id, get_angle_between_two_points(ship_pos,
+  //       planet_pos), COLLECTOR_SPEED));
+  // }
 }
 
-void go_to_base(T_ship ship, T_base base, T_ships_speed ship_speed)
-{
+void go_to_base(uint8_t ship_id, T_base base, T_ships_speed ship_speed) {
+  T_ship ship = game_data->ships[ship_id];
   T_point ship_pos = get_ship_position(ship);
   T_point base_pos = get_base_position(base);
 
   send_command(generate_command(
-      MOVE_CMD, ship.ship_ID, get_angle_between_two_points(ship_pos, base_pos),
+      MOVE_CMD, ship_id, get_angle_between_two_points(ship_pos, base_pos),
       ship_speed));
 }
 
-void parse_game_data(char *answer_buffer, T_game_data *game_data)
-{
+void parse_game_data(char *answer_buffer, T_game_data *game_data) {
   // aquire_game_data_mutex();
   parse_planets(answer_buffer, game_data, &nb_planets);
   parse_ships(answer_buffer, game_data);
   parse_base(answer_buffer, game_data);
-  update_planet_collection_status(game_data);
   // release_game_data_mutex();
 }
 
 void parse_planets(const char *server_response, T_game_data *game_data,
-                   uint8_t *num_planets)
-{
+                   uint8_t *num_planets) {
   *num_planets = 0;
   const char *str = server_response;
   const char *delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);
 
-  while (delimiter != NULL)
-  {
-    if (*str == SERVER_RESPONSE_PLANET_DELIMITER)
-    {
-      if (*num_planets >= MAX_PLANETS_NUMBER)
-      {
+  while (delimiter != NULL) {
+    if (*str == SERVER_RESPONSE_PLANET_DELIMITER) {
+      if (*num_planets >= MAX_PLANETS_NUMBER) {
         break;
       }
       sscanf(str, "P %hu %hu %hu %hu %hu",
@@ -232,20 +213,15 @@ void parse_planets(const char *server_response, T_game_data *game_data,
   }
 }
 
-void parse_ships(const char *server_response, T_game_data *game_data)
-{
+void parse_ships(const char *server_response, T_game_data *game_data) {
   uint8_t num_ships = 0;
   const char *str = server_response;
   const char *delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);
 
-  while (delimiter != NULL)
-  {
-    if (*str == SERVER_RESPONSE_SHIP_DELIMITER)
-    {
-      if (num_ships >= SHIPS_NUMBER * NUMBER_OF_TEAM)
-      {
-        while (1)
-        {
+  while (delimiter != NULL) {
+    if (*str == SERVER_RESPONSE_SHIP_DELIMITER) {
+      if (num_ships >= SHIPS_NUMBER * NUMBER_OF_TEAM) {
+        while (1) {
           ;
         }
       }
@@ -262,8 +238,7 @@ void parse_ships(const char *server_response, T_game_data *game_data)
   }
 }
 
-void parse_base(const char *server_response, T_game_data *game_data)
-{
+void parse_base(const char *server_response, T_game_data *game_data) {
   const char *str_token;
   char *save_ptr;
   char server_response_copy[strlen(server_response) + 1];
@@ -271,10 +246,8 @@ void parse_base(const char *server_response, T_game_data *game_data)
 
   str_token =
       strtok_r(server_response_copy, SERVER_RESPONSE_DELIMITER, &save_ptr);
-  while (str_token != NULL)
-  {
-    if (str_token[0] == 'B')
-    {
+  while (str_token != NULL) {
+    if (str_token[0] == 'B') {
       sscanf(str_token, "B %hu %hu", &game_data->base.pos_X,
              &game_data->base.pos_Y);
     }
@@ -283,12 +256,10 @@ void parse_base(const char *server_response, T_game_data *game_data)
   }
 }
 
-void show_planet(T_planet *planet)
-{
+void show_planet(T_planet *planet) {
   char buffer[RX_COMMAND_BUFFER_SIZE];
 
-  for (uint8_t id = 0; id < nb_planets; id++)
-  {
+  for (uint8_t id = 0; id < nb_planets; id++) {
     sprintf(
         buffer,
         "planet_ID: %u, pos_X: %u, pos_Y: %u, ship_ID: %d, planet_saved: %u",
@@ -299,68 +270,70 @@ void show_planet(T_planet *planet)
   }
 }
 
-void initialize_game_data(T_game_data *game_data)
-{
-  for (int i = 0; i < MAX_PLANETS_NUMBER; i++)
-  {
+void initialize_game_data(T_game_data *game_data) {
+  for (int i = 0; i < MAX_PLANETS_NUMBER; i++) {
     game_data->planets[i].planet_ID = 0;
     game_data->planets[i].pos_X = 0;
     game_data->planets[i].pos_Y = 0;
-    game_data->planets[i].ship_ID = 0;
+    game_data->planets[i].ship_ID = -1;
     game_data->planets[i].planet_saved = 0;
-    game_data->planets[i].busy_ship_ID = -1;
-    game_data->planets[i].planet_status = FREE;
   }
 
-  for (int i = 0; i < SHIPS_NUMBER * NUMBER_OF_TEAM; i++)
-  {
+  for (int i = 0; i < SHIPS_NUMBER * NUMBER_OF_TEAM; i++) {
     game_data->ships[i].team_ID = 0;
     game_data->ships[i].ship_ID = 0;
     game_data->ships[i].pos_X = 0;
     game_data->ships[i].pos_Y = 0;
     game_data->ships[i].broken = 0;
+    game_data->ships[i].FSM = READY;
+    game_data->ships[i].target_planet_ID = -1;
   }
 
   game_data->base.pos_X = 0;
   game_data->base.pos_Y = 0;
 }
 
-void follow_ship(T_ship follower_ship, T_ship ship_to_follow)
-{
+void follow_ship(uint8_t follower_ship_id, T_ship ship_to_follow) {
+  T_ship follower_ship = game_data->ships[follower_ship_id];
   T_point follower_ship_pos = get_ship_position(follower_ship);
   T_point ship_to_follow_pos = get_ship_position(ship_to_follow);
 
   send_command(generate_command(
-      MOVE_CMD, follower_ship.ship_ID,
+      MOVE_CMD, follower_ship_id,
       get_angle_between_two_points(follower_ship_pos, ship_to_follow_pos),
       ATTACKER_SPEED));
 }
 
-uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data)
-{
+uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data) {
   uint16_t distance = 0;
   uint16_t distance_min = MAX_DISTANCE_BETWEEN_POINT;
   uint8_t planet_id_to_collect = 0;
 
-  for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER; planet_num++)
-  {
+  for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER; planet_num++) {
     if (game_data->planets[planet_num].planet_saved != 1 &&
-        game_data->planets[planet_num].planet_ID != 0)
-    {
+        game_data->planets[planet_num].planet_ID != 0) {
+      if (ship_id == COLLECTOR_1) {
+        if (game_data->ships[COLLECTOR_2].target_planet_ID != planet_num) {
+          distance = get_distance_between_two_points(
+              get_ship_position(game_data->ships[ship_id]),
+              get_planet_position(game_data->planets[planet_num]));
 
-      distance = get_distance_between_two_points(
-          get_ship_position(game_data->ships[ship_id]),
-          get_planet_position(game_data->planets[planet_num]));
+          if (distance < distance_min) {
+            distance_min = distance;
+            planet_id_to_collect = planet_num;
+          }
+        }
+      } else {
+        if (game_data->ships[COLLECTOR_1].target_planet_ID != planet_num) {
+          distance = get_distance_between_two_points(
+              get_ship_position(game_data->ships[ship_id]),
+              get_planet_position(game_data->planets[planet_num]));
 
-      // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
-      //        ship_id, planet_num);
-      if (distance < distance_min)
-      {
-        // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n",
-        // distance,
-        //        ship_num, planet_num);
-        distance_min = distance;
-        planet_id_to_collect = planet_num;
+          if (distance < distance_min) {
+            distance_min = distance;
+            planet_id_to_collect = planet_num;
+          }
+        }
       }
     }
   }
@@ -368,79 +341,216 @@ uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data)
   return planet_id_to_collect;
 }
 
-uint8_t get_nearest_planet_available(uint8_t ship_id, T_game_data *game_data)
-{
-  uint16_t distance = 0;
-  uint16_t distance_min = MAX_DISTANCE_BETWEEN_POINT;
-  uint8_t planet_id_to_collect = 0;
+int8_t get_planet_ID_from_ship(uint8_t ship_id, T_game_data *game_data) {
+  for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER; planet_num++) {
+    if (game_data->planets[planet_num].ship_ID == ship_id + 1) {
+      return planet_num;
+    }
+  }
+  return -1;
+}
 
-  for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER; planet_num++)
-  {
+void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
+  static int8_t collector_1_desired_target_planet_id;
+  static int8_t collector_2_desired_target_planet_id;
+  int8_t desired_target_planet_id;
+  if (ship_id == COLLECTOR_1) {
+    desired_target_planet_id = collector_1_desired_target_planet_id;
+  } else {
+    desired_target_planet_id = collector_2_desired_target_planet_id;
+  }
 
-    if (game_data->planets[planet_num].planet_status == FREE &&
-        game_data->planets[planet_num].planet_ID != 0)
-    {
+  if (get_ship_FSM(ship_id, game_data) == READY) {
+    desired_target_planet_id = get_nearest_planet(ship_id, game_data);
 
-      distance = get_distance_between_two_points(
-          get_ship_position(game_data->ships[ship_id - 1]),
-          get_planet_position(game_data->planets[planet_num]));
+    if (can_ship_be_GOING_TO_PLANET(ship_id, desired_target_planet_id,
+                                    game_data)) {
+      set_ship_FSM(ship_id, GOING_TO_PLANET, game_data);
+      set_ship_target_planet_ID(ship_id, desired_target_planet_id, game_data);
+    }
+  }
 
-      // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n", distance,
-      //        ship_id, planet_num);
-      if (distance < distance_min)
-      {
-        // printf("Distance / ship_id -> planet_id : %d / %d -> %d\n",
-        // distance,
-        //        ship_num, planet_num);
-        distance_min = distance;
-        planet_id_to_collect = planet_num;
+  else if (get_ship_FSM(ship_id, game_data) == GOING_TO_PLANET) {
+
+    if (can_ship_be_COLLECTING(ship_id, game_data)) {
+
+      // putsMutex("NOT HERE");
+      set_ship_FSM(ship_id, COLLECTING, game_data);
+    }
+
+    else if (can_ship_be_COLLECTING_WRONG_PLANET(ship_id, game_data)) {
+      set_ship_FSM(ship_id, COLLECTING_WRONG_PLANET, game_data);
+    }
+
+    else if (can_ship_be_PLANET_STOLEN(ship_id, game_data)) {
+      set_ship_FSM(ship_id, PLANET_STOLEN, game_data);
+    } else {
+      set_ship_target_planet_ID(ship_id, desired_target_planet_id, game_data);
+      go_to_planet(ship_id, desired_target_planet_id);
+    }
+  }
+
+  else if (get_ship_FSM(ship_id, game_data) == COLLECTING) {
+    // putsMutex("FSM : COLLECTING\n");
+    go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
+    if (can_ship_be_COLLECTED(ship_id, game_data)) {
+      set_ship_target_planet_ID(ship_id, -1, game_data);
+      set_ship_FSM(ship_id, READY, game_data);
+    }
+  }
+
+  else if (get_ship_FSM(ship_id, game_data) == COLLECTING_WRONG_PLANET) {
+
+    set_ship_target_planet_ID(
+        ship_id, get_planet_ID_from_ship(ship_id, game_data), game_data);
+    if (can_ship_be_COLLECTED(ship_id, game_data)) {
+      set_ship_FSM(ship_id, COLLECTED, game_data);
+    }
+
+    else if (can_ship_be_COLLECTING(ship_id, game_data)) {
+      set_ship_FSM(ship_id, COLLECTING, game_data);
+    } else {
+      go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
+    }
+  }
+
+  else if (get_ship_FSM(ship_id, game_data) == PLANET_STOLEN) {
+    set_ship_target_planet_ID(ship_id, -1, game_data);
+    if (can_ship_be_READY(ship_id, game_data)) {
+      set_ship_FSM(ship_id, READY, game_data);
+    } else {
+      while (1) {
+        // putsMutex("FSM : CANNOT TRANSITION TO READY STATE\n");
+        // os_delay(1000);
       }
     }
   }
-  return planet_id_to_collect;
-}
 
-void update_planet_collection_status(T_game_data *game_data)
-{
-  for (uint8_t planet_num = 0; planet_num < MAX_PLANETS_NUMBER; planet_num++)
-  {
-    if (game_data->planets[planet_num].planet_saved == 1) // Manages a planet that was collected
-    {
-      set_planet_collection_status(game_data->planets[planet_num].ship_ID, planet_num, COLLECTED, game_data); // -1 means no planet is currently on the planet
+  else if (get_ship_FSM(ship_id, game_data) == PLANET_STOLEN) {
+    if (can_ship_be_READY(ship_id, game_data)) {
+      set_ship_FSM(ship_id, READY, game_data);
+    } else {
+      go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
     }
+  }
 
-    else if (game_data->planets[planet_num].ship_ID != -1) // Manages a planet being collected
-    {
-      set_planet_collection_status(game_data->planets[planet_num].ship_ID, planet_num, COLLECTING, game_data);
+  else if (get_ship_FSM(ship_id, game_data) == BROKEN) {
+    if (can_ship_be_READY(ship_id, game_data)) {
+      set_ship_FSM(ship_id, READY, game_data);
+    } else {
+      go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
     }
-    else if (game_data->planets[planet_num].busy_ship_ID != -1 || game_data->planets[planet_num].planet_status != FREE) // Manages a busy planet with a destroyed ship
-    {
-      int8_t actual_busy_ship = game_data->planets[planet_num].busy_ship_ID;
-      if (game_data->ships[actual_busy_ship - 1].broken == 1)
-      {
-        set_planet_collection_status(-1, planet_num, FREE, game_data);
-      }
+  }
+
+  else if (is_ship_broken(ship_id, game_data)) {
+    set_ship_target_planet_ID(ship_id, -1, game_data);
+    set_ship_FSM(ship_id, BROKEN, game_data);
+  } else {
+    set_ship_FSM(ship_id, UNKNWOWN, game_data);
+    while (1) {
+      // putsMutex("FSM : UNKNOWN STATE \n");
+      // os_delay(1000);
     }
+  }
+  if (ship_id == COLLECTOR_1) {
+    collector_1_desired_target_planet_id = desired_target_planet_id;
+  } else {
+    collector_2_desired_target_planet_id = desired_target_planet_id;
   }
 }
 
-void set_planet_collection_status(int8_t ship_ID, uint8_t planet_num, T_planet_status planet_status, T_game_data *game_data)
-{
-  game_data->planets[planet_num].busy_ship_ID = ship_ID;
-  game_data->planets[planet_num].planet_status = planet_status;
+void set_ship_FSM(uint8_t ship_id, T_ship_FSM FSM_state,
+                  T_game_data *game_data) {
+  game_data->ships[ship_id].FSM = FSM_state;
 }
 
-void auto_collect_planet(uint8_t ship_id, T_game_data *game_data)
-{
-  uint8_t planet_id = get_nearest_planet_available(ship_id, game_data);
-  if (game_data->planets[planet_id].planet_status == FREE || game_data->planets[planet_id].planet_status == COLLECTING_INCOMING)
-  {
-    go_to_planet(game_data->ships[ship_id - 1],
-                 game_data->planets[planet_id]);
-    set_planet_collection_status(ship_id, planet_id, COLLECTING_INCOMING, game_data);
+T_ship_FSM get_ship_FSM(const uint8_t ship_id, const T_game_data *game_data) {
+  return game_data->ships[ship_id].FSM;
+}
+
+void set_ship_target_planet_ID(uint8_t ship_id, int8_t target_planet_id,
+                               T_game_data *game_data) {
+  game_data->ships[ship_id].target_planet_ID = target_planet_id;
+}
+
+bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data) {
+  if (game_data->ships[ship_id].target_planet_ID == -1 &&
+      is_ship_broken(ship_id, game_data) == false &&
+      get_planet_ID_from_ship(ship_id, game_data) == -1) {
+    return true;
+  } else {
+    return false;
   }
-  else if (game_data->planets[planet_id].planet_status == COLLECTING || game_data->ships[ship_id - 1].broken == 1)
-  {
-    go_to_base(game_data->ships[ship_id - 1], game_data->base, COLLECTOR_SPEED);
+}
+
+bool can_ship_be_GOING_TO_PLANET(uint8_t ship_id, int8_t desired_target_ID,
+                                 T_game_data *game_data) {
+  if (desired_target_ID != -1 && is_ship_broken(ship_id, game_data) == false &&
+      get_planet_ID_from_ship(ship_id, game_data) == -1) {
+    return true;
+  } else {
+    return false;
   }
+}
+
+bool can_ship_be_COLLECTING(uint8_t ship_id, T_game_data *game_data) {
+  if (game_data->ships[ship_id].target_planet_ID != -1 &&
+      get_planet_ID_from_ship(ship_id, game_data) ==
+          game_data->ships[ship_id].target_planet_ID &&
+      is_ship_broken(ship_id, game_data) == false) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool can_ship_be_COLLECTED(uint8_t ship_id, T_game_data *game_data) {
+
+  if (game_data->ships[ship_id].target_planet_ID != -1) {
+    uint8_t target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
+
+    if (game_data->planets[target_planet_id_copy].planet_saved == 1 &&
+        get_planet_ID_from_ship(ship_id, game_data) == -1 &&
+        is_ship_broken(ship_id, game_data) == false) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
+
+bool can_ship_be_COLLECTING_WRONG_PLANET(uint8_t ship_id,
+                                         T_game_data *game_data) {
+  if (game_data->ships[ship_id].target_planet_ID != -1 &&
+      get_planet_ID_from_ship(ship_id, game_data) !=
+          game_data->ships[ship_id].target_planet_ID &&
+      get_planet_ID_from_ship(ship_id, game_data) != -1 &&
+      is_ship_broken(ship_id, game_data) == false) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool can_ship_be_PLANET_STOLEN(uint8_t ship_id, T_game_data *game_data) {
+
+  if (game_data->ships[ship_id].target_planet_ID != -1) {
+    uint8_t target_planet_id_copy = game_data->ships[ship_id].target_planet_ID;
+    if (game_data->planets[target_planet_id_copy].ship_ID != (ship_id + 1) &&
+        game_data->planets[target_planet_id_copy].ship_ID != -1 &&
+        is_ship_broken(ship_id, game_data) == false) {
+      return true;
+    } else {
+      return false;
+    }
+
+  } else {
+    return false;
+  }
+}
+
+bool is_ship_broken(uint8_t ship_id, T_game_data *game_data) {
+  return game_data->ships[ship_id].broken == 1;
 }
