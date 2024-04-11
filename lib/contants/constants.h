@@ -63,4 +63,10 @@
 
 #define PLACE_HOLDER_FOLLOWING_MAX_SPEED 4000
 
+#define MAX_DISTANCE_ENEMY 500
+#define MAX_SHIPS_NUMBER 9
+#define MY_TEAM_ID 0
+#define FIRE_DISTANCE 5000 // Longueur de l'attaque en kilomètres
+#define BREAK_DISTANCE 200 // Distance à laquelle un vaisseau ennemi est détruit
+
 #endif // CONSTANTS_H

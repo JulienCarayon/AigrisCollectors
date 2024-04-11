@@ -66,12 +66,19 @@ void explorer_manager(uint8_t explorer_id) {
     parse_ships(answer_buffer, game_data);
     parse_base(answer_buffer, game_data);
 
-    if (explorer_id == EXPLORER_1)
-      ship_following_collector(explorer_id, COLLECTOR_1, LEFT);
-    else if (explorer_id == EXPLORER_2)
-      ship_following_collector(explorer_id, COLLECTOR_1, RIGHT);
-    release_game_data_mutex();
+    if (explorer_id == EXPLORER_1) {
+      if (can_ship_be_BROKEN(explorer_id, game_data)) {
+        go_to_base(explorer_id, game_data->base, EXPLORER_SPEED);
+      } else {
+        follow_ship(explorer_id, COLLECTOR_1, EXPLORER_SPEED, BOTTOM_RIGHT);
+      }
 
+    } else if (explorer_id == EXPLORER_2)
+      if (can_ship_be_BROKEN(explorer_id, game_data)) {
+        go_to_base(explorer_id, game_data->base, EXPLORER_SPEED);
+      } else {
+        follow_ship(explorer_id, COLLECTOR_2, EXPLORER_SPEED, BOTTOM_RIGHT);
+      }
     // memset(answer_buffer, 0, sizeof(answer_buffer));
     os_delay(OS_DELAY);
   }
@@ -93,15 +100,35 @@ void attacker_manager(uint8_t attacker_id) {
     aquire_game_data_mutex();
 
     if (attacker_id == ATTACKER_1) {
-      ship_following_collector(attacker_id, COLLECTOR_1, TOP_LEFT);
+      if (can_ship_be_BROKEN(attacker_id, game_data)) {
+        go_to_base(attacker_id, game_data->base, ATTACKER_SPEED);
+      } else {
+        follow_ship(attacker_id, COLLECTOR_1, ATTACKER_SPEED, TOP_LEFT);
+      }
     } else if (attacker_id == ATTACKER_2) {
-      ship_following_collector(attacker_id, COLLECTOR_1, TOP_RIGHT);
+      if (can_ship_be_BROKEN(attacker_id, game_data)) {
+        go_to_base(attacker_id, game_data->base, ATTACKER_SPEED);
+      } else {
+        follow_ship(attacker_id, COLLECTOR_1, ATTACKER_SPEED, TOP_RIGHT);
+      }
     } else if (attacker_id == ATTACKER_3) {
-      ship_following_collector(attacker_id, COLLECTOR_1, BOTTOM_RIGHT);
+      if (can_ship_be_BROKEN(attacker_id, game_data)) {
+        go_to_base(attacker_id, game_data->base, ATTACKER_SPEED);
+      } else {
+        follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, TOP_LEFT);
+      }
     } else if (attacker_id == ATTACKER_4) {
-      ship_following_collector(attacker_id, COLLECTOR_1, BOTTOM);
+      if (can_ship_be_BROKEN(attacker_id, game_data)) {
+        go_to_base(attacker_id, game_data->base, ATTACKER_SPEED);
+      } else {
+        follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, TOP_RIGHT);
+      }
     } else if (attacker_id == ATTACKER_5) {
-      ship_following_collector(attacker_id, COLLECTOR_1, BOTTOM_LEFT);
+      if (can_ship_be_BROKEN(attacker_id, game_data)) {
+        go_to_base(attacker_id, game_data->base, ATTACKER_SPEED);
+      } else {
+        follow_ship(attacker_id, COLLECTOR_2, ATTACKER_SPEED, BOTTOM_LEFT);
+      }
     }
 
     if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
@@ -342,6 +369,7 @@ T_ship_type get_ship_type(uint8_t ship_id) {
     return EXPLORER;
   else if (ship_id == 7 || ship_id == 8)
     return COLLECTOR;
+  return UNKNOWN_SHIP;
 }
 
 void ship_following_collector(uint8_t ship_id, uint8_t collector_id,
@@ -535,10 +563,13 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
     } else {
       go_to_base(ship_id, game_data->base, COLLECTOR_SPEED);
     }
+    if (can_ship_be_BROKEN(ship_id, game_data) == false) {
+      set_ship_FSM(ship_id, READY, game_data);
+    }
   }
 
   else {
-    set_ship_FSM(ship_id, UNKNWOWN, game_data);
+    set_ship_FSM(ship_id, UNKNOWN, game_data);
     while (1) {
       os_puts_mutex("FSM : UNKNOWN STATE \n");
       os_delay(1000);
@@ -577,7 +608,7 @@ T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id,
 
   if (distance <= FIRE_DISTANCE) {
     send_command(generate_command(FIRE_CMD, attacker_id, angle, 0));
-    os_delay(OS_DELAY_FIRE);
+    // os_delay(OS_DELAY_FIRE);
 
     if (game_data->ships[enemy_ship_id].broken) {
       return DESTROYED;
@@ -588,7 +619,7 @@ T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id,
     return OUT_OF_RANGE;
   }
 
-  os_delay(OS_DELAY_FIRE);
+  // os_delay(OS_DELAY_FIRE);
 }
 
 bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data) {

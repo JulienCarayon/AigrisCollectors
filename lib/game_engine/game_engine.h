@@ -5,19 +5,13 @@
 #define M_PI (3.14159265358979323846)
 #endif
 
-#define MAX_DISTANCE_ENEMY 500
-#define MAX_SHIPS_NUMBER 9
-#define MY_TEAM_ID 0
-#define FIRE_DISTANCE 5000 // Longueur de l'attaque en kilomètres
-#define BREAK_DISTANCE 200 // Distance à laquelle un vaisseau ennemi est détruit
-
 #include <constants.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
 
 typedef enum { GO_TO_PLANET, GO_TO_SHIP, GO_TO_BASE } T_mode_direction;
 
@@ -40,15 +34,14 @@ typedef enum {
   ATTACKER_SPEED = 3000
 } T_ships_speed;
 
-typedef enum { COLLECTOR, EXPLORER, ATTACKER } T_ship_type;
+typedef enum { UNKNOWN_SHIP, COLLECTOR, EXPLORER, ATTACKER } T_ship_type;
 
 typedef struct {
   uint16_t pos_X;
   uint16_t pos_Y;
 } T_point;
 
-typedef enum
-{
+typedef enum {
   // OK
   READY,
   GOING_TO_PLANET,
@@ -58,11 +51,12 @@ typedef enum
   COLLECTING_WRONG_PLANET,
   PLANET_STOLEN,
   BROKEN,
-  UNKNWOWN,
+  UNKNOWN,
 } T_ship_FSM; // Advanced status of the planet
 
-typedef struct
-{
+typedef enum { DESTROYED, OUT_OF_RANGE, MISSED } T_fire_result;
+
+typedef struct {
   uint16_t team_ID;
   uint16_t ship_ID;
   uint16_t pos_X;
@@ -73,8 +67,7 @@ typedef struct
   uint16_t angle;
 } T_ship;
 
-typedef struct
-{
+typedef struct {
   uint16_t planet_ID;
   uint16_t pos_X;
   uint16_t pos_Y;
@@ -82,26 +75,16 @@ typedef struct
   uint16_t planet_saved;
 } T_planet;
 
-typedef struct
-{
+typedef struct {
   uint16_t pos_X;
   uint16_t pos_Y;
 } T_base;
 
-typedef struct
-{
+typedef struct {
   T_planet planets[MAX_PLANETS_NUMBER];
   T_ship ships[SHIPS_NUMBER * NUMBER_OF_TEAM];
   T_base base;
 } T_game_data;
-
-typedef enum
-{
-  NODE,
-  DESTROYED,
-  OUT_OF_RANGE,
-  MISSED
-} T_fire_result;
 
 extern uint8_t nb_planets;
 extern T_game_data game_data[NUMBER_OF_GAME_DATA];
@@ -165,13 +148,18 @@ void initialize_game_data(T_game_data *game_data);
 // Debug functions
 void show_planet(T_planet *planet);
 
+// Fire functions
+T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id,
+                                 T_game_data *game_data);
+;
+
 // FSM Functions
 T_ship_FSM get_ship_FSM(const uint8_t ship_id, const T_game_data *game_data);
 void set_ship_FSM(uint8_t ship_id, T_ship_FSM FSM_state,
                   T_game_data *game_data);
 void set_ship_target_planet_ID(uint8_t ship_id, int8_t target_planet_id,
                                T_game_data *game_data);
-T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id, T_game_data *game_data);
+
 bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data);
 bool can_ship_be_GOING_TO_PLANET(uint8_t ship_id, int8_t desired_target_ID,
                                  T_game_data *game_data);
