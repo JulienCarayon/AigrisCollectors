@@ -19,5 +19,4 @@ jobs:
 
       - name: Run build script
         run: |
-          cd CI
-          sh build.sh
+          ./CI/build.sh
