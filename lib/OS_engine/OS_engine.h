@@ -9,7 +9,7 @@ extern bool is_comptetion_started;
 extern bool rx_command_received;
 extern char rx_command_buffer[RX_COMMAND_BUFFER_SIZE];
 
-void putsMutex(char *text);
+void os_puts_mutex(char *text);
 char *getsMutex(char *text);
 
 void os_delay(uint32_t os_delay);
