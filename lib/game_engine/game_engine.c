@@ -117,10 +117,10 @@ uint16_t get_distance_between_enemy_and_collectors(T_game_data *game_data, T_shi
   uint16_t min_distance = UINT16_MAX;
   T_point enemy_position = {enemy_ship.pos_X, enemy_ship.pos_Y};
 
-  for (int i = 0; i < nb_ships; i++)
+  for (int i = 0; i < NB_SHIPS; i++)
   {
     T_ship ship = game_data->ships[i];
-    if (ship.team_ID == COLLECTOR_1 || ship.team_ID == COLLECTOR_2)
+    if (ship.team_ID == (COLLECTOR_1 - 1) || ship.team_ID == (COLLECTOR_2 - 1))
     {
       T_point collector_position = {ship.pos_X, ship.pos_Y};
       uint16_t distance = get_distance_between_two_points(enemy_position, collector_position);
