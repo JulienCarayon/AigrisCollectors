@@ -16,7 +16,7 @@ jobs:
       - name: Install pandoc and pdflatex
         run: |
           sudo apt update
-          sudo apt -y install pandoc texlive-latex-base
+          sudo apt -y install pandoc texlive-latex-base texlive-latex-extra
 
       - uses: actions/checkout@v3
 
