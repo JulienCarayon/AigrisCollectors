@@ -473,6 +473,33 @@ void set_ship_target_planet_ID(uint8_t ship_id, int8_t target_planet_id,
   game_data->ships[ship_id].target_planet_ID = target_planet_id;
 }
 
+void fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id, T_game_data *game_data) {
+    while (!game_data->ships[enemy_ship_id].broken) {
+        uint16_t angle = get_angle_between_two_points(
+            get_ship_position(game_data->ships[attacker_id]),
+            get_ship_position(game_data->ships[enemy_ship_id])
+        );
+        
+        uint16_t distance = get_distance_between_two_points(
+            get_ship_position(game_data->ships[attacker_id]),
+            get_ship_position(game_data->ships[enemy_ship_id])
+        );
+
+        if (distance <= FIRE_DISTANCE) {
+            send_command(generate_command(FIRE_CMD, attacker_id, angle, 0));
+        }
+
+        if (game_data->ships[enemy_ship_id].broken) {
+            break;
+        }
+
+        if (distance > FIRE_DISTANCE) {
+            break;
+        }
+        os_delay(OS_DELAY_FIRE);
+    }
+}
+
 bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data) {
   if (game_data->ships[ship_id].target_planet_ID == -1 &&
       is_ship_broken(ship_id, game_data) == false &&
