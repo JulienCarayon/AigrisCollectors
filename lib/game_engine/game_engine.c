@@ -79,6 +79,7 @@ void explorer_manager(uint8_t explorer_id) {
       } else {
         follow_ship(explorer_id, COLLECTOR_2, EXPLORER_SPEED, BOTTOM_RIGHT);
       }
+    release_game_data_mutex();
     // memset(answer_buffer, 0, sizeof(answer_buffer));
     os_delay(OS_DELAY);
   }
