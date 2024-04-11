@@ -12,3 +12,5 @@ void os_delay(uint32_t os_delay) {}
 void aquire_game_data_mutex(void) {}
 
 void release_game_data_mutex(void) {}
+
+void os_puts_mutex(void) {}

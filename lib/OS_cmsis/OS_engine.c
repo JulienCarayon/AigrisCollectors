@@ -103,7 +103,7 @@ void send_command_radar(char *command, char *response_buffer) {
   osDelay(OS_DELAY);
 }
 
-void putsMutex(char *text) {
+void os_puts_mutex(char *text) {
   os_acquire_mutex(uart_mutex_id, osWaitForever);
   puts(text);
   os_release_mutex(uart_mutex_id);
@@ -121,7 +121,7 @@ uint32_t getFreeStackSpace(os_thread_id thread_id) {
   uint32_t stack_space = osThreadGetStackSpace(thread_id);
   char space[40] = {0};
   sprintf(space, "Free stack space : %ld\n", stack_space);
-  putsMutex(space);
+  os_puts_mutex(space);
 
   return stack_space;
 }
@@ -130,7 +130,7 @@ uint32_t getStackSize(os_thread_id thread_id) {
   uint32_t stack_size = osThreadGetStackSize(thread_id);
   char buff_size[40] = {0};
   sprintf(buff_size, "Stack size : %ld\n", stack_size);
-  putsMutex(buff_size);
+  os_puts_mutex(buff_size);
 
   return stack_size;
 }

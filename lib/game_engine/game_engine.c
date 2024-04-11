@@ -66,7 +66,10 @@ void explorer_manager(uint8_t explorer_id) {
     parse_ships(answer_buffer, game_data);
     parse_base(answer_buffer, game_data);
 
-    explorer_following_collector(explorer_id, COLLECTOR_1);
+    if (explorer_id == EXPLORER_1)
+      explorer_following_collector(explorer_id, COLLECTOR_1);
+    else if (explorer_id == EXPLORER_2)
+      explorer_following_collector(explorer_id, COLLECTOR_2);
     release_game_data_mutex();
 
     // memset(answer_buffer, 0, sizeof(answer_buffer));
@@ -430,8 +433,8 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
       set_ship_FSM(ship_id, READY, game_data);
     } else {
       while (1) {
-        // putsMutex("FSM : CANNOT TRANSITION TO READY STATE\n");
-        // os_delay(1000);
+        os_puts_mutex("FSM : CANNOT TRANSITION TO READY STATE\n");
+        os_delay(1000);
       }
     }
   }
@@ -458,8 +461,8 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
   } else {
     set_ship_FSM(ship_id, UNKNWOWN, game_data);
     while (1) {
-      // putsMutex("FSM : UNKNOWN STATE \n");
-      // os_delay(1000);
+      os_puts_mutex("FSM : UNKNOWN STATE \n");
+      os_delay(1000);
     }
   }
   if (ship_id == COLLECTOR_1) {
