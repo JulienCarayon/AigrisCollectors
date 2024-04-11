@@ -435,6 +435,31 @@ void test_get_ship_FSM(void) {
                           get_ship_FSM(COLLECTOR_2, test_game_data));
 }
 
+void test_polar_to_cartesian_coordinates(void) {
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {
+      {{{1, 10000, 10000, -1, 0},
+        {2, 10000, 20000, -1, 0},
+        {3, 15000, 15000, -1, 0},
+        {4, 10000, 20000, (COLLECTOR_2 + 1),
+         0}, //+1 required to match Vincent JSON
+        {5, 10000, 10000, -1, 0},
+        {6, 10000, 20000, -1, 0},
+        {7, 16500, 17500, -1, 0},
+        {8, 10000, 12000, -1, 0}},
+       {{0, ATTACKER_1, 0, 0, 0, READY, -1, 60},
+        {0, ATTACKER_2, 0, 0, 0, READY, -1, 60},
+        {0, ATTACKER_3, 0, 0, 1, READY, -1, 60},
+        {0, ATTACKER_4, 0, 0, 0, READY, -1, 60},
+        {0, ATTACKER_5, 0, 0, 0, READY, -1, 60},
+        {0, EXPLORER_1, 0, 0, 0, READY, -1, 60},
+        {0, EXPLORER_2, 0, 0, 0, READY, -1, 60},
+        {0, COLLECTOR_1, 16000, 17000, 0, COLLECTING, 3, 60},
+        {0, COLLECTOR_2, 10000, 1000, 1, GOING_TO_PLANET, -1, 60}},
+       {10000, 0}}};
+
+  TEST_ASSERT_EQUAL_UINT16(15, get_angle(COLLECTOR_1, 315, test_game_data));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_get_angle_between_two_points);
@@ -457,5 +482,6 @@ int main() {
   RUN_TEST(test_can_ship_be_PLANET_STOLEN);
   RUN_TEST(test_set_ship_FSM);
   RUN_TEST(test_get_ship_FSM);
+  RUN_TEST(test_polar_to_cartesian_coordinates);
   UNITY_END(); // stop unit testing
 }

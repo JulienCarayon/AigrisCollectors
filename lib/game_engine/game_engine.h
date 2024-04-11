@@ -33,6 +33,8 @@ typedef enum {
   ATTACKER_SPEED = 3000
 } T_ships_speed;
 
+typedef enum { COLLECTOR, EXPLORER, ATTACKER } T_ship_type;
+
 typedef struct {
   uint16_t pos_X;
   uint16_t pos_Y;
@@ -133,6 +135,7 @@ T_point get_planet_position(T_planet planet);
 T_point get_base_position(T_base base);
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed);
+T_ship_type get_ship_type(uint8_t ship_id);
 
 bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data);
 
