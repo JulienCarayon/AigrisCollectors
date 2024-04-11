@@ -8,24 +8,23 @@
 #define NB_SHIPS 8
 #define BUFFER_SIZE 30
 #define MAIN_TASK_SIZE 1024
-#define TASKS_SIZES 1024
-#define TASKS_SIZES_EXPLORER 2048
-#define RX_COMMAND_BUFFER_SIZE 800
+#define TASKS_SIZES 1224
+#define TASKS_SIZES_EXPLORER 2248
+#define RX_COMMAND_BUFFER_SIZE 800 // TODO increase at 857 MIN
 
 // GAME INFORMATIONS
-#define MAX_SPEED_CHEAT 10000
 
-#define ATTACKER_1 1
-#define ATTACKER_2 2
-#define ATTACKER_3 3
-#define ATTACKER_4 4
-#define ATTACKER_5 5
+#define ATTACKER_1 (uint8_t)1
+#define ATTACKER_2 (uint8_t)2
+#define ATTACKER_3 (uint8_t)3
+#define ATTACKER_4 (uint8_t)4
+#define ATTACKER_5 (uint8_t)5
 
-#define EXPLORER_1 6
-#define EXPLORER_2 7
+#define EXPLORER_1 (uint8_t)6
+#define EXPLORER_2 (uint8_t)7
 
-#define COLLECTOR_1 8
-#define COLLECTOR_2 9
+#define COLLECTOR_1 (uint8_t)8
+#define COLLECTOR_2 (uint8_t)9
 
 #define MAX_PLANETS_NUMBER 8
 #define SHIPS_NUMBER 9

@@ -24,7 +24,8 @@ T_game_data game_data[NUMBER_OF_GAME_DATA] = {{{{1, 10000, 20000, -1, 0},
 void setUp(void) {}
 void tearDown(void) {}
 
-void test_get_angle_between_two_points(void) {
+void test_get_angle_between_two_points(void)
+{
   T_point point_A;
   point_A.pos_X = 5000;
   point_A.pos_Y = 11000;
@@ -36,7 +37,8 @@ void test_get_angle_between_two_points(void) {
   TEST_ASSERT_EQUAL_INT(get_angle_between_two_points(point_A, point_B), 349);
 }
 
-void test_get_distance_between_two_points(void) {
+void test_get_distance_between_two_points(void)
+{
   T_point point_A;
   point_A.pos_X = 5000;
   point_A.pos_Y = 11000;
@@ -47,11 +49,6 @@ void test_get_distance_between_two_points(void) {
 
   TEST_ASSERT_EQUAL_INT(get_distance_between_two_points(point_A, point_B),
                         15620);
-}
-
-void test_explore(void) {
-  char *buffer = create_buffer(BUFFER_SIZE);
-  TEST_ASSERT_EQUAL_STRING(explore(7, buffer), "RADAR 7\n");
 }
 
 void test_planet_parsing(void) {
@@ -72,7 +69,8 @@ void test_planet_parsing(void) {
 
   TEST_ASSERT_EQUAL_INT(3, number_of_planets);
 
-  for (int i = 0; i < number_of_planets; i++) {
+  for (int i = 0; i < number_of_planets; i++)
+  {
     TEST_ASSERT_EQUAL_INT(expected_planets[i].planet_ID,
                           game_data->planets[i].planet_ID);
     TEST_ASSERT_EQUAL_INT(expected_planets[i].pos_X,
@@ -86,8 +84,6 @@ void test_planet_parsing(void) {
   }
 }
 
-void test_test(void) { TEST_ASSERT_EQUAL_UINT8(6, 6); }
-
 void test_ship_parsing(void) {
   const char *input = "P 495 10000 20000 -1 0,P 95 1000 200 -1 0,S 0 1 10000 "
                       "253 1,S 0 2 12000 53 "
@@ -98,13 +94,12 @@ void test_ship_parsing(void) {
                              {0, 3, 10, 13, 0},
                              {4, 4, 4, 4, 4}};
   T_game_data game_data[NUMBER_OF_GAME_DATA];
-  uint8_t number_of_ships = 0;
+  uint8_t number_of_ships = 4;
 
-  parse_ships(input, game_data, &number_of_ships);
+  parse_ships(input, game_data);
 
-  TEST_ASSERT_EQUAL_INT(4, number_of_ships);
-
-  for (int i = 0; i < number_of_ships; i++) {
+  for (int i = 0; i < number_of_ships; i++)
+  {
     TEST_ASSERT_EQUAL_INT(expected_ships[i].team_ID,
                           game_data->ships[i].team_ID);
     TEST_ASSERT_EQUAL_INT(expected_ships[i].ship_ID,
@@ -115,7 +110,8 @@ void test_ship_parsing(void) {
   }
 }
 
-void test_get_ship_position(void) {
+void test_get_ship_position(void)
+{
   T_ship ship = {0, 1, 1520, 11325, 0};
   T_point ship_pos = get_ship_position(ship);
   T_point exepected_ship_pos = {1520, 11325};
@@ -124,7 +120,8 @@ void test_get_ship_position(void) {
   TEST_ASSERT_EQUAL_INT(exepected_ship_pos.pos_Y, ship_pos.pos_Y);
 }
 
-void test_get_planet_position(void) {
+void test_get_planet_position(void)
+{
   T_planet planet = {495, 10000, 20000, -1, 0};
   T_point planet_pos = get_planet_position(planet);
   T_point exepected_planet_pos = {10000, 20000};
@@ -133,7 +130,8 @@ void test_get_planet_position(void) {
   TEST_ASSERT_EQUAL_INT(exepected_planet_pos.pos_Y, planet_pos.pos_Y);
 }
 
-void test_get_base_position(void) {
+void test_get_base_position(void)
+{
   T_base base = {10000, 0};
   T_point base_pos = get_base_position(base);
   T_point exepected_base_pos = {10000, 0};
@@ -142,7 +140,8 @@ void test_get_base_position(void) {
   TEST_ASSERT_EQUAL_INT(exepected_base_pos.pos_Y, base_pos.pos_Y);
 }
 
-void test_base_parsing(void) {
+void test_base_parsing(void)
+{
   const char *input =
       "P 495 10000 20000 -1 0,P 25 3040 40 -1 1,P 11113 15410 6100 7 0,S 0 1 "
       "10000 253 1,S 0 2 11500 0 0,S 0 3 8500 1546 0, S 0 4 13000 0 0, S 0 5 "
@@ -160,49 +159,103 @@ void test_base_parsing(void) {
   TEST_ASSERT_EQUAL_INT(expected_base.pos_Y, game_data->base.pos_Y);
 }
 
-void test_get_nearest_planet_available(void) {
-  // P {planet_id} {abscissa} {ordinate} {ship_id} {saved}
-  // S {team} {ship_id} {abscissa} {ordinate} {broken}
-  T_test expected_data = {0, 0, 20000};
-  T_test data = get_nearest_planet_available(game_data);
-
-  TEST_ASSERT_EQUAL_INT(200, data.distance);
-  TEST_ASSERT_EQUAL_INT(8, data.ship_id);
-  TEST_ASSERT_EQUAL_INT(7, data.planet_id);
-}
-
-void test_get_nearest_planet(void) {
+void test_get_nearest_planet(void)
+{
   uint16_t expected_nearest_planet_id = 7;
   uint16_t nearest_planet_id = get_nearest_planet(8, game_data);
   TEST_ASSERT_EQUAL_INT(expected_nearest_planet_id, nearest_planet_id);
 }
 
-void test_fire_on_enemy_ship(void) {
-  char command_buffer[BUFFER_SIZE];
-
-  uint8_t attacker_id = 1;
-  uint8_t target_id = 8;
-  fire_on_enemy_ship(attacker_id, target_id, game_data, command_buffer);
-  uint8_t is_broken = game_data->ships[target_id].broken;
-  TEST_ASSERT_TRUE(is_broken);
-
-  //TODO tester lorsque le vaisseau est hors de porté 
+void test_check_desired_ship_speed(void)
+{
+  uint16_t expected_speed = 1000;
+  uint16_t speed = check_desired_ship_speed(COLLECTOR_1, 1200);
+  TEST_ASSERT_EQUAL_INT(expected_speed, speed);
 }
 
-int main() {
+void test_set_planet_collection_status(void)
+{
+  uint8_t ship_ID = 1;
+  uint8_t planet_ID = 2;
+  set_planet_collection_status(ship_ID, planet_ID, COLLECTED, game_data);
+  TEST_ASSERT_EQUAL_INT(game_data->planets[planet_ID].busy_ship_ID, ship_ID);
+  TEST_ASSERT_EQUAL_INT(game_data->planets[planet_ID].planet_status, COLLECTED);
+}
+
+void test_update_planet_collection_status(void)
+{
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {{{{1, 10000, 20000, -1, 0, -1, FREE},
+                                                       {2, 10000, 20000, -1, 0, -1, FREE},
+                                                       {3, 10000, 20000, -1, 0, -1, FREE},
+                                                       {4, 10000, 20000, COLLECTOR_1, 0, -1, FREE},                         // Case where ship grabbed a planet, but planet status & busy_ship_ID aren't updated yet
+                                                       {5, 10000, 20000, -1, 0, COLLECTOR_2, COLLECTING},                   // Case where ship is destroyed while collecting a planet
+                                                       {6, 10000, 20000, -1, 0, COLLECTOR_2, COLLECTING_INCOMING},          // Case where ship is destroyed while going to collect a planet
+                                                       {7, 10000, 20000, COLLECTOR_1, 1, COLLECTOR_1, COLLECTING_INCOMING}, // Case where collector 1 collected a planet but planet status isn't updated yet
+                                                       {8, 10000, 12000, -1, 0, -1, FREE}},
+                                                      {{0, ATTACKER_1, 0, 0, 0},
+                                                       {0, ATTACKER_2, 0, 0, 0},
+                                                       {0, ATTACKER_3, 0, 0, 0},
+                                                       {0, ATTACKER_4, 0, 0, 0},
+                                                       {0, ATTACKER_5, 0, 0, 0},
+                                                       {0, EXPLORER_1, 0, 0, 0},
+                                                       {0, EXPLORER_2, 0, 0, 0},
+                                                       {0, COLLECTOR_1, 10000, 10000, 0},
+                                                       {0, COLLECTOR_2, 10000, 1000, 1}},
+                                                      {10000, 0}}};
+  update_planet_collection_status(test_game_data);
+  TEST_ASSERT_EQUAL_INT(COLLECTOR_1, test_game_data->planets[3].busy_ship_ID); // PLANET 4
+  TEST_ASSERT_EQUAL_INT(COLLECTING, test_game_data->planets[3].planet_status); // PLANET 4
+
+  TEST_ASSERT_EQUAL_INT(FREE, test_game_data->planets[4].planet_status); // PLANET 5
+  TEST_ASSERT_EQUAL_INT(-1, test_game_data->planets[4].busy_ship_ID);    // PLANET 5
+
+  TEST_ASSERT_EQUAL_INT(FREE, test_game_data->planets[5].planet_status); // PLANET 6
+  TEST_ASSERT_EQUAL_INT(-1, test_game_data->planets[5].busy_ship_ID);    // PLANET 6
+
+  TEST_ASSERT_EQUAL_INT(COLLECTED, test_game_data->planets[6].planet_status);                         // PLANET 7
+  TEST_ASSERT_EQUAL_INT(test_game_data->planets[6].ship_ID, test_game_data->planets[6].busy_ship_ID); // PLANET 7
+}
+
+void test_get_nearest_planet_available(void)
+{
+  T_game_data test_game_data[NUMBER_OF_GAME_DATA] = {{{{1, 10000, 10000, -1, 0, -1, FREE},
+                                                       {2, 10000, 20000, -1, 0, -1, FREE},
+                                                       {3, 15000, 15000, -1, 0, -1, FREE},
+                                                       {4, 10000, 20000, COLLECTOR_1, 0, -1, FREE},                         // Case where ship grabbed a planet, but planet status & busy_ship_ID aren't updated yet
+                                                       {5, 10000, 10000, -1, 0, COLLECTOR_2, COLLECTING},                   // Case where ship is destroyed while collecting a planet
+                                                       {6, 10000, 20000, -1, 0, COLLECTOR_2, COLLECTING_INCOMING},          // Case where ship is destroyed while going to collect a planet
+                                                       {7, 16500, 17500, COLLECTOR_1, 1, COLLECTOR_1, COLLECTING_INCOMING}, // Case where collector 1 collected a planet but planet status isn't updated yet
+                                                       {8, 10000, 12000, -1, 0, -1, FREE}},
+                                                      {{0, ATTACKER_1, 0, 0, 0},
+                                                       {0, ATTACKER_2, 0, 0, 0},
+                                                       {0, ATTACKER_3, 0, 0, 0},
+                                                       {0, ATTACKER_4, 0, 0, 0},
+                                                       {0, ATTACKER_5, 0, 0, 0},
+                                                       {0, EXPLORER_1, 0, 0, 0},
+                                                       {0, EXPLORER_2, 0, 0, 0},
+                                                       {0, COLLECTOR_1, 16000, 17000, 0},
+                                                       {0, COLLECTOR_2, 10000, 1000, 1}},
+                                                      {10000, 0}}};
+
+  update_planet_collection_status(test_game_data);
+  TEST_ASSERT_EQUAL_INT(2, get_nearest_planet_available(COLLECTOR_1, test_game_data)); // PLANET 3 EVEN IF PLANET 7 IS NEARER BUT BUSY
+}
+
+int main()
+{
   UNITY_BEGIN();
-  RUN_TEST(test_test);
   RUN_TEST(test_get_angle_between_two_points);
   RUN_TEST(test_get_distance_between_two_points);
-  RUN_TEST(test_explore);
   RUN_TEST(test_planet_parsing);
   RUN_TEST(test_ship_parsing);
   RUN_TEST(test_get_ship_position);
   RUN_TEST(test_get_planet_position);
   RUN_TEST(test_get_base_position);
   RUN_TEST(test_base_parsing);
-  RUN_TEST(test_get_nearest_planet_available);
   RUN_TEST(test_get_nearest_planet);
-  RUN_TEST(test_fire_on_enemy_ship);
+  RUN_TEST(test_check_desired_ship_speed);
+  RUN_TEST(test_set_planet_collection_status);
+  RUN_TEST(test_update_planet_collection_status);
+  RUN_TEST(test_get_nearest_planet_available);
   UNITY_END(); // stop unit testing
 }
