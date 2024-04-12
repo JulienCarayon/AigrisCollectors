@@ -59,7 +59,7 @@ void explorer_manager(uint8_t explorer_id) {
   while (1) {
     aquire_game_data_mutex();
 
-    send_command_radar(generate_command(RADAR_CMD, EXPLORER_1, 0, 0),
+    send_command_radar(generate_command(RADAR_CMD, explorer_id, 0, 0),
                        answer_buffer);
 
     parse_planets(answer_buffer, game_data, &nb_planets);
@@ -139,7 +139,7 @@ void attacker_manager(uint8_t attacker_id) {
       if (get_ship_FSM(attacker_id, game_data) == READY &&
           can_ship_be_BROKEN(attacker_id, game_data) == false) {
         fire_on_enemy_ship(attacker_id,
-                           find_nearest_enemy_ship_id(COLLECTOR_1, game_data),
+                           find_nearest_enemy_ship_id(attacker_id, game_data),
                            game_data);
       }
       // send_command(generate_command(FIRE_CMD, attacker_id, 90, 0));
@@ -604,20 +604,21 @@ void set_ship_target_planet_ID(uint8_t ship_id, int8_t target_planet_id,
   game_data->ships[ship_id].target_planet_ID = target_planet_id;
 }
 
-int8_t find_nearest_enemy_ship_id(uint8_t collector_id,
-                                  T_game_data *game_data) {
+int8_t find_nearest_enemy_ship_id(uint8_t attacker_id, T_game_data *game_data) {
   int8_t nearest_attacker_id = -1;
   uint16_t min_distance = MAX_DISTANCE_BETWEEN_POINT;
 
-  for (uint8_t ship_id = 9; ship_id <= 35; ship_id++) {
-    if (can_ship_be_BROKEN(ship_id, game_data) == false) {
+  for (uint8_t enemy_ship_id = 9; enemy_ship_id <= 35; enemy_ship_id++) {
+    // if (can_ship_be_BROKEN(enemy_ship_id, game_data) == false) {
+    if (game_data->ships[enemy_ship_id].pos_X != 0 &&
+        game_data->ships[enemy_ship_id].pos_Y != 0) {
       uint16_t distance = get_distance_between_two_points(
-          get_ship_position(game_data->ships[collector_id]),
-          get_ship_position(game_data->ships[ship_id]));
+          get_ship_position(game_data->ships[attacker_id]),
+          get_ship_position(game_data->ships[enemy_ship_id]));
 
       if (distance < min_distance) {
         min_distance = distance;
-        nearest_attacker_id = ship_id;
+        nearest_attacker_id = enemy_ship_id;
       }
     }
   }
@@ -642,8 +643,6 @@ T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id,
     if (game_data->ships[enemy_ship_id].broken) {
       return DESTROYED;
     }
-  } else if (game_data->ships[enemy_ship_id].broken) {
-    return MISSED;
   }
   return OUT_OF_RANGE;
 }
