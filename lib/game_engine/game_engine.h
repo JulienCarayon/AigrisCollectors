@@ -101,6 +101,7 @@ void parse_planets(const char *server_response, T_game_data *game_data,
 void parse_ships(const char *server_response, T_game_data *game_data);
 void parse_base(const char *server_response, T_game_data *game_data);
 void reset_undetected_enemy_ships(uint8_t num_ships, T_game_data *game_data);
+
 // Command functions
 char *generate_command(T_command_type command_type, uint8_t ship_id,
                        uint16_t angle, uint16_t speed);
@@ -128,10 +129,6 @@ uint16_t get_angle_for_follower_ship(uint8_t ship_id, uint16_t angle,
 void show_planet(T_planet *planet);
 void initialize_game_data(T_game_data *game_data);
 void auto_collect_planet(uint8_t ship_id, T_game_data *game_data);
-// void set_planet_collection_status(int8_t ship_ID, uint8_t planet_num,
-//                                   T_planet_status planet_status,
-//                                   T_game_data *game_data);
-// void update_planet_collection_status(T_game_data *game_data);
 
 int8_t get_planet_ID_from_ship(uint8_t ship_id, T_game_data *game_data);
 T_point get_ship_position(T_ship ship);
@@ -139,7 +136,6 @@ T_point get_planet_position(T_planet planet);
 T_point get_base_position(T_base base);
 uint8_t get_nearest_planet(uint8_t ship_id, T_game_data *game_data);
 uint16_t check_desired_ship_speed(uint8_t ship_id, uint16_t desired_speed);
-// T_ship_type get_ship_type(uint8_t ship_id);
 
 bool can_ship_be_READY(uint8_t ship_id, T_game_data *game_data);
 
@@ -152,7 +148,6 @@ void show_planet(T_planet *planet);
 // Fire functions
 T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id,
                                  T_game_data *game_data);
-;
 
 // FSM Functions
 T_ship_FSM get_ship_FSM(const uint8_t ship_id, const T_game_data *game_data);
@@ -170,8 +165,8 @@ bool can_ship_be_COLLECTING_WRONG_PLANET(uint8_t ship_id,
                                          T_game_data *game_data);
 bool can_ship_be_PLANET_STOLEN(uint8_t ship_id, T_game_data *game_data);
 bool can_ship_be_BROKEN(uint8_t ship_id, T_game_data *game_data);
-bool can_ship_be_FIRING(uint8_t ship_id, T_game_data *game_data);
 
 int8_t find_nearest_enemy_ship_id(uint8_t collector_id, T_game_data *game_data);
 void os_firing_timer_callback(uint8_t ship_id, T_game_data *game_data);
+
 #endif // GAME_ENGINE_H

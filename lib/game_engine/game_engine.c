@@ -143,7 +143,6 @@ void attacker_manager(uint8_t attacker_id) {
                            find_nearest_enemy_ship_id(attacker_id, game_data),
                            game_data);
       }
-      // send_command(generate_command(FIRE_CMD, attacker_id, 90, 0));
     }
 
     release_game_data_mutex();
@@ -227,14 +226,6 @@ void go_to_base(uint8_t ship_id, T_base base, T_ships_speed ship_speed) {
     send_command(generate_command(MOVE_CMD, ship_id,
                                   game_data->ships[ship_id].angle, ship_speed));
   }
-}
-
-void parse_game_data(char *answer_buffer, T_game_data *game_data) {
-  // aquire_game_data_mutex();
-  parse_planets(answer_buffer, game_data, &nb_planets);
-  parse_ships(answer_buffer, game_data);
-  parse_base(answer_buffer, game_data);
-  // release_game_data_mutex();
 }
 
 void parse_planets(const char *server_response, T_game_data *game_data,
@@ -357,11 +348,19 @@ void initialize_game_data(T_game_data *game_data) {
 void follow_ship(uint8_t follower_ship_id, uint8_t ship_to_follow_id,
                  uint16_t follower_ship_speed,
                  T_follower_ship_direction relative_position) {
+
+  uint16_t distance_follower_ship = 0;
+  if (follower_ship_id >= EXPLORER_1 && follower_ship_id <= EXPLORER_2) {
+    distance_follower_ship = EXPLORER_DISTANCE_FOLLOWER_SHIP;
+  } else {
+    distance_follower_ship = ATTACKER_DISTANCE_FOLLOWER_SHIP;
+  }
+
   T_ship follower_ship = game_data->ships[follower_ship_id];
   T_point follower_ship_pos = get_ship_position(follower_ship);
 
   T_point go_to_pos = polar_to_cartesian_coordinates(
-      ship_to_follow_id, DISTANCE_FOLLOWER_SHIP, relative_position, game_data);
+      ship_to_follow_id, distance_follower_ship, relative_position, game_data);
 
   uint16_t distance =
       get_distance_between_two_points(follower_ship_pos, go_to_pos);

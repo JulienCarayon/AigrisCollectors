@@ -37,14 +37,6 @@ os_timer_id os_timer_new(uint8_t ship_id, void *os_firing_timer_callback,
   return timer_id;
 }
 
-void os_timer_start(os_timer_id timer_id, uint32_t timer_delay) {
-  if (osTimerStart(timer_id, timer_delay) != osOK) {
-    while (1) {
-      os_puts_mutex("Timer could not be started\n");
-    }
-  }
-}
-
 void wait_start(void) {
   while (!is_comptetion_started) {
     osDelay(OS_DELAY);
@@ -55,19 +47,19 @@ os_mutex_id os_create_mutex(const os_mutex_attr mutex_attribute) {
   os_mutex_id uart_mutex = osMutexNew(&mutex_attribute);
 
   if (uart_mutex == NULL)
-    while (1)
-      ;
+    while (1) {
+      puts("ERRORS CREATE MUTEX\n");
+    }
 
   return uart_mutex;
 }
 
 void os_acquire_mutex(os_mutex_id mutex_id, uint32_t timeout) {
   osStatus_t aquire_status = osMutexAcquire(mutex_id, timeout);
-  // puts("AQUIRED MUTEX\n");
 
   if (aquire_status != osOK)
     while (1) {
-      puts("ERRORS ACQUIRE\n");
+      puts("ERRORS ACQUIRE MUTEX\n");
     }
 }
 
@@ -77,7 +69,7 @@ void os_release_mutex(os_mutex_id mutex_id) {
 
     if (release_status != osOK)
       while (1) {
-        puts("ERRORS RELEASE\n");
+        puts("ERRORS RELEASE MUTEX\n");
       }
   }
 }
