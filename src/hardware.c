@@ -11,7 +11,7 @@ static void MX_USART2_UART_Init(void);
 void Error_Handler(void);
 #define UART_RECEIVE_TIMEOUT (100) // ms
 
-#define TIMEOUT_COUNT 100000
+#define TIMEOUT_COUNT 1000000 // ADDED A 0
 
 void hardware_init(void) {
   HAL_Init();

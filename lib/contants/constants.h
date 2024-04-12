@@ -4,7 +4,7 @@
 #undef DEMO
 
 // OS CONFIGURATION
-#define OS_DELAY 3
+#define OS_DELAY 1
 #define OS_DELAY_FIRE 1000
 #define NB_SHIPS 8
 #define BUFFER_SIZE 30
