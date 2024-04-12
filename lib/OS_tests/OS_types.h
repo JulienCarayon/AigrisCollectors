@@ -13,6 +13,7 @@ typedef uint8_t os_mutex_id;
 typedef os_mutex_attr_t os_mutex_attr;
 
 typedef uint8_t os_thread_id;
+typedef uint8_t os_timer_id;
 
 typedef struct {
   uint16_t uint16_data_1;

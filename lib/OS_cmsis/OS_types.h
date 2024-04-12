@@ -7,6 +7,7 @@ typedef osMutexId_t os_mutex_id;
 typedef osMutexAttr_t os_mutex_attr;
 
 typedef osThreadId_t os_thread_id;
+typedef osTimerId_t os_timer_id;
 
 typedef struct {
   uint16_t uint16_data_1;

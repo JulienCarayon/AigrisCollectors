@@ -14,3 +14,5 @@ void aquire_game_data_mutex(void) {}
 void release_game_data_mutex(void) {}
 
 void os_puts_mutex(void) {}
+
+void os_firing_timer_start(os_timer_id timer_id, uint32_t ticks) {}

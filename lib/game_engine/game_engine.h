@@ -51,6 +51,7 @@ typedef enum {
   COLLECTING_WRONG_PLANET,
   PLANET_STOLEN,
   BROKEN,
+  COOLDOWN,
   UNKNOWN,
 } T_ship_FSM; // Advanced status of the planet
 
@@ -169,5 +170,8 @@ bool can_ship_be_COLLECTING_WRONG_PLANET(uint8_t ship_id,
                                          T_game_data *game_data);
 bool can_ship_be_PLANET_STOLEN(uint8_t ship_id, T_game_data *game_data);
 bool can_ship_be_BROKEN(uint8_t ship_id, T_game_data *game_data);
+bool can_ship_be_FIRING(uint8_t ship_id, T_game_data *game_data);
 
+int8_t find_nearest_enemy_ship_id(uint8_t collector_id, T_game_data *game_data);
+void os_firing_timer_callback(uint8_t ship_id, T_game_data *game_data);
 #endif // GAME_ENGINE_H

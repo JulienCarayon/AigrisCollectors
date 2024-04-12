@@ -12,6 +12,8 @@ char rx_command_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
 static os_mutex_id uart_mutex_id;
 static os_mutex_id game_data_mutex_id;
 
+uint32_t exec1; // argument for the timer call back function
+
 void os_engine_init(void) {
   const os_mutex_attr uart_mutex_attributes = {
       .name = "uartMutex", osMutexPrioInherit, NULL, 0U};
@@ -22,6 +24,26 @@ void os_engine_init(void) {
       .name = "dataMutex", osMutexPrioInherit, NULL, 0U};
 
   game_data_mutex_id = os_create_mutex(game_data_mutex_attributes);
+}
+
+os_timer_id os_timer_new(uint8_t ship_id, void *os_firing_timer_callback) {
+  os_timer_id timer_id =
+      osTimerNew(os_firing_timer_callback, osTimerOnce, &exec1, NULL);
+
+  if (!timer_id) {
+    while (1) {
+      os_puts_mutex("ERROR os_timer_new");
+    }
+  }
+  return timer_id;
+}
+
+void os_timer_start(os_timer_id timer_id, uint32_t timer_delay) {
+  if (osTimerStart(timer_id, timer_delay) != osOK) {
+    while (1) {
+      os_puts_mutex("Timer could not be started");
+    }
+  }
 }
 
 void wait_start(void) {
@@ -142,4 +164,12 @@ void getUsedStackSpace(os_thread_id thread_id) {
   char buff_size[40] = {0};
   sprintf(buff_size, "Used stack space : %ld\n", used_stack_size);
   os_puts_mutex(buff_size);
+}
+
+void os_firing_timer_start(os_timer_id timer_id, uint32_t ticks) {
+  if (osTimerStart(timer_id, ticks) != osOK) {
+    while (1) {
+      os_puts_mutex("ERROR os_firing_timer_start");
+    }
+  }
 }
