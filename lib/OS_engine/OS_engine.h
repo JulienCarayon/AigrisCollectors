@@ -24,7 +24,8 @@ void os_acquire_mutex(os_mutex_id mutex_id, uint32_t timeout);
 void os_release_mutex(os_mutex_id mutex_id);
 void os_firing_timer_start(os_timer_id timer_id, uint32_t ticks);
 void os_timer_start(os_timer_id timer_id, uint32_t timer_delay);
-os_timer_id os_timer_new(uint8_t ship_id, void *os_firing_timer_callback);
+os_timer_id os_timer_new(uint8_t ship_id, void *os_firing_timer_callback,
+                         uint8_t attacker_id, void *game_data);
 void release_game_data_mutex(void);
 void aquire_game_data_mutex(void);
 

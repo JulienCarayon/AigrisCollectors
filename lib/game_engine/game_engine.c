@@ -138,6 +138,7 @@ void attacker_manager(uint8_t attacker_id) {
         attacker_id == ATTACKER_5) {
       if (get_ship_FSM(attacker_id, game_data) == READY &&
           can_ship_be_BROKEN(attacker_id, game_data) == false) {
+
         fire_on_enemy_ship(attacker_id,
                            find_nearest_enemy_ship_id(attacker_id, game_data),
                            game_data);
@@ -283,6 +284,17 @@ void parse_ships(const char *server_response, T_game_data *game_data) {
 
     str = delimiter + 1;
     delimiter = strchr(str, SERVER_RESPONSE_DELIMITER[0]);
+  }
+  reset_undetected_enemy_ships(num_ships, game_data);
+}
+
+void reset_undetected_enemy_ships(uint8_t num_ships, T_game_data *game_data) {
+  for (uint8_t ship = num_ships; ship <= SHIPS_NUMBER * NUMBER_OF_TEAM;
+       ship++) {
+    game_data->ships[num_ships].ship_ID = 0;
+    game_data->ships[num_ships].pos_X = 0;
+    game_data->ships[num_ships].pos_Y = 0;
+    game_data->ships[num_ships].broken = 0;
   }
 }
 
@@ -554,6 +566,7 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
   }
 
   else if (get_ship_FSM(ship_id, game_data) == PLANET_STOLEN) {
+    set_ship_target_planet_ID(ship_id, -1, game_data);
     if (can_ship_be_READY(ship_id, game_data)) {
       set_ship_FSM(ship_id, READY, game_data);
     } else if (can_ship_be_BROKEN(ship_id, game_data)) {
@@ -638,7 +651,10 @@ T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id,
   if (distance <= FIRE_DISTANCE) {
     if (get_ship_FSM(attacker_id, game_data) == READY) {
       send_command(generate_command(FIRE_CMD, attacker_id, angle, 0));
-      set_ship_FSM(attacker_id, COOLDOWN, game_data);
+      // set_ship_FSM(attacker_id, COOLDOWN, game_data);
+      // os_timer_id attacker_timer_id = os_timer_new(
+      //     attacker_id, os_firing_timer_callback, attacker_id, game_data);
+      // os_firing_timer_start(attacker_timer_id, 1000);
     }
     if (game_data->ships[enemy_ship_id].broken) {
       return DESTROYED;

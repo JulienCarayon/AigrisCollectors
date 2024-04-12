@@ -12,8 +12,6 @@ char rx_command_buffer[RX_COMMAND_BUFFER_SIZE] = {0};
 static os_mutex_id uart_mutex_id;
 static os_mutex_id game_data_mutex_id;
 
-uint32_t exec1; // argument for the timer call back function
-
 void os_engine_init(void) {
   const os_mutex_attr uart_mutex_attributes = {
       .name = "uartMutex", osMutexPrioInherit, NULL, 0U};
@@ -26,13 +24,14 @@ void os_engine_init(void) {
   game_data_mutex_id = os_create_mutex(game_data_mutex_attributes);
 }
 
-os_timer_id os_timer_new(uint8_t ship_id, void *os_firing_timer_callback) {
-  os_timer_id timer_id =
-      osTimerNew(os_firing_timer_callback, osTimerOnce, &exec1, NULL);
+os_timer_id os_timer_new(uint8_t ship_id, void *os_firing_timer_callback,
+                         uint8_t attacker_id, void *game_data) {
+  os_timer_id timer_id = osTimerNew(os_firing_timer_callback, osTimerOnce,
+                                    &attacker_id, game_data);
 
   if (!timer_id) {
     while (1) {
-      os_puts_mutex("ERROR os_timer_new");
+      os_puts_mutex("ERROR os_timer_new\n");
     }
   }
   return timer_id;
@@ -41,7 +40,7 @@ os_timer_id os_timer_new(uint8_t ship_id, void *os_firing_timer_callback) {
 void os_timer_start(os_timer_id timer_id, uint32_t timer_delay) {
   if (osTimerStart(timer_id, timer_delay) != osOK) {
     while (1) {
-      os_puts_mutex("Timer could not be started");
+      os_puts_mutex("Timer could not be started\n");
     }
   }
 }
@@ -64,6 +63,7 @@ os_mutex_id os_create_mutex(const os_mutex_attr mutex_attribute) {
 
 void os_acquire_mutex(os_mutex_id mutex_id, uint32_t timeout) {
   osStatus_t aquire_status = osMutexAcquire(mutex_id, timeout);
+  // puts("AQUIRED MUTEX\n");
 
   if (aquire_status != osOK)
     while (1) {
@@ -72,12 +72,14 @@ void os_acquire_mutex(os_mutex_id mutex_id, uint32_t timeout) {
 }
 
 void os_release_mutex(os_mutex_id mutex_id) {
-  osStatus_t release_status = osMutexRelease(mutex_id);
+  if (osMutexGetOwner(mutex_id) != NULL) {
+    osStatus_t release_status = osMutexRelease(mutex_id);
 
-  if (release_status != osOK)
-    while (1) {
-      puts("ERRORS RELEASE\n");
-    }
+    if (release_status != osOK)
+      while (1) {
+        puts("ERRORS RELEASE\n");
+      }
+  }
 }
 
 void os_delay(uint32_t os_delay) { osDelay(OS_DELAY); }

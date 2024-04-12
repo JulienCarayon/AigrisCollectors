@@ -100,7 +100,7 @@ void parse_planets(const char *server_response, T_game_data *game_data,
                    uint8_t *num_planets);
 void parse_ships(const char *server_response, T_game_data *game_data);
 void parse_base(const char *server_response, T_game_data *game_data);
-
+void reset_undetected_enemy_ships(uint8_t num_ships, T_game_data *game_data);
 // Command functions
 char *generate_command(T_command_type command_type, uint8_t ship_id,
                        uint16_t angle, uint16_t speed);
