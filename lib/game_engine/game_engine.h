@@ -149,9 +149,9 @@ void initialize_game_data(T_game_data *game_data);
 void show_planet(T_planet *planet);
 
 // Fire functions
-T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id,
+T_fire_result fire_on_enemy_ship(uint8_t attacker_id, int8_t enemy_ship_id,
                                  T_game_data *game_data);
-;
+int8_t find_nearest_attacker(uint8_t collector_id, T_game_data *game_data);
 
 // FSM Functions
 T_ship_FSM get_ship_FSM(const uint8_t ship_id, const T_game_data *game_data);

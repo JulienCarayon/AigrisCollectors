@@ -135,7 +135,10 @@ void attacker_manager(uint8_t attacker_id) {
     if (attacker_id == ATTACKER_1 || attacker_id == ATTACKER_2 ||
         attacker_id == ATTACKER_3 || attacker_id == ATTACKER_4 ||
         attacker_id == ATTACKER_5) {
-      send_command(generate_command(FIRE_CMD, attacker_id, 90, 0));
+      // send_command(generate_command(FIRE_CMD, attacker_id, 90, 0));
+      fire_on_enemy_ship(attacker_id,
+                         find_nearest_attacker(COLLECTOR_1, game_data),
+                         game_data);
     }
 
     release_game_data_mutex();
@@ -597,8 +600,30 @@ void set_ship_target_planet_ID(uint8_t ship_id, int8_t target_planet_id,
   game_data->ships[ship_id].target_planet_ID = target_planet_id;
 }
 
-T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id,
+int8_t find_nearest_attacker(uint8_t collector_id, T_game_data *game_data) {
+  int8_t nearest_attacker_id = -1;
+  uint16_t min_distance = MAX_DISTANCE_BETWEEN_POINT;
+
+  for (uint8_t ship_id = 9; ship_id <= 36; ship_id++) {
+    if (!can_ship_be_BROKEN(ship_id, game_data)) {
+      uint16_t distance = get_distance_between_two_points(
+          get_ship_position(game_data->ships[collector_id]),
+          get_ship_position(game_data->ships[ship_id]));
+
+      if (distance < min_distance) {
+        min_distance = distance;
+        nearest_attacker_id = ship_id;
+      }
+    }
+  }
+  return nearest_attacker_id;
+}
+
+T_fire_result fire_on_enemy_ship(uint8_t attacker_id, int8_t enemy_ship_id,
                                  T_game_data *game_data) {
+  if (enemy_ship_id == -1) {
+    return OUT_OF_RANGE;
+  };
   uint16_t angle = get_angle_between_two_points(
       get_ship_position(game_data->ships[attacker_id]),
       get_ship_position(game_data->ships[enemy_ship_id]));
