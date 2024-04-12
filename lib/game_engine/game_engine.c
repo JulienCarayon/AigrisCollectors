@@ -90,6 +90,10 @@ void collector_manager(uint8_t collector_id) {
   while (1) {
     aquire_game_data_mutex();
 
+    if (collector_id == COLLECTOR_2) {
+      os_puts_mutex("I'M ALIVVEEEEEE\n");
+    }
+
     auto_collect_planet(collector_id, game_data);
 
     release_game_data_mutex();
