@@ -89,11 +89,6 @@ void explorer_manager(uint8_t explorer_id) {
 void collector_manager(uint8_t collector_id) {
   while (1) {
     aquire_game_data_mutex();
-
-    if (collector_id == COLLECTOR_2) {
-      os_puts_mutex("I'M ALIVVEEEEEE\n");
-    }
-
     auto_collect_planet(collector_id, game_data);
 
     release_game_data_mutex();
@@ -562,7 +557,7 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
 
     else {
       while (1) {
-        os_puts_mutex("FSM : CANNOT TRANSITION TO READY STATE\n");
+        puts("FSM : CANNOT TRANSITION TO READY STATE\n");
         os_delay(1000);
       }
     }
@@ -595,7 +590,7 @@ void auto_collect_planet(uint8_t ship_id, T_game_data *game_data) {
   else {
     set_ship_FSM(ship_id, UNKNOWN, game_data);
     while (1) {
-      os_puts_mutex("FSM : UNKNOWN STATE \n");
+      puts("FSM : UNKNOWN STATE \n");
       os_delay(1000);
     }
   }
@@ -654,10 +649,6 @@ T_fire_result fire_on_enemy_ship(uint8_t attacker_id, uint8_t enemy_ship_id,
   if (distance <= FIRE_DISTANCE) {
     if (get_ship_FSM(attacker_id, game_data) == READY) {
       send_command(generate_command(FIRE_CMD, attacker_id, angle, 0));
-      // set_ship_FSM(attacker_id, COOLDOWN, game_data);
-      // os_timer_id attacker_timer_id = os_timer_new(
-      //     attacker_id, os_firing_timer_callback, attacker_id, game_data);
-      // os_firing_timer_start(attacker_timer_id, 1000);
     }
     if (game_data->ships[enemy_ship_id].broken) {
       return DESTROYED;
@@ -746,10 +737,10 @@ bool can_ship_be_BROKEN(uint8_t ship_id, T_game_data *game_data) {
   return game_data->ships[ship_id].broken == 1;
 }
 
-void os_firing_timer_callback(uint8_t ship_id, T_game_data *game_data) {
-  if (can_ship_be_BROKEN(ship_id, game_data)) {
-    set_ship_FSM(ship_id, BROKEN, game_data);
-  } else {
-    set_ship_FSM(ship_id, READY, game_data);
-  }
-}
+// void os_firing_timer_callback(uint8_t ship_id, T_game_data *game_data) {
+//   if (can_ship_be_BROKEN(ship_id, game_data)) {
+//     set_ship_FSM(ship_id, BROKEN, game_data);
+//   } else {
+//     set_ship_FSM(ship_id, READY, game_data);
+//   }
+// }

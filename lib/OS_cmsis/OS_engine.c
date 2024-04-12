@@ -24,18 +24,18 @@ void os_engine_init(void) {
   game_data_mutex_id = os_create_mutex(game_data_mutex_attributes);
 }
 
-os_timer_id os_timer_new(uint8_t ship_id, void *os_firing_timer_callback,
-                         uint8_t attacker_id, void *game_data) {
-  os_timer_id timer_id = osTimerNew(os_firing_timer_callback, osTimerOnce,
-                                    &attacker_id, game_data);
+// os_timer_id os_timer_new(uint8_t ship_id, void *os_firing_timer_callback,
+//                          uint8_t attacker_id, void *game_data) {
+//   os_timer_id timer_id = osTimerNew(os_firing_timer_callback, osTimerOnce,
+//                                     &attacker_id, game_data);
 
-  if (!timer_id) {
-    while (1) {
-      os_puts_mutex("ERROR os_timer_new\n");
-    }
-  }
-  return timer_id;
-}
+//   if (!timer_id) {
+//     while (1) {
+//       os_puts_mutex("ERROR os_timer_new\n");
+//     }
+//   }
+//   return timer_id;
+// }
 
 void wait_start(void) {
   while (!is_comptetion_started) {
@@ -64,14 +64,22 @@ void os_acquire_mutex(os_mutex_id mutex_id, uint32_t timeout) {
 }
 
 void os_release_mutex(os_mutex_id mutex_id) {
-  if (osMutexGetOwner(mutex_id) != NULL) {
-    osStatus_t release_status = osMutexRelease(mutex_id);
+  // if (osMutexGetOwner(mutex_id) != NULL) {
+  osStatus_t release_status = osMutexRelease(mutex_id);
 
-    if (release_status != osOK)
-      while (1) {
-        puts("ERRORS RELEASE MUTEX\n");
-      }
-  }
+  if (release_status != osOK)
+    while (1) {
+      puts("ERRORS RELEASE MUTEX\n");
+      puts("uart :");
+      puts(uart_mutex_id);
+      puts("\n");
+      puts("uart :");
+      puts(game_data_mutex_id);
+      puts("\n");
+      puts(mutex_id);
+      puts("\n");
+    }
+  // }
 }
 
 void os_delay(uint32_t os_delay) { osDelay(OS_DELAY); }
@@ -91,16 +99,13 @@ void send_command(char *command) {
   if (strstr(rx_command_buffer, "OK") != NULL) {
     rx_command_received = false;
     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-    os_release_mutex(uart_mutex_id);
   } else if (strstr(rx_command_buffer, "KO") != NULL) {
     rx_command_received = false;
     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-    os_release_mutex(uart_mutex_id);
   } else {
     memset(rx_command_buffer, 0, sizeof(rx_command_buffer));
-    os_release_mutex(uart_mutex_id);
   }
-
+  os_release_mutex(uart_mutex_id);
   osDelay(OS_DELAY);
 }
 
@@ -160,10 +165,10 @@ void getUsedStackSpace(os_thread_id thread_id) {
   os_puts_mutex(buff_size);
 }
 
-void os_firing_timer_start(os_timer_id timer_id, uint32_t ticks) {
-  if (osTimerStart(timer_id, ticks) != osOK) {
-    while (1) {
-      os_puts_mutex("ERROR os_firing_timer_start");
-    }
-  }
-}
+// void os_firing_timer_start(os_timer_id timer_id, uint32_t ticks) {
+//   if (osTimerStart(timer_id, ticks) != osOK) {
+//     while (1) {
+//       os_puts_mutex("ERROR os_firing_timer_start");
+//     }
+//   }
+// }

@@ -27,6 +27,16 @@ int main(void) {
   };
 
   mainTaskHandle = osThreadNew(StartMainTask, NULL, &mainTask_attributes);
+
+  collectorTaskHandles_1 =
+      osThreadNew(StartCollectorTask_1, NULL, &collectorsTask_attributes);
+  collectorTaskHandles_2 =
+      osThreadNew(StartCollectorTask_2, NULL, &collectorsTask_attributes);
+  exploratorTaskHandles_1 =
+      osThreadNew(StartExploratorTask_1, NULL, &exploratorsTask_attributes);
+  exploratorTaskHandles_2 =
+      osThreadNew(StartExploratorTask_2, NULL, &exploratorsTask_attributes);
+
   attackerTaskHandles_1 =
       osThreadNew(StartAttackerTask_1, NULL, &attackersTask_attributes);
   attackerTaskHandles_2 =
@@ -37,14 +47,6 @@ int main(void) {
       osThreadNew(StartAttackerTask_4, NULL, &attackersTask_attributes);
   attackerTaskHandles_5 =
       osThreadNew(StartAttackerTask_5, NULL, &attackersTask_attributes);
-  exploratorTaskHandles_1 =
-      osThreadNew(StartExploratorTask_1, NULL, &exploratorsTask_attributes);
-  exploratorTaskHandles_2 =
-      osThreadNew(StartExploratorTask_2, NULL, &exploratorsTask_attributes);
-  collectorTaskHandles_1 =
-      osThreadNew(StartCollectorTask_1, NULL, &collectorsTask_attributes);
-  collectorTaskHandles_2 =
-      osThreadNew(StartCollectorTask_2, NULL, &collectorsTask_attributes);
 
   osKernelStart();
 }
@@ -57,6 +59,7 @@ void StartMainTask(void *argument) {
       if (strstr(rx_command_buffer, "START") != NULL) {
         is_comptetion_started = true;
         initialize_game_data(game_data);
+        // osThreadExit();
       }
     }
     osDelay(1);
